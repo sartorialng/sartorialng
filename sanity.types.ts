@@ -13,6 +13,19 @@
  */
 
 // Source: schema.json
+export type Review = {
+	_id: string;
+	_type: "review";
+	_createdAt: string;
+	_updatedAt: string;
+	_rev: string;
+	customerName?: string;
+	rating?: number;
+	comment?: string;
+	date?: string;
+	isApproved?: boolean;
+};
+
 export type Order = {
 	_id: string;
 	_type: "order";
@@ -125,17 +138,7 @@ export type Product = {
 	description?: BlockContent;
 	detailedDescription?: string;
 	price?: number;
-	colors?: Array<{
-		_id: string;
-		title: string;
-	}>;
-	// colors?: Array<{
-	// 	_ref: string;
-	// 	_type: "reference";
-	// 	_weak?: boolean;
-	// 	_key: string;
-	// 	[internalGroqTypeReferenceTo]?: "color";
-	// }>;
+	colors?: Array<{ _id: string; title: string }>;
 	categories?: Array<{
 		_ref: string;
 		_type: "reference";
@@ -270,6 +273,7 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
+	| Review
 	| Order
 	| BlockContent
 	| Category
@@ -458,6 +462,17 @@ export type FILTERED_PRODUCTS_QUERY_RESULT = Array<{
 	}> | null;
 }>;
 
+// Source: src/sanity/lib/product/getReviews.ts
+// Variable: ALL_REVIEWS_QUERY
+// Query: *[_type == "review" && isApproved == true] | order(date desc) {      _id,      customerName,      rating,      comment,      date    }
+export type ALL_REVIEWS_QUERY_RESULT = Array<{
+	_id: string;
+	customerName: string | null;
+	rating: number | null;
+	comment: string | null;
+	date: string | null;
+}>;
+
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {
@@ -468,5 +483,6 @@ declare module "@sanity/client" {
 		'\n    *[_type == "product" && isNewArrival == true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      price,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      images[]{ asset->{url}, alt },\n      colors[]->{\n        _id,\n        title\n      }\n    }\n  ': NEW_ARRIVALS_QUERY_RESULT;
 		'\n    *[_type == "product" && slug.current == $slug][0] {\n      _id,\n      name,\n      "slug": slug.current,\n      price,\n      stock,\n      description,\n      detailedDescription,\n      isBestSeller,\n      isNewArrival,\n      images[]{\n        alt,\n        asset->{url},\n        "color": color->{\n          _id,\n          title,\n          hex\n        }\n      },\n      colors[]->{\n        _id,\n        title,\n        hex\n      },\n      categories[]->{\n        _id,\n        name\n      }\n    }\n  ': PRODUCT_BY_SLUG_QUERY_RESULT;
 		'\n    *[_type == "product"  ] {\n      _id,\n      name,\n      "slug": slug.current,\n      price,\n      stock,\n      description,\n      detailedDescription,\n      isBestSeller,\n      isNewArrival,\n      images[]{\n        alt,\n        asset->{url},\n        "color": color->{\n          _id,\n          title,\n          hex\n        }\n      },\n      colors[]->{\n        _id,\n        title,\n        hex\n      },\n      categories[]->{\n        _id,\n        title,\n        "slug": slug.current\n      }\n    }\n  ': FILTERED_PRODUCTS_QUERY_RESULT;
+		'\n    *[_type == "review" && isApproved == true] | order(date desc) {\n      _id,\n      customerName,\n      rating,\n      comment,\n      date\n    }\n  ': ALL_REVIEWS_QUERY_RESULT;
 	}
 }

@@ -24,8 +24,6 @@ const BestSellers = () => {
 			.finally(() => setLoading(false));
 	}, []);
 
-	console.log(products);
-
 	return (
 		<div
 			className="w-full mt-10 px-6 md:px-20 py-10 bg-gray-50"

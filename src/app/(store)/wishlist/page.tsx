@@ -15,7 +15,12 @@ const WishList = () => {
 	const addItem = useBasketStore((s) => s.addItem);
 
 	const handleAddToCart = (product: Product) => {
-		addItem(product);
+		const colorToUse = product.colors?.[0];
+		if (!colorToUse) {
+			console.warn("Product has no colors");
+			return;
+		}
+		addItem(product, colorToUse);
 		removeFromWishlist(product._id);
 		toast.success(`${product.name} added to cart`);
 	};

@@ -29,7 +29,11 @@ export async function POST(request: Request) {
 		return NextResponse.json({ success: true, data });
 	} catch (error) {
 		return NextResponse.json(
-			{ error: "Failed to send email" },
+			{
+				error: "Failed to send email",
+				details:
+					error instanceof Error ? error.message : "Unknown error",
+			},
 			{ status: 500 },
 		);
 	}

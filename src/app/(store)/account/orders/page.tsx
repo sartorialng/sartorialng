@@ -8,6 +8,8 @@ import { SartorialBag } from "@/assets";
 import { urlFor } from "@/lib/imageUrl";
 import { useUser } from "@clerk/nextjs";
 import { getMyOrders } from "@/sanity/lib/product/getMyOrders";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type Order = {
 	_id: string;
@@ -42,12 +44,19 @@ type ProductImage = {
 };
 
 const MyOrders = () => {
-	const { user, isLoaded } = useUser();
+	const { user, isLoaded, isSignedIn } = useUser();
+	const router = useRouter();
+
 	const [orders, setOrders] = useState([]);
-	const [loading, setLoading] = useState(true);
+	const [fetchingData, setFetchingData] = useState(true);
 	const [activeTab, setActiveTab] = useState("ongoing");
 
 	useEffect(() => {
+		if (isLoaded && !isSignedIn) {
+			router.push("/");
+			return;
+		}
+
 		const fetchOrders = async () => {
 			if (user?.id) {
 				try {
@@ -56,12 +65,23 @@ const MyOrders = () => {
 				} catch (error) {
 					console.error("Error fetching orders:", error);
 				} finally {
-					setLoading(false);
+					setFetchingData(false);
 				}
 			}
 		};
-		fetchOrders();
-	}, [user?.id]);
+
+		if (isSignedIn) {
+			fetchOrders();
+		}
+	}, [isLoaded, isSignedIn, user?.id, router]);
+
+	if (!isLoaded) {
+		return (
+			<div className="min-h-screen flex items-center justify-center bg-gray-50">
+				<Loader2 className="w-10 h-10 animate-spin text-sartorial-green" />
+			</div>
+		);
+	}
 
 	const tabs = [
 		{ id: "ongoing", label: "Ongoing Order" },
@@ -73,6 +93,8 @@ const MyOrders = () => {
 			? order.status === "delivered"
 			: order.status !== "delivered",
 	);
+
+	if (!isSignedIn) return null;
 
 	return (
 		<div className="min-h-screen flex flex-col bg-gray-50">
@@ -112,7 +134,7 @@ const MyOrders = () => {
 						</div>
 					</div>
 
-					{!isLoaded || loading ? (
+					{fetchingData ? (
 						<div className="flex items-center justify-center">
 							<div className="animate-spin rounded-full h-16 w-16 border-b-2 border-sartorial-green mx-auto mb-4"></div>
 						</div>

@@ -86,7 +86,7 @@ const Footer = () => {
 			<div className="mt-10 text-white flex flex-col gap-4 items-center">
 				<span className="bg-gray-500 h-0.5 w-full"></span>
 				<p className="text-sm">
-					© 2026 Sartorial Store. All rights reserved.
+					© 2026 Sartorial. All rights reserved.
 				</p>
 			</div>
 		</div>

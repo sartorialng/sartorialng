@@ -110,7 +110,7 @@ const SuccessContent = () => {
 					{isSignedIn ? (
 						<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-4">
 							<Button className="px-8 h-11 bg-sartorial-green hover:bg-sartorial-green/90 rounded-full">
-								<Link href="/orders">View Order</Link>
+								<Link href="/account/orders">View Order</Link>
 							</Button>
 
 							<Button

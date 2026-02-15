@@ -3,11 +3,9 @@ import { FilterSidebar } from "@/components/layout/FilterSidebar";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import ProductCard from "@/components/layout/ProductCard";
-import { Button } from "@/components/ui/button";
 import { useBasketStore } from "@/store/store";
-import { ListFilter } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Product } from "../../../../sanity.types";
 import { getAllProducts } from "@/sanity/lib/product/getAllProducts";
 import { toast } from "sonner";
@@ -16,6 +14,8 @@ import CategoryHero from "@/components/sections/CategoryHero";
 import { getFilteredProducts } from "@/sanity/lib/product/getProductsByCategory";
 import { convertNGNtoUSD } from "@/lib/currency";
 import { categories, colors, priceRanges } from "@/data";
+import { SortByDropdownMobile } from "@/components/layout/SortByDropdownMobile";
+import { SortByDropdown } from "@/components/layout/SortByDropdown";
 
 const Category = () => {
 	const searchParams = useSearchParams();
@@ -27,6 +27,7 @@ const Category = () => {
 		[],
 	);
 	const [selectedColors, setSelectedColors] = useState<string[]>([]);
+	const [selectedSort, setSelectedSort] = useState("Alphabetically, A to Z");
 
 	const [products, setProducts] = useState<Product[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -61,29 +62,29 @@ const Category = () => {
 		setSelectedColors([]);
 	};
 
-	const filterByPriceRange = (allProducts: Product[]) => {
-		if (selectedPriceRanges.length === 0) return allProducts;
+	// const filterByPriceRange = (allProducts: Product[]) => {
+	// 	if (selectedPriceRanges.length === 0) return allProducts;
 
-		return allProducts.filter((product) => {
-			const priceInNGN = product.price || 0;
-			const priceInUSD = convertNGNtoUSD(priceInNGN);
+	// 	return allProducts.filter((product) => {
+	// 		const priceInNGN = product.price || 0;
+	// 		const priceInUSD = convertNGNtoUSD(priceInNGN);
 
-			return selectedPriceRanges.some((range) => {
-				switch (range) {
-					case "Under $25":
-						return priceInUSD < 25;
-					case "$25 - $50":
-						return priceInUSD >= 25 && priceInUSD <= 50;
-					case "$50 - $100":
-						return priceInUSD > 50 && priceInUSD <= 100;
-					case "Over $100":
-						return priceInUSD > 100;
-					default:
-						return false;
-				}
-			});
-		});
-	};
+	// 		return selectedPriceRanges.some((range) => {
+	// 			switch (range) {
+	// 				case "Under $25":
+	// 					return priceInUSD < 25;
+	// 				case "$25 - $50":
+	// 					return priceInUSD >= 25 && priceInUSD <= 50;
+	// 				case "$50 - $100":
+	// 					return priceInUSD > 50 && priceInUSD <= 100;
+	// 				case "Over $100":
+	// 					return priceInUSD > 100;
+	// 				default:
+	// 					return false;
+	// 			}
+	// 		});
+	// 	});
+	// };
 
 	useEffect(() => {
 		const fetchProducts = async () => {
@@ -125,7 +126,50 @@ const Category = () => {
 		}
 	}, [value]);
 
-	const filteredProducts = filterByPriceRange(products);
+	const filteredAndSortedProducts = useMemo(() => {
+		let filtered = products;
+
+		if (selectedPriceRanges.length > 0) {
+			filtered = products.filter((product) => {
+				const priceInNGN = product.price || 0;
+				const priceInUSD = convertNGNtoUSD(priceInNGN);
+
+				return selectedPriceRanges.some((range) => {
+					switch (range) {
+						case "Under $25":
+							return priceInUSD < 25;
+						case "$25 - $50":
+							return priceInUSD >= 25 && priceInUSD <= 50;
+						case "$50 - $100":
+							return priceInUSD > 50 && priceInUSD <= 100;
+						case "Over $100":
+							return priceInUSD > 100;
+						default:
+							return false;
+					}
+				});
+			});
+		}
+
+		const sorted = [...filtered];
+
+		switch (selectedSort) {
+			case "Alphabetically, A to Z":
+				return sorted.sort((a, b) =>
+					(a.name || "").localeCompare(b.name || ""),
+				);
+			case "Alphabetically, Z to A":
+				return sorted.sort((a, b) =>
+					(b.name || "").localeCompare(a.name || ""),
+				);
+			case "Price, Low to High":
+				return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+			case "Price, High to Low":
+				return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
+			default:
+				return sorted;
+		}
+	}, [products, selectedPriceRanges, selectedSort]);
 
 	return (
 		<div className="h-auto w-full bg-gray-50">
@@ -145,31 +189,25 @@ const Category = () => {
 						handleColorChange={handleColorChange}
 						clearAllFilters={clearAllFilters}
 					/>
-					<Button
-						variant="outline"
-						className="flex md:hidden items-center gap-4 rounded-sm border-2 border-sartorial-green bg-[#F1F3F4] px-8 py-5 text-sm font-medium text-sartorial-green hover:bg-[#e8eaeb] hover:text-sartorial-green"
-					>
-						<ListFilter className="h-8 w-8 stroke-[2.5px]" />
-						<span>Sort by</span>
-					</Button>
+					<SortByDropdownMobile
+						selectedSort={selectedSort}
+						setSelectedSort={setSelectedSort}
+					/>
 				</div>
 
 				<div className="w-full md:w-[80%]">
 					<div className="hidden md:flex justify-end mb-5">
-						<Button
-							variant="outline"
-							className="flex items-center gap-4 rounded-sm border-2 border-sartorial-green bg-[#F1F3F4] px-8 py-5 text-sm font-medium text-sartorial-green hover:bg-[#e8eaeb] hover:text-sartorial-green"
-						>
-							<ListFilter className="h-8 w-8 stroke-[2.5px]" />
-							<span>Sort by</span>
-						</Button>
+						<SortByDropdown
+							selectedSort={selectedSort}
+							setSelectedSort={setSelectedSort}
+						/>
 					</div>
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 						{loading
 							? Array.from({ length: 6 }).map((_, index) => (
 									<ProductCardSkeleton key={index} />
 								))
-							: filteredProducts.map((product) => {
+							: filteredAndSortedProducts.map((product) => {
 									const colorToUse = product.colors?.[0];
 
 									if (!colorToUse) {
@@ -194,7 +232,7 @@ const Category = () => {
 									);
 								})}
 					</div>
-					{!loading && filteredProducts.length === 0 && (
+					{!loading && filteredAndSortedProducts.length === 0 && (
 						<div className="text-center py-12">
 							<p className="text-gray-500 text-lg">
 								No products found matching your filters.

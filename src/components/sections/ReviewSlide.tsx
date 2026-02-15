@@ -10,51 +10,10 @@ import {
 import Image from "next/image";
 import { SartorialBabe } from "@/assets";
 import { motion, Variants } from "framer-motion";
-
-const reviews = [
-	{
-		id: 1,
-		rating: 5,
-		text: "Fast shipping and great packaging! My bag arrived in perfect condition. Will definitely order again!",
-		author: "Samantha R.",
-		date: "Feb 4, 2025",
-	},
-	{
-		id: 2,
-		rating: 4,
-		text: "Fast shipping and great packaging! My bag arrived in perfect condition. Will definitely order again!",
-		author: "Samantha R.",
-		date: "Feb 4, 2025",
-	},
-	{
-		id: 3,
-		rating: 4,
-		text: "Fast shipping and great packaging! My bag arrived in perfect condition. Will definitely order again!",
-		author: "Samantha R.",
-		date: "Feb 4, 2025",
-	},
-	{
-		id: 4,
-		rating: 4,
-		text: "Fast shipping and great packaging! My bag arrived in perfect condition. Will definitely order again!",
-		author: "Samantha R.",
-		date: "Feb 4, 2025",
-	},
-	{
-		id: 5,
-		rating: 4,
-		text: "Fast shipping and great packaging! My bag arrived in perfect condition. Will definitely order again!",
-		author: "Samantha R.",
-		date: "Feb 4, 2025",
-	},
-	{
-		id: 6,
-		rating: 4,
-		text: "Fast shipping and great packaging! My bag arrived in perfect condition. Will definitely order again!",
-		author: "Samantha R.",
-		date: "Feb 4, 2025",
-	},
-];
+import { useEffect, useState } from "react";
+import { getAllReviews } from "@/sanity/lib/product/getReviews";
+import { Review } from "../../../sanity.types";
+import { formatDate } from "@/lib/helper";
 
 const containerVariants: Variants = {
 	hidden: { opacity: 0 },
@@ -77,6 +36,17 @@ const imageVariants: Variants = {
 };
 
 const ReviewSlide = () => {
+	const [reviews, setReviews] = useState<Review[]>([]);
+	const [isReviewsLoading, setIsReviewsLoading] = useState(true);
+
+	useEffect(() => {
+		getAllReviews()
+			.then((data) => setReviews(data))
+			.finally(() => setIsReviewsLoading(false));
+	}, []);
+
+	console.log(reviews);
+
 	return (
 		<div className="w-full mt-10 px-4 md:px-20 py-10 bg-white">
 			<div className="flex flex-col items-center mb-10">
@@ -115,7 +85,7 @@ const ReviewSlide = () => {
 
 					{reviews.map((review) => (
 						<CarouselItem
-							key={review.id}
+							key={review._id}
 							className="pl-4 basis-full sm:basis-1/2 md:basis-1/4"
 						>
 							<div className="bg-sartorial-lightGreen p-6 rounded-sm h-80 flex flex-col justify-between text-[#1A3326]">
@@ -131,7 +101,7 @@ const ReviewSlide = () => {
 										)}
 									</div>
 									<p className="text-sm leading-relaxed font-medium">
-										{review.text}
+										{review.comment}
 									</p>
 								</div>
 
@@ -139,10 +109,12 @@ const ReviewSlide = () => {
 									<UserCircle2 className="w-6 h-6 text-sartorial-green" />
 									<div>
 										<p className="text-xs font-bold">
-											{review.author}
+											{review.customerName}
 										</p>
 										<p className="text-[12px]">
-											{review.date}
+											{formatDate(
+												review?.date ? review.date : "",
+											)}
 										</p>
 									</div>
 								</div>

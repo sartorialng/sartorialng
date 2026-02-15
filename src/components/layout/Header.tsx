@@ -15,23 +15,32 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useWishlistStore } from "@/store/useWishlistStore";
-import { ClerkLoaded, SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import {
+	ClerkLoaded,
+	SignInButton,
+	UserButton,
+	useUser,
+	useClerk,
+} from "@clerk/nextjs";
 import MobileHeaderLinks from "./MobileHeaderLinks";
-import { Button } from "../ui/button";
-import { toast } from "sonner";
 
 const Cart = dynamic(() => import("./Cart"), { ssr: false });
 
 const Header = () => {
 	const { user, isSignedIn } = useUser();
+	const { openSignIn } = useClerk();
 	const router = useRouter();
 	const pathname = usePathname();
 	const wishlistCount = useWishlistStore((state) => state.items.length);
 
 	const handleWishlist = () => {
 		if (!isSignedIn) {
-			toast.error("Please sign in to manage your wishlist", {
-				description: "You need an account to save items for later.",
+			sessionStorage.setItem("redirectAfterAuth", "/wishlist");
+
+			openSignIn({
+				redirectUrl: "/wishlist",
+				afterSignInUrl: "/wishlist",
+				afterSignUpUrl: "/wishlist",
 			});
 			return;
 		}
@@ -45,7 +54,7 @@ const Header = () => {
 				<div className="bg-sartorial-green text-white py-2 px-4 md:px-10 lg:px-20">
 					<div className="relative flex items-center justify-between md:justify-center">
 						<p className="text-sm font-medium">
-							Welcome to Sartorial Store!
+							Welcome to Sartorial!
 						</p>
 
 						<div className="absolute right-0 flex items-center gap-3">
@@ -114,20 +123,20 @@ const Header = () => {
 						<SearchIcon className="h-5 w-5 text-sartorial-green cursor-pointer" />
 					</Link>
 					<Cart />
-					<Button
-						className="relative border-none shadow-none cursor-pointer"
-						variant="outline"
+
+					<button
+						className="relative border-none shadow-none cursor-pointer mx-2"
 						onClick={handleWishlist}
+						aria-label="View wishlist"
 					>
 						<Heart className="w-5 h-5 cursor-pointer text-sartorial-green" />
 
 						{wishlistCount > 0 && (
-							<span className="absolute -top-2 -right-2 bg-white text-green-900 text-xs px-1 rounded-full">
+							<span className="absolute -top-3 -right-2 bg-white text-green-900 text-xs px-1 rounded-full">
 								{wishlistCount}
 							</span>
 						)}
-					</Button>
-					{/* <UserIcon className="h-5 w-5 text-sartorial-green cursor-pointer" /> */}
+					</button>
 					<ClerkLoaded>
 						{user ? (
 							<div className="flex items-center space-x-2">
@@ -163,7 +172,7 @@ const Header = () => {
 							<SignInButton mode="modal">
 								<div className="flex items-center gap-2 cursor-pointer group">
 									<UserIcon className="h-5 w-5 text-sartorial-green group-hover:scale-110 transition-transform" />
-									{/* <span className="text-xs font-bold uppercase tracking-tighter">
+									{/* <span className="text-xs font-bold uppercase tracking-tighter text-sartorial-green">
 										Login
 									</span> */}
 								</div>

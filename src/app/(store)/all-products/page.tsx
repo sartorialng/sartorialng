@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Header from "@/components/layout/Header";
 import ProductCard from "@/components/layout/ProductCard";
 import Footer from "@/components/layout/Footer";
@@ -59,30 +59,6 @@ const AllProducts = () => {
 		setSelectedColors([]);
 	};
 
-	const filterByPriceRange = (allProducts: Product[]) => {
-		if (selectedPriceRanges.length === 0) return allProducts;
-
-		return allProducts.filter((product) => {
-			const priceInNGN = product.price || 0;
-			const priceInUSD = convertNGNtoUSD(priceInNGN);
-
-			return selectedPriceRanges.some((range) => {
-				switch (range) {
-					case "Under $25":
-						return priceInUSD < 25;
-					case "$25 - $50":
-						return priceInUSD >= 25 && priceInUSD <= 50;
-					case "$50 - $100":
-						return priceInUSD > 50 && priceInUSD <= 100;
-					case "Over $100":
-						return priceInUSD > 100;
-					default:
-						return false;
-				}
-			});
-		});
-	};
-
 	useEffect(() => {
 		const fetchProducts = async () => {
 			setLoading(true);
@@ -117,7 +93,50 @@ const AllProducts = () => {
 		fetchProducts();
 	}, [selectedCategories, selectedColors]);
 
-	const filteredProducts = filterByPriceRange(products);
+	const filteredAndSortedProducts = useMemo(() => {
+		let filtered = products;
+
+		if (selectedPriceRanges.length > 0) {
+			filtered = products.filter((product) => {
+				const priceInNGN = product.price || 0;
+				const priceInUSD = convertNGNtoUSD(priceInNGN);
+
+				return selectedPriceRanges.some((range) => {
+					switch (range) {
+						case "Under $25":
+							return priceInUSD < 25;
+						case "$25 - $50":
+							return priceInUSD >= 25 && priceInUSD <= 50;
+						case "$50 - $100":
+							return priceInUSD > 50 && priceInUSD <= 100;
+						case "Over $100":
+							return priceInUSD > 100;
+						default:
+							return false;
+					}
+				});
+			});
+		}
+
+		const sorted = [...filtered];
+
+		switch (selectedSort) {
+			case "Alphabetically, A to Z":
+				return sorted.sort((a, b) =>
+					(a.name || "").localeCompare(b.name || ""),
+				);
+			case "Alphabetically, Z to A":
+				return sorted.sort((a, b) =>
+					(b.name || "").localeCompare(a.name || ""),
+				);
+			case "Price, Low to High":
+				return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+			case "Price, High to Low":
+				return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
+			default:
+				return sorted;
+		}
+	}, [products, selectedPriceRanges, selectedSort]);
 
 	return (
 		<div className="h-auto w-full bg-gray-50">
@@ -154,7 +173,7 @@ const AllProducts = () => {
 							? Array.from({ length: 6 }).map((_, index) => (
 									<ProductCardSkeleton key={index} />
 								))
-							: filteredProducts.map((product) => {
+							: filteredAndSortedProducts.map((product) => {
 									const colorToUse = product.colors?.[0];
 
 									if (!colorToUse) {
@@ -179,7 +198,7 @@ const AllProducts = () => {
 									);
 								})}
 					</div>
-					{!loading && filteredProducts.length === 0 && (
+					{!loading && filteredAndSortedProducts.length === 0 && (
 						<div className="text-center py-12">
 							<p className="text-gray-500 text-lg">
 								No products found matching your filters.

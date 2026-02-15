@@ -4,7 +4,15 @@ import categoryType from "./category";
 import colorType from "./color";
 import { blockContentType } from "./blockContent";
 import orderType from "./order";
+import reviewType from "./review";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-	types: [productType, categoryType, colorType, blockContentType, orderType],
+	types: [
+		productType,
+		categoryType,
+		colorType,
+		blockContentType,
+		orderType,
+		reviewType,
+	],
 };

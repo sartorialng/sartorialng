@@ -24,9 +24,13 @@ export async function POST(req: Request) {
 		});
 
 		return NextResponse.json(data);
-	} catch (error) {
+	} catch (error: unknown) {
 		return NextResponse.json(
-			{ error: "Failed to send email" },
+			{
+				error: "Failed to send email",
+				details:
+					error instanceof Error ? error.message : "Unknown error",
+			},
 			{ status: 500 },
 		);
 	}
