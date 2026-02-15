@@ -172,9 +172,9 @@ const Header = () => {
 							<SignInButton mode="modal">
 								<div className="flex items-center gap-2 cursor-pointer group">
 									<UserIcon className="h-5 w-5 text-sartorial-green group-hover:scale-110 transition-transform" />
-									{/* <span className="text-xs font-bold uppercase tracking-tighter text-sartorial-green">
+									<span className="text-xs font-bold uppercase tracking-tighter text-sartorial-green">
 										Login
-									</span> */}
+									</span>
 								</div>
 							</SignInButton>
 						)}
