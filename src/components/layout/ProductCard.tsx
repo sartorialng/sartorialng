@@ -35,6 +35,7 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 		? urlFor(product.images[0])
 		: SartorialBag;
 	const imageAlt = product?.name ?? "product-name";
+	const isOutOfStock = product?.stock === 0;
 
 	const isFavorite = isInWishlist(productId);
 
@@ -119,7 +120,7 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 						</button>
 					</div>
 
-					<div className="flex justify-center mb-2">
+					{/* <div className="flex justify-center mb-2">
 						<div className="relative w-full h-30 md:h-50">
 							<Image
 								src={imageUrl}
@@ -128,6 +129,29 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 								sizes="(max-width: 768px) 100vw, 300px"
 								className="object-contain rounded-sm"
 							/>
+						</div>
+					</div> */}
+					<div className="flex justify-center mb-2">
+						<div className="relative w-full h-30 md:h-50">
+							<Image
+								src={imageUrl}
+								alt={imageAlt}
+								fill
+								sizes="(max-width: 768px) 100vw, 300px"
+								className={`object-contain rounded-sm transition-opacity ${
+									isOutOfStock
+										? "opacity-50 grayscale"
+										: "opacity-100"
+								}`}
+							/>
+
+							{isOutOfStock && (
+								<div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-sm">
+									<span className="bg-red-600 text-white text-xs md:text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
+										Out of Stock
+									</span>
+								</div>
+							)}
 						</div>
 					</div>
 				</div>
@@ -166,7 +190,7 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 							e.preventDefault();
 							onAddToCart?.();
 						}}
-						disabled={!onAddToCart}
+						disabled={isOutOfStock}
 					>
 						Add to Cart
 					</Button>
@@ -177,7 +201,7 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 							e.preventDefault();
 							onBuyNow?.();
 						}}
-						disabled={!onBuyNow}
+						disabled={isOutOfStock}
 					>
 						Buy Now
 					</Button>

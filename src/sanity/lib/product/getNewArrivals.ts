@@ -18,5 +18,13 @@ export const getNewArrivals = async () => {
       }
     }
   `;
-	return client.fetch(NEW_ARRIVALS_QUERY);
+	return client.fetch(
+		NEW_ARRIVALS_QUERY,
+		{},
+		{
+			next: {
+				revalidate: 60,
+			},
+		},
+	);
 };

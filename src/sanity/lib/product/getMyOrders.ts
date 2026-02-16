@@ -21,5 +21,13 @@ export const getMyOrders = async (userId: string) => {
         }
       }
     `;
-	return client.fetch(MY_ORDERS_QUERY, { userId });
+	return client.fetch(
+		MY_ORDERS_QUERY,
+		{ userId },
+		{
+			next: {
+				revalidate: 60,
+			},
+		},
+	);
 };

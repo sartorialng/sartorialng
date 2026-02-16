@@ -61,9 +61,15 @@ export const getFilteredProducts = async ({
   `;
 
 	try {
-		const products = await client.fetch(FILTERED_PRODUCTS_QUERY);
-		console.log("Filter params:", { categories, colors });
-		console.log("Products found:", products.length);
+		const products = await client.fetch(
+			FILTERED_PRODUCTS_QUERY,
+			{},
+			{
+				next: {
+					revalidate: 60,
+				},
+			},
+		);
 		return products || [];
 	} catch (error) {
 		console.error("Error fetching filtered products:", error);

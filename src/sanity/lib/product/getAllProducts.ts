@@ -18,5 +18,13 @@ export const getAllProducts = async () => {
       }
     }
   `;
-	return client.fetch(ALL_PRODUCTS_QUERY);
+	return client.fetch(
+		ALL_PRODUCTS_QUERY,
+		{},
+		{
+			next: {
+				revalidate: 60,
+			},
+		},
+	);
 };

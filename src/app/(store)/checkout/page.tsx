@@ -97,11 +97,22 @@ const CheckoutPage = () => {
 				}),
 			});
 
-			if (!response.ok) {
-				throw new Error("Failed to create order");
+			const data = await response.json();
+
+			// Handle duplicate order gracefully
+			if (data.isDuplicate) {
+				return data;
 			}
 
-			const data = await response.json();
+			// Handle insufficient stock error
+			if (data.insufficientStock) {
+				throw new Error(data.error);
+			}
+
+			if (!response.ok) {
+				throw new Error(data.error || "Failed to create order");
+			}
+
 			return data;
 		} catch (error) {
 			console.error("Error creating order:", error);
@@ -135,17 +146,50 @@ const CheckoutPage = () => {
 			const toastId = toast.loading("Processing your order...");
 
 			try {
-				await createOrderInDatabase(ref.reference, "paystack");
+				const result = await createOrderInDatabase(
+					ref.reference,
+					"paystack",
+				);
 
 				toast.dismiss(toastId);
-				toast.success("Payment successful!");
 
+				// Handle duplicate order
+				if (result.isDuplicate) {
+					toast.info("Order already processed. Redirecting...");
+				} else {
+					toast.success("Payment successful! Order created.");
+				}
+
+				// Clear basket and redirect
 				useBasketStore.getState().clearBasket();
 				router.push(`/order-pending?reference=${ref.reference}`);
-			} catch (error) {
+			} catch (error: any) {
 				toast.dismiss(toastId);
 				console.error("Error creating order:", error);
-				toast.error("Payment successful but order creation failed.");
+
+				// Handle specific error types
+				if (error.message?.includes("Insufficient stock")) {
+					toast.error(error.message, {
+						duration: 6000,
+						description: "Please update your cart and try again.",
+					});
+					// Optionally redirect to cart
+					router.push("/basket");
+				} else if (error.message?.includes("not found")) {
+					toast.error(
+						"Some items in your cart are no longer available",
+						{
+							duration: 5000,
+						},
+					);
+					router.push("/basket");
+				} else {
+					toast.error(
+						"Payment received but order creation failed. Please contact support with reference: " +
+							ref.reference,
+						{ duration: 8000 },
+					);
+				}
 			}
 		},
 		onClose: () => {
@@ -154,19 +198,46 @@ const CheckoutPage = () => {
 	});
 
 	const handlePayPalSuccess = async (details: any) => {
+		const toastId = toast.loading("Processing your order...");
+
 		try {
-			toast.loading("Processing your order...");
+			const result = await createOrderInDatabase(details.id, "paypal");
 
-			await createOrderInDatabase(details.id, "paypal");
+			toast.dismiss(toastId);
 
-			toast.success("PayPal Payment Successful!");
+			// Handle duplicate order
+			if (result.isDuplicate) {
+				toast.info("Order already processed. Redirecting...");
+			} else {
+				toast.success("PayPal payment successful! Order created.");
+			}
 
+			// Clear basket and redirect
 			useBasketStore.getState().clearBasket();
-
 			router.push(`/order-pending?reference=${details.id}`);
-		} catch (error) {
+		} catch (error: any) {
+			toast.dismiss(toastId);
 			console.error("Error processing PayPal order:", error);
-			toast.error("Failed to process order. Please contact support.");
+
+			// Handle specific error types
+			if (error.message?.includes("Insufficient stock")) {
+				toast.error(error.message, {
+					duration: 6000,
+					description: "Please update your cart and try again.",
+				});
+				router.push("/basket");
+			} else if (error.message?.includes("not found")) {
+				toast.error("Some items in your cart are no longer available", {
+					duration: 5000,
+				});
+				router.push("/basket");
+			} else {
+				toast.error(
+					"Payment received but order creation failed. Please contact support with reference: " +
+						details.id,
+					{ duration: 8000 },
+				);
+			}
 		}
 	};
 

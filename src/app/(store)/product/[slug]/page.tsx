@@ -74,6 +74,7 @@ const ProductDetails = () => {
 	const { addToWishlist, removeFromWishlist, isInWishlist } =
 		useWishlistStore();
 	const isFavorite = isInWishlist(product?._id);
+	const isOutOfStock = product?.stock === 0;
 
 	const toggleFavorite = (e: React.MouseEvent) => {
 		e.preventDefault();
@@ -195,7 +196,7 @@ const ProductDetails = () => {
 								</div>
 
 								{/* Main Image */}
-								<div
+								{/* <div
 									className="w-full bg-white rounded-lg flex items-center justify-center"
 									style={{ height: "500px" }}
 								>
@@ -211,6 +212,39 @@ const ProductDetails = () => {
 										className="object-contain max-w-full max-h-full"
 										priority
 									/>
+								</div> */}
+								<div
+									className="relative w-full bg-white rounded-lg flex items-center justify-center overflow-hidden"
+									style={{ height: "500px" }}
+								>
+									{/* Product Image */}
+									<Image
+										width={500}
+										height={500}
+										src={
+											selectedImage?.asset.url ??
+											product.images[0]?.asset.url ??
+											SartorialBag
+										}
+										alt={selectedImage?.alt ?? product.name}
+										className={`object-contain max-w-full max-h-full transition-all duration-300 ${
+											isOutOfStock
+												? "grayscale opacity-40"
+												: ""
+										}`}
+										priority
+									/>
+
+									{/* Out of Stock Overlay */}
+									{isOutOfStock && (
+										<div className="absolute inset-0 flex items-center justify-center bg-white/30 backdrop-blur-[2px]">
+											<div className="bg-black/80 text-white px-6 py-3 rounded-md shadow-xl transform -rotate-3 border border-white/20">
+												<p className="text-xl font-bold uppercase tracking-widest">
+													Out of Stock
+												</p>
+											</div>
+										</div>
+									)}
 								</div>
 							</div>
 						</div>
@@ -472,7 +506,7 @@ const ProductDetails = () => {
 						Related Products
 					</p>
 				</div>
-				<div className="mt-5 md:mt-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+				<div className="mt-5 md:mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
 					{isRelatedProductsloading
 						? Array.from({ length: 4 }).map((_, index) => (
 								<ProductCardSkeleton key={index} />

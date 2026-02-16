@@ -1,3 +1,4 @@
+import { Product } from "../../../../../sanity.types";
 import { adminClient } from "../../../../sanity/lib/sanity.admin";
 import { NextResponse } from "next/server";
 
@@ -32,6 +33,7 @@ export async function POST(req: Request) {
 			subtotal,
 		} = body;
 
+		// Validate required fields
 		if (!items || !paymentReference || !paymentMethod) {
 			return NextResponse.json(
 				{ error: "Missing required fields" },
@@ -39,6 +41,15 @@ export async function POST(req: Request) {
 			);
 		}
 
+		// Check if items array is not empty
+		if (!Array.isArray(items) || items.length === 0) {
+			return NextResponse.json(
+				{ error: "Cart is empty" },
+				{ status: 400 },
+			);
+		}
+
+		// ✅ DUPLICATE PREVENTION: Check if order already exists
 		const existingOrder = await adminClient.fetch(
 			`*[_type == "order" && 
 			  (paystackReference == $ref || paypalOrderId == $ref)][0]`,
@@ -46,6 +57,10 @@ export async function POST(req: Request) {
 		);
 
 		if (existingOrder) {
+			console.log(
+				"⚠️ Duplicate order detected:",
+				existingOrder.orderNumber,
+			);
 			return NextResponse.json({
 				success: true,
 				order: {
@@ -53,9 +68,54 @@ export async function POST(req: Request) {
 					_id: existingOrder._id,
 				},
 				message: "Order already exists",
+				isDuplicate: true,
 			});
 		}
 
+		// ✅ INVENTORY VALIDATION: Check stock availability BEFORE creating order
+		const productIds = items.map((item: Product) => item._id);
+		const products: Product[] = await adminClient.fetch(
+			`*[_type == "product" && _id in $ids]{_id, stock, name}`,
+			{ ids: productIds },
+		);
+
+		// Create a map for quick lookup
+		const productMap = new Map(products.map((p: Product) => [p._id, p]));
+
+		// Validate stock for each item
+		for (const item of items) {
+			const product = productMap.get(item._id);
+
+			if (!product) {
+				return NextResponse.json(
+					{ error: `Product ${item.name} not found in database` },
+					{ status: 404 },
+				);
+			}
+
+			// Check if stock is sufficient
+			if (product.stock === null || product.stock === undefined) {
+				console.warn(`⚠️ Product ${product.name} has no stock field`);
+				continue; // Skip validation if stock tracking is not set up
+			}
+
+			if (product.stock < item.quantity) {
+				return NextResponse.json(
+					{
+						error: `Insufficient stock for "${product.name}". Available: ${product.stock}, Requested: ${item.quantity}`,
+						insufficientStock: true,
+						product: {
+							name: product.name,
+							available: product.stock,
+							requested: item.quantity,
+						},
+					},
+					{ status: 400 },
+				);
+			}
+		}
+
+		// Map items to Sanity products format
 		const sanityProducts = items.map((item: any, index: number) => {
 			const productData: any = {
 				_key: `${item._id}-${Date.now()}-${index}`,
@@ -72,12 +132,13 @@ export async function POST(req: Request) {
 					colorTitle: item.selectedColor.colorTitle,
 				};
 			} else {
-				console.log(`⚠️ No selectedColor found`);
+				console.log(`⚠️ No selectedColor found for item: ${item.name}`);
 			}
 
 			return productData;
 		});
 
+		// Prepare shipping address
 		const shippingAddressData = {
 			address: shipToDifferentAddress ? shippingAddress : address,
 			city: shipToDifferentAddress ? shippingArea : area,
@@ -89,6 +150,7 @@ export async function POST(req: Request) {
 			phone: shipToDifferentAddress ? shippingPhoneNo : phoneNo,
 		};
 
+		// Prepare order data
 		const orderData: any = {
 			_type: "order",
 			orderNumber: `ORD-${Date.now()}`,
@@ -105,6 +167,7 @@ export async function POST(req: Request) {
 			shippingAddress: shippingAddressData,
 		};
 
+		// Add payment method specific fields
 		if (paymentMethod === "paypal") {
 			orderData.paypalOrderId = paymentReference;
 			orderData.paymentMethod = "paypal";
@@ -113,7 +176,36 @@ export async function POST(req: Request) {
 			orderData.paymentMethod = "paystack";
 		}
 
+		// ✅ CREATE ORDER
 		const newOrder = await adminClient.create(orderData);
+
+		// ✅ INVENTORY DEDUCTION: Update stock for each product
+
+		// Initialize a transaction
+		let transaction = adminClient.transaction();
+
+		for (const item of items) {
+			const product = productMap.get(item._id);
+
+			if (product && typeof product.stock === "number") {
+				// 1. Patch the main published document
+				transaction.patch(item._id, (p) =>
+					p.dec({ stock: item.quantity }),
+				);
+
+				// 2. Patch the draft version as well if it exists
+				// OR better yet, delete the draft so the studio reflects the new published stock
+				transaction.delete(`drafts.${item._id}`);
+			}
+		}
+
+		try {
+			await transaction.commit();
+		} catch (error) {
+			console.error("❌ Transaction failed:", error);
+			// Note: In a production app, you might want to handle
+			// what happens if the order was created but stock failed to update
+		}
 
 		return NextResponse.json({
 			success: true,
@@ -121,8 +213,10 @@ export async function POST(req: Request) {
 				orderNumber: newOrder.orderNumber,
 				_id: newOrder._id,
 			},
+			message: "Order created successfully",
 		});
 	} catch (error) {
+		console.error("❌ Order creation error:", error);
 		return NextResponse.json(
 			{
 				error: "Failed to create order",

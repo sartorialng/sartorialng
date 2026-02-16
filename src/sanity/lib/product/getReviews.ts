@@ -11,5 +11,13 @@ export const getAllReviews = async () => {
       date
     }
   `;
-	return client.fetch(ALL_REVIEWS_QUERY);
+	return client.fetch(
+		ALL_REVIEWS_QUERY,
+		{},
+		{
+			next: {
+				revalidate: 60,
+			},
+		},
+	);
 };

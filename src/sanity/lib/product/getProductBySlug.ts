@@ -34,5 +34,13 @@ export const getProductBySlug = async (slug: string) => {
     }
   `;
 
-	return client.fetch(PRODUCT_BY_SLUG_QUERY, { slug });
+	return client.fetch(
+		PRODUCT_BY_SLUG_QUERY,
+		{ slug },
+		{
+			next: {
+				revalidate: 60,
+			},
+		},
+	);
 };

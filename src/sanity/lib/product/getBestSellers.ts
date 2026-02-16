@@ -18,5 +18,13 @@ export const getBestSellers = async () => {
       }
     }
   `;
-	return client.fetch(query);
+	return client.fetch(
+		query,
+		{},
+		{
+			next: {
+				revalidate: 60,
+			},
+		},
+	);
 };
