@@ -380,12 +380,15 @@ const AboutUs = () => {
 					<p className="text-base md:text-lg leading-relaxed font-medium">
 						Born in response to an industry driven by fast trends
 						and excess, Sartorial takes a more considered approach.
+						The brand was founded on the belief that style should
+						last, both in form and in relevance.
 					</p>
 
 					<p className="text-base md:text-lg leading-relaxed font-medium">
 						Rooted in contemporary culture and shaped by a global
 						perspective, Sartorial represents a new standard of
-						quiet luxury.
+						quiet luxury. One that values intention over excess and
+						longevity over trends.
 					</p>
 
 					<p className="text-base md:text-lg leading-relaxed font-medium">
@@ -408,7 +411,7 @@ const AboutUs = () => {
 					Our Core Values
 				</motion.h2>
 
-				<div className="mt-10 md:mt-20 grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-20 w-full">
+				<div className="mt-10 md:mt-20 grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-20 w-full">
 					{[
 						{ icon: Luxury, label: "Luxury" },
 						{ icon: Elegance, label: "Elegance" },
@@ -428,14 +431,14 @@ const AboutUs = () => {
 							whileHover={{ scale: 1.05 }}
 						>
 							<div className="flex flex-col items-center gap-5">
-								<div className="h-40 w-40 border rounded-full border-sartorial-lightGreen">
+								<div className="h-20 w-20 md:h-40 md:w-40 border rounded-full border-sartorial-lightGreen">
 									<Image
 										src={item.icon}
 										alt={item.label}
 										className="w-full object-contain"
 									/>
 								</div>
-								<p className="text-2xl text-white">
+								<p className="text-center text-lg md:text-2xl text-white">
 									{item.label}
 								</p>
 							</div>
@@ -460,7 +463,8 @@ const AboutUs = () => {
 					<p className="text-base md:text-lg leading-relaxed">
 						To redefine everyday fashion by providing high-quality,
 						stylish, and functional bags that seamlessly blend
-						sophistication with practicality.
+						sophistication with practicality, helping individuals
+						carry their world with confidence.
 					</p>
 				</motion.div>
 
@@ -477,8 +481,9 @@ const AboutUs = () => {
 					</h3>
 					<p className="text-base md:text-lg leading-relaxed">
 						To become a globally recognized brand that sets the
-						standard for elegance, quality, and innovation in
-						fashion.
+						standard for elegance, quality, and innovation in the
+						bag and fashion industry, while inspiring people to
+						express their individuality through style.
 					</p>
 				</motion.div>
 			</div>
@@ -497,7 +502,7 @@ const AboutUs = () => {
 					<h3 className="text-xl md:text-2xl font-semibold">
 						Meet the Founder
 					</h3>
-					<p className="text-base md:text-lg leading-relaxed">
+					<p className="text-base text-black md:text-lg leading-relaxed">
 						Founded by Mrs Chinagorom Evelyn Ukachukwu, Sartorial is
 						guided by a vision of modern elegance grounded in
 						craftsmanship and purpose.

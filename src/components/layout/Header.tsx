@@ -1,8 +1,8 @@
 "use client";
 import {
+	BrandLogo,
 	FacebookIcon,
 	IgIcon,
-	Sartorial,
 	SearchIcon,
 	TikTokIcon,
 	UserIcon,
@@ -23,6 +23,7 @@ import {
 	useClerk,
 } from "@clerk/nextjs";
 import MobileHeaderLinks from "./MobileHeaderLinks";
+import Image from "next/image";
 
 const Cart = dynamic(() => import("./Cart"), { ssr: false });
 
@@ -59,25 +60,29 @@ const Header = () => {
 
 						<div className="absolute right-0 flex items-center gap-3">
 							<Link
-								href="/"
+								href="https://www.instagram.com/sartorialstore"
+								target="_blank"
 								className="hover:opacity-80 transition-opacity"
 							>
 								<IgIcon />
 							</Link>
 							<Link
-								href="/"
+								href="https://www.facebook.com/share/1H5cbvv1zc/?mibextid=wwXIfr"
+								target="_blank"
 								className="hover:opacity-80 transition-opacity"
 							>
 								<FacebookIcon />
 							</Link>
 							<Link
-								href="/"
+								href="https://www.tiktok.com/@thesartorialstore"
+								target="_blank"
 								className="hover:opacity-80 transition-opacity"
 							>
 								<TikTokIcon />
 							</Link>
 							<Link
-								href="/"
+								href="https://wa.me/message/QH63ZFF2HQA3O1"
+								target="_blank"
 								className="hover:opacity-80 transition-opacity"
 							>
 								<WhatsappIcon />
@@ -86,12 +91,17 @@ const Header = () => {
 					</div>
 				</div>
 			)}
-			<div className="flex items-center bg-sartorial-offWhite px-5 md:px-10 py-2 border-b border-gray-200 justify-between">
+			<div className="flex items-center bg-sartorial-offWhite px-3 md:px-10 py-2 border-b border-gray-200 justify-between">
 				<div className="flex items-center gap-40">
 					<div className="flex items-center">
 						<MobileHeaderLinks />
 						<Link href="/">
-							<Sartorial />
+							<Image
+								src={BrandLogo}
+								alt="Sartorial Logo"
+								width={100}
+								height={40}
+							/>
 						</Link>
 					</div>
 					<div className="hidden md:flex items-center gap-20">

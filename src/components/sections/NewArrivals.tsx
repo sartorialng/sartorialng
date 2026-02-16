@@ -31,7 +31,7 @@ const NewArrivals = () => {
 					New Arrivals
 				</p>
 			</div>
-			<div className="mt-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+			<div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
 				{loading
 					? Array.from({ length: 4 }).map((_, index) => (
 							<ProductCardSkeleton key={index} />

@@ -57,7 +57,7 @@ const Footer = () => {
 					<p className="font-semibold text-2xl">Our Company</p>
 
 					<div className="mt-3 text-white flex flex-col gap-4">
-						<Link href={"/"}>About Us</Link>
+						<Link href={"/about-us"}>About Us</Link>
 						<Link href={"/faqs"}>FAQs</Link>
 						<Link href={"/terms-and-condition"}>
 							Terms & Conditions
@@ -68,15 +68,29 @@ const Footer = () => {
 					<p className="font-semibold text-2xl">Connect with Us</p>
 
 					<div className="mt-3 text-white flex flex-col gap-4">
-						<Link href={"/"} className="flex items-center gap-3">
+						<Link
+							href={
+								"https://www.facebook.com/share/1H5cbvv1zc/?mibextid=wwXIfr"
+							}
+							target="_blank"
+							className="flex items-center gap-3"
+						>
 							<FacebookIcon />
 							<p>Facebook</p>
 						</Link>
-						<Link href={"/"} className="flex items-center gap-3">
+						<Link
+							href={"https://www.instagram.com/sartorialstore"}
+							target="_blank"
+							className="flex items-center gap-3"
+						>
 							<IgIcon />
 							<p>Instagram</p>
 						</Link>
-						<Link href={"/"} className="flex items-center gap-3">
+						<Link
+							href={"https://www.tiktok.com/@thesartorialstore"}
+							target="_blank"
+							className="flex items-center gap-3"
+						>
 							<TikTokIcon />
 							<p>TikTok</p>
 						</Link>

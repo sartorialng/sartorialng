@@ -1,7 +1,14 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { banner1, banner2, banner3, MobileBanner1 } from "@/assets";
+import {
+	banner1,
+	banner2,
+	banner3,
+	MobileBanner1,
+	MobileBanner2,
+	MobileBanner3,
+} from "@/assets";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -12,8 +19,8 @@ const HeroCarousel = () => {
 
 	const slides = [
 		{ id: 1, image: banner1, mobileImage: MobileBanner1 },
-		{ id: 2, image: banner2, mobileImage: MobileBanner1 },
-		{ id: 3, image: banner3, mobileImage: MobileBanner1 },
+		{ id: 2, image: banner2, mobileImage: MobileBanner2 },
+		{ id: 3, image: banner3, mobileImage: MobileBanner3 },
 	];
 
 	const nextSlide = useCallback(() => {

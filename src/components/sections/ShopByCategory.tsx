@@ -10,7 +10,7 @@ const ShopByCategory = () => {
 					Shop by Category
 				</p>
 			</div>
-			<div className="mt-10 md:mt-20 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+			<div className="mt-10 md:mt-20 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
 				<Link
 					href={{
 						pathname: "/category",
@@ -25,7 +25,7 @@ const ShopByCategory = () => {
 							className="transition-transform duration-300 ease-out group-hover:scale-110"
 						/>
 					</div>
-					<p className="text-white text-2xl transition-colors duration-300 group-hover:text-gray-200">
+					<p className="text-white text-center text-lg md:text-2xl transition-colors duration-300 group-hover:text-gray-200">
 						Mini Bags
 					</p>
 				</Link>
@@ -44,7 +44,7 @@ const ShopByCategory = () => {
 							className="transition-transform duration-300 group-hover:scale-110"
 						/>
 					</div>
-					<p className="text-white text-2xl transition-colors duration-300 group-hover:text-gray-200">
+					<p className="text-white text-center text-lg md:text-2xl transition-colors duration-300 group-hover:text-gray-200">
 						Small Bags
 					</p>
 				</Link>
@@ -63,7 +63,7 @@ const ShopByCategory = () => {
 							className="transition-transform duration-300 group-hover:scale-110"
 						/>
 					</div>
-					<p className="text-white text-2xl transition-colors duration-300 group-hover:text-gray-200">
+					<p className="text-white text-center text-lg md:text-2xl transition-colors duration-300 group-hover:text-gray-200">
 						Medium Bags
 					</p>
 				</Link>
@@ -82,7 +82,7 @@ const ShopByCategory = () => {
 							className="transition-transform duration-300 group-hover:scale-110"
 						/>
 					</div>
-					<p className="text-white text-2xl transition-colors duration-300 group-hover:text-gray-200">
+					<p className="text-white text-center text-lg md:text-2xl transition-colors duration-300 group-hover:text-gray-200">
 						Large Bags
 					</p>
 				</Link>
