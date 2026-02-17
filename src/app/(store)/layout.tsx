@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 		siteName: "Sartorial",
 		images: [
 			{
-				url: "https://res.cloudinary.com/dkoi9zeli/image/upload/v1770800367/sartorial_zn5q28.svg",
+				url: "https://res.cloudinary.com/dkoi9zeli/image/upload/v1770062376/sartorial_bag_l4n0le.png",
 				width: 1200,
 				height: 630,
 				alt: "Sartorial Fashion Store",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
 		title: "Sartorial – Premium Fashion Store",
 		description: "Premium Bags for Every Woman",
 		images: [
-			"https://res.cloudinary.com/dkoi9zeli/image/upload/v1770800367/sartorial_zn5q28.svg",
+			"https://res.cloudinary.com/dkoi9zeli/image/upload/v1770062376/sartorial_bag_l4n0le.png",
 		],
 	},
 };

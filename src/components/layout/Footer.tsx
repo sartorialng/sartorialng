@@ -34,7 +34,7 @@ const Footer = () => {
 						</div>
 						<div className="flex items-center gap-3">
 							<MailIcon />
-							<p>info@sartorialstore.ng</p>
+							<p>info@sartorial.ng</p>
 						</div>
 						<div className="flex items-center gap-3">
 							<LocationIcon />

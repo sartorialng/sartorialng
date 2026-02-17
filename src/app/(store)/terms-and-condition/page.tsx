@@ -66,7 +66,6 @@ const TermsAndCondition = () => {
 								</li>
 								<li>
 									<strong>Account Name:</strong> Sartorial
-									Store
 								</li>
 								<li>
 									<strong>Bank:</strong> Guaranty Trust Bank
@@ -116,7 +115,7 @@ const TermsAndCondition = () => {
 							</div>
 
 							<p className="italic">
-								Thank you for choosing Sartorial Store. We look
+								Thank you for choosing Sartorial. We look
 								forward to providing you with exceptional bags,
 								fashion items, and great customer service as
 								always.
@@ -157,12 +156,12 @@ const TermsAndCondition = () => {
 									</h3>
 									<p>
 										Effective 6th January 2025, Sartorial
-										Store will discontinue wholesale
-										transactions with brands that also sell
-										other bag brands to protect our
-										exclusive market. We are dedicated to
-										preserving the exclusivity and integrity
-										of our products.
+										will discontinue wholesale transactions
+										with brands that also sell other bag
+										brands to protect our exclusive market.
+										We are dedicated to preserving the
+										exclusivity and integrity of our
+										products.
 									</p>
 								</section>
 
@@ -199,7 +198,7 @@ const TermsAndCondition = () => {
 										</li>
 										<li>
 											<strong>Account Name:</strong>{" "}
-											Sartorial Store
+											Sartorial
 										</li>
 										<li>
 											<strong>Bank:</strong> Guaranty

@@ -9,6 +9,7 @@ export default function OrderPendingPage() {
 	const reference = searchParams.get("reference");
 
 	const hasProcessed = useRef(false);
+	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 	const maxChecks = 20;
 
 	const [displayCount, setDisplayCount] = useState(0);
@@ -21,11 +22,9 @@ export default function OrderPendingPage() {
 
 		let attempts = 0;
 
-		const interval = setInterval(async () => {
-			if (hasProcessed.current || attempts >= maxChecks) {
-				clearInterval(interval);
-				return;
-			}
+		const checkOrder = async () => {
+			// Guard at the very top — bail immediately if already handled
+			if (hasProcessed.current) return;
 
 			attempts++;
 			setDisplayCount(attempts);
@@ -36,25 +35,30 @@ export default function OrderPendingPage() {
 				);
 
 				const res = await fetch(
-					`/api/paystack/check-order?reference=${reference}`,
+					`/api/orders/check-order?reference=${reference}`,
 				);
 				const data = await res.json();
 
 				console.log("Check order response:", data);
 
 				if (data.status === "success") {
+					if (hasProcessed.current) return; // Double-check after async wait
 					hasProcessed.current = true;
-					clearInterval(interval);
+
+					if (intervalRef.current) clearInterval(intervalRef.current);
 
 					toast.success("Order placed successfully!");
 					router.push(
 						`/success?orderNumber=${data.order.orderNumber}&reference=${reference}`,
 					);
+					return;
 				}
 
 				if (attempts >= maxChecks) {
+					if (hasProcessed.current) return;
 					hasProcessed.current = true;
-					clearInterval(interval);
+
+					if (intervalRef.current) clearInterval(intervalRef.current);
 
 					toast.info(
 						"Your order is being processed. You'll receive an email confirmation shortly.",
@@ -65,8 +69,10 @@ export default function OrderPendingPage() {
 				console.error("Error checking order:", error);
 
 				if (attempts >= maxChecks) {
+					if (hasProcessed.current) return;
 					hasProcessed.current = true;
-					clearInterval(interval);
+
+					if (intervalRef.current) clearInterval(intervalRef.current);
 
 					toast.error(
 						"Error verifying order. Please check your email.",
@@ -74,9 +80,13 @@ export default function OrderPendingPage() {
 					router.push("/");
 				}
 			}
-		}, 2000);
+		};
 
-		return () => clearInterval(interval);
+		intervalRef.current = setInterval(checkOrder, 2000);
+
+		return () => {
+			if (intervalRef.current) clearInterval(intervalRef.current);
+		};
 	}, [reference, router]);
 
 	return (

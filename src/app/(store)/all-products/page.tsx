@@ -168,7 +168,7 @@ const AllProducts = () => {
 							setSelectedSort={setSelectedSort}
 						/>
 					</div>
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+					<div className="grid grid-cols-2 md:grid-cols-3 gap-8">
 						{loading
 							? Array.from({ length: 6 }).map((_, index) => (
 									<ProductCardSkeleton key={index} />

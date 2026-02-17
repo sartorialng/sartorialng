@@ -1,5 +1,5 @@
 "use client";
-import { Sartorial } from "@/assets";
+import { BrandLogo } from "@/assets";
 import {
 	Sheet,
 	SheetContent,
@@ -9,6 +9,7 @@ import {
 import { headerLinks } from "@/data";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -40,7 +41,12 @@ const MobileHeaderLinks = () => {
 								onClick={() => setIsOpen(false)}
 								className="hover:opacity-80 transition-opacity"
 							>
-								<Sartorial />
+								<Image
+									src={BrandLogo}
+									alt="Sartorial Logo"
+									width={100}
+									height={40}
+								/>
 							</Link>
 							<button
 								onClick={() => setIsOpen(false)}
@@ -82,7 +88,7 @@ const MobileHeaderLinks = () => {
 
 					<div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 bg-sartorial-offWhite/50">
 						<p className="text-xs text-gray-600 text-center">
-							© 2024 Sartorial Store
+							© 2026 Sartorial
 						</p>
 					</div>
 				</SheetContent>

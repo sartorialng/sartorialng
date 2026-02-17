@@ -62,30 +62,6 @@ const Category = () => {
 		setSelectedColors([]);
 	};
 
-	// const filterByPriceRange = (allProducts: Product[]) => {
-	// 	if (selectedPriceRanges.length === 0) return allProducts;
-
-	// 	return allProducts.filter((product) => {
-	// 		const priceInNGN = product.price || 0;
-	// 		const priceInUSD = convertNGNtoUSD(priceInNGN);
-
-	// 		return selectedPriceRanges.some((range) => {
-	// 			switch (range) {
-	// 				case "Under $25":
-	// 					return priceInUSD < 25;
-	// 				case "$25 - $50":
-	// 					return priceInUSD >= 25 && priceInUSD <= 50;
-	// 				case "$50 - $100":
-	// 					return priceInUSD > 50 && priceInUSD <= 100;
-	// 				case "Over $100":
-	// 					return priceInUSD > 100;
-	// 				default:
-	// 					return false;
-	// 			}
-	// 		});
-	// 	});
-	// };
-
 	useEffect(() => {
 		const fetchProducts = async () => {
 			setLoading(true);
@@ -202,7 +178,7 @@ const Category = () => {
 							setSelectedSort={setSelectedSort}
 						/>
 					</div>
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+					<div className="grid grid-cols-2 md:grid-cols-3 gap-8">
 						{loading
 							? Array.from({ length: 6 }).map((_, index) => (
 									<ProductCardSkeleton key={index} />

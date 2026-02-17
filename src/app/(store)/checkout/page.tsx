@@ -11,8 +11,10 @@ import { usePaystackCheckout } from "@/lib/paystack";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import { useRef } from "react";
 
 const CheckoutPage = () => {
+	const isCreatingOrder = useRef(false);
 	const router = useRouter();
 	const { user } = useUser();
 	const subtotal = useBasketStore((s) => s.getTotalPrice());
@@ -65,6 +67,14 @@ const CheckoutPage = () => {
 		paymentReference: string,
 		paymentMethod: string,
 	) => {
+		if (isCreatingOrder.current) {
+			console.warn(
+				"Order creation already in progress, skipping duplicate call",
+			);
+			return { isDuplicate: true };
+		}
+		isCreatingOrder.current = true;
+
 		try {
 			const response = await fetch("/api/orders/create", {
 				method: "POST",
@@ -99,24 +109,19 @@ const CheckoutPage = () => {
 
 			const data = await response.json();
 
-			// Handle duplicate order gracefully
-			if (data.isDuplicate) {
-				return data;
-			}
-
-			// Handle insufficient stock error
-			if (data.insufficientStock) {
-				throw new Error(data.error);
-			}
-
-			if (!response.ok) {
+			if (data.isDuplicate) return data;
+			if (data.insufficientStock) throw new Error(data.error);
+			if (!response.ok)
 				throw new Error(data.error || "Failed to create order");
-			}
 
 			return data;
 		} catch (error) {
 			console.error("Error creating order:", error);
 			throw error;
+		} finally {
+			setTimeout(() => {
+				isCreatingOrder.current = false;
+			}, 5000);
 		}
 	};
 

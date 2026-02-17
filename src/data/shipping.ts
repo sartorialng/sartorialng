@@ -104,6 +104,7 @@ export const SHIPPING_ZONES = [
 	},
 	{ area: "Island 4", cost: 6000, locations: ["Sangotedo"] },
 	{ area: "Inter-State", cost: 7000, locations: [] },
+	{ area: "African Countries", cost: 125000, locations: [] },
 	{ area: "International", cost: 268000, locations: [] },
 ];
 
@@ -295,3 +296,19 @@ export const AREAS = [
 	// Island 4
 	{ value: "Sangotedo", label: "Sangotedo" },
 ];
+
+export const AFRICAN_COUNTRIES = new Set([
+	"Ghana",
+	"Kenya",
+	"South Africa",
+	"Uganda",
+	"Tanzania",
+	"Rwanda",
+	"Senegal",
+	"Côte d'Ivoire",
+	"Cameroon",
+	"Egypt",
+	"Morocco",
+	"Tunisia",
+	"Algeria",
+]);

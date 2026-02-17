@@ -4,9 +4,8 @@
  * @returns Amount in US Dollars (rounded to 2 decimal places)
  */
 export function convertNGNtoUSD(amountInNGN: number): number {
-	// Exchange rate: 1 USD = ~1650 NGN (as of Feb 2026)
 	// Update this rate regularly or use a live API
-	const exchangeRate = 1650;
+	const exchangeRate = 1500;
 
 	const usdAmount = amountInNGN / exchangeRate;
 
