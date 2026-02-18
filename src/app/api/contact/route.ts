@@ -8,7 +8,7 @@ export async function POST(req: Request) {
 		const { fullName, emailAddress, phoneNo, message } = await req.json();
 
 		const data = await resend.emails.send({
-			from: "Sartorial Contact <onboarding@resend.dev>",
+			from: "Sartorial Contact <noreply@sartorial.ng>",
 			to: [process.env.RESEND_TO_EMAIL!],
 			subject: `New Contact Form Message from ${fullName}`,
 			html: `

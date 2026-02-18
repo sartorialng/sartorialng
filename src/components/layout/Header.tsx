@@ -4,6 +4,7 @@ import {
 	FacebookIcon,
 	IgIcon,
 	SearchIcon,
+	SnapIcon,
 	TikTokIcon,
 	UserIcon,
 	WhatsappIcon,
@@ -65,6 +66,13 @@ const Header = () => {
 								className="hover:opacity-80 transition-opacity"
 							>
 								<IgIcon />
+							</Link>
+							<Link
+								href="https://www.snapchat.com/add/sartobaby"
+								target="_blank"
+								className="hover:opacity-80 transition-opacity"
+							>
+								<SnapIcon />
 							</Link>
 							<Link
 								href="https://www.facebook.com/share/1H5cbvv1zc/?mibextid=wwXIfr"

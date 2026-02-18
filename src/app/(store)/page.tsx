@@ -1,3 +1,4 @@
+import FloatingWhatsApp from "@/components/layout/FloatingWhatsapp";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import JoinSartorialBabesModal from "@/components/modals/JoinSartorialBabesModal";
@@ -62,6 +63,7 @@ export default function Home() {
 			<ReviewSlide />
 			<Footer />
 			<JoinSartorialBabesModal />
+			<FloatingWhatsApp />
 		</main>
 	);
 }

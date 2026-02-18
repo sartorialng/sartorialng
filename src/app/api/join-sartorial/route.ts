@@ -9,7 +9,7 @@ export async function POST(request: Request) {
 		const { fullName, emailAddress, phoneNo } = body;
 
 		const { data, error } = await resend.emails.send({
-			from: "Sartorial Babes <onboarding@resend.dev>",
+			from: "Sartorial Babes <noreply@sartorial.ng>",
 			to: [process.env.RESEND_TO_EMAIL!],
 			subject: "🎉 New Sartorial Babe Joined!",
 			html: `

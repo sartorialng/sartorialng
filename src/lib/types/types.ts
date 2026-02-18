@@ -51,3 +51,27 @@ export type BestSellerProduct = {
 	isNewArrival?: boolean;
 	images?: ProductImage[];
 };
+
+export interface SartorialBabe {
+	_id: string;
+	name: string | null;
+	image: {
+		_type: "image";
+		asset: {
+			_ref: string;
+			_type: "reference";
+		};
+		hotspot?: {
+			x: number;
+			y: number;
+			height: number;
+			width: number;
+		};
+		crop?: {
+			top: number;
+			bottom: number;
+			left: number;
+			right: number;
+		};
+	};
+}

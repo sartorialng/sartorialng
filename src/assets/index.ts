@@ -51,8 +51,12 @@ import PaymentSuccess from "./icons/payment-success.svg";
 import ContactPhone from "./icons/contact-phone-icon.svg";
 import ContactEmail from "./icons/contact-email-icon.svg";
 import BrandLogo from "./icons/sartorial.svg";
+import Instagram from "./icons/InstaIcon";
+import SnapIcon from "./icons/SnapIcon";
 
 export {
+	SnapIcon,
+	Instagram,
 	Sartorial,
 	SearchIcon,
 	CartIcon,
