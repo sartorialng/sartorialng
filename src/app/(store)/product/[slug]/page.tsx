@@ -20,6 +20,7 @@ import ProductCardSkeleton from "@/components/layout/ProductCardSkeleton";
 import ProductDetailsSkeleton from "../ProductDetailsSkeleton";
 import { useUser } from "@clerk/nextjs";
 import { convertNGNtoUSD } from "@/lib/currency";
+import { log } from "console";
 
 export type Color = {
 	_id: string;
@@ -153,6 +154,7 @@ const ProductDetails = () => {
 		}
 	};
 
+	console.log("Product data:", product);
 	return (
 		<div className="h-auto w-full bg-sartorial-offWhite">
 			<Header />

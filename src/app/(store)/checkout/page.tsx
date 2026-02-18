@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { calculateShipping } from "@/lib/helper";
@@ -11,13 +12,15 @@ import { usePaystackCheckout } from "@/lib/paystack";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import ProcessingOverlay from "@/components/layout/ProcessingOverlay";
 
 const CheckoutPage = () => {
 	const isCreatingOrder = useRef(false);
 	const router = useRouter();
 	const { user } = useUser();
 	const subtotal = useBasketStore((s) => s.getTotalPrice());
+	const [isProcessing, setIsProcessing] = useState(false);
 
 	const formik = useFormik({
 		initialValues: {
@@ -134,6 +137,11 @@ const CheckoutPage = () => {
 			clerkUserName:
 				user?.fullName ||
 				`${formik.values.firstName} ${formik.values.lastName}`,
+			shippingCost: shipping,
+			subtotal,
+			shippingAddress: getShippingAddress(),
+			total,
+			paymentMethod: "paystack",
 		},
 		items: useBasketStore.getState().items.map((item) => ({
 			_id: item.product._id,
@@ -148,55 +156,78 @@ const CheckoutPage = () => {
 				: undefined,
 		})),
 		onSuccess: async (ref) => {
-			const toastId = toast.loading("Processing your order...");
-
+			setIsProcessing(true);
 			try {
 				const result = await createOrderInDatabase(
 					ref.reference,
 					"paystack",
 				);
-
-				toast.dismiss(toastId);
-
-				// Handle duplicate order
-				if (result.isDuplicate) {
-					toast.info("Order already processed. Redirecting...");
-				} else {
-					toast.success("Payment successful! Order created.");
-				}
-
-				// Clear basket and redirect
 				useBasketStore.getState().clearBasket();
-				router.push(`/order-pending?reference=${ref.reference}`);
+				router.push(
+					`/success?orderNumber=${result.order?.orderNumber}&reference=${ref.reference}`,
+				);
 			} catch (error: any) {
-				toast.dismiss(toastId);
-				console.error("Error creating order:", error);
-
-				// Handle specific error types
+				setIsProcessing(false);
 				if (error.message?.includes("Insufficient stock")) {
 					toast.error(error.message, {
 						duration: 6000,
 						description: "Please update your cart and try again.",
 					});
-					// Optionally redirect to cart
 					router.push("/basket");
 				} else if (error.message?.includes("not found")) {
 					toast.error(
 						"Some items in your cart are no longer available",
-						{
-							duration: 5000,
-						},
+						{ duration: 5000 },
 					);
 					router.push("/basket");
 				} else {
 					toast.error(
-						"Payment received but order creation failed. Please contact support with reference: " +
+						"Payment received but order creation failed. Contact support with reference: " +
 							ref.reference,
 						{ duration: 8000 },
 					);
 				}
 			}
 		},
+		// onSuccess: async (ref) => {
+		// 	const toastId = toast.loading("Processing your order...");
+
+		// 	try {
+		// 		const result = await createOrderInDatabase(
+		// 			ref.reference,
+		// 			"paystack",
+		// 		);
+		// 		toast.dismiss(toastId);
+		// 		toast.success("Payment successful! Order created.");
+		// 		useBasketStore.getState().clearBasket();
+		// 		router.push(
+		// 			`/success?orderNumber=${result.order?.orderNumber}&reference=${ref.reference}`,
+		// 		);
+		// 	} catch (error: any) {
+		// 		toast.dismiss(toastId);
+		// 		console.error("Error creating order:", error);
+
+		// 		if (error.message?.includes("Insufficient stock")) {
+		// 			toast.error(error.message, {
+		// 				duration: 6000,
+		// 				description: "Please update your cart and try again.",
+		// 			});
+		// 			router.push("/basket");
+		// 		} else if (error.message?.includes("not found")) {
+		// 			toast.error(
+		// 				"Some items in your cart are no longer available",
+		// 				{ duration: 5000 },
+		// 			);
+		// 			router.push("/basket");
+		// 		} else {
+		// 			toast.error(
+		// 				"Payment received but order creation failed. Contact support with reference: " +
+		// 					ref.reference,
+		// 				{ duration: 8000 },
+		// 			);
+		// 		}
+		// 	}
+		// },
 		onClose: () => {
 			toast.info("Payment cancelled");
 		},
@@ -219,7 +250,10 @@ const CheckoutPage = () => {
 
 			// Clear basket and redirect
 			useBasketStore.getState().clearBasket();
-			router.push(`/order-pending?reference=${details.id}`);
+			// router.push(`/order-pending?reference=${details.id}`);
+			router.push(
+				`/success?orderNumber=${result.order?.orderNumber}&reference=${ref.reference}`,
+			);
 		} catch (error: any) {
 			toast.dismiss(toastId);
 			console.error("Error processing PayPal order:", error);
@@ -265,8 +299,10 @@ const CheckoutPage = () => {
 				<OrderSummary shipping={shipping} total={total} />
 			</div>
 			<Footer />
+			<ProcessingOverlay isVisible={isProcessing} />
 		</div>
 	);
 };
 
-export default CheckoutPage;
+// export default CheckoutPage;
+export default dynamic(() => Promise.resolve(CheckoutPage), { ssr: false });

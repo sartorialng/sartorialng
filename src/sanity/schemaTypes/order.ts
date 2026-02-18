@@ -20,11 +20,6 @@ const orderType = defineType({
 			type: "string",
 		}),
 		defineField({
-			name: "paystackCustomerId",
-			title: "Paystack Customer ID",
-			type: "string",
-		}),
-		defineField({
 			name: "paypalOrderId",
 			title: "PayPal Order ID",
 			type: "string",
