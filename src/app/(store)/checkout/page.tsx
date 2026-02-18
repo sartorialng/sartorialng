@@ -252,7 +252,7 @@ const CheckoutPage = () => {
 			useBasketStore.getState().clearBasket();
 			// router.push(`/order-pending?reference=${details.id}`);
 			router.push(
-				`/success?orderNumber=${result.order?.orderNumber}&reference=${ref.reference}`,
+				`/success?orderNumber=${result.order?.orderNumber}&reference=${details.id}`,
 			);
 		} catch (error: any) {
 			toast.dismiss(toastId);
