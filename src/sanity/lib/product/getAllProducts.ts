@@ -15,6 +15,11 @@ export const getAllProducts = async () => {
       colors[]->{
         _id,
         title
+      },
+      categories[]->{
+        _id,
+        title,
+        "slug": slug.current
       }
     }
   `;
@@ -23,7 +28,7 @@ export const getAllProducts = async () => {
 		{},
 		{
 			next: {
-				revalidate: 60,
+				revalidate: 30,
 			},
 		},
 	);

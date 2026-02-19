@@ -15,7 +15,7 @@ export const getSartorialBabes = async () => {
 		{},
 		{
 			next: {
-				revalidate: 60,
+				revalidate: 30,
 			},
 		},
 	);

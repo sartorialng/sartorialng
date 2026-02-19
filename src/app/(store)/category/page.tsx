@@ -6,12 +6,10 @@ import ProductCard from "@/components/layout/ProductCard";
 import { useBasketStore } from "@/store/store";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Product } from "../../../../sanity.types";
 import { getAllProducts } from "@/sanity/lib/product/getAllProducts";
 import { toast } from "sonner";
 import ProductCardSkeleton from "@/components/layout/ProductCardSkeleton";
 import CategoryHero from "@/components/sections/CategoryHero";
-import { getFilteredProducts } from "@/sanity/lib/product/getProductsByCategory";
 import { convertNGNtoUSD } from "@/lib/currency";
 import { categories, colors, priceRanges } from "@/data";
 import { SortByDropdownMobile } from "@/components/layout/SortByDropdownMobile";
@@ -29,7 +27,7 @@ const Category = () => {
 	const [selectedColors, setSelectedColors] = useState<string[]>([]);
 	const [selectedSort, setSelectedSort] = useState("Alphabetically, A to Z");
 
-	const [products, setProducts] = useState<Product[]>([]);
+	const [products, setProducts] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 
 	const handleCategoryChange = (category: string) => {
@@ -62,29 +60,46 @@ const Category = () => {
 		setSelectedColors([]);
 	};
 
+	// useEffect(() => {
+	// 	const fetchProducts = async () => {
+	// 		setLoading(true);
+	// 		try {
+	// 			if (
+	// 				selectedCategories.length > 0 ||
+	// 				selectedColors.length > 0
+	// 			) {
+	// 				const filtered = await getFilteredProducts({
+	// 					categories:
+	// 						selectedCategories.length > 0
+	// 							? selectedCategories
+	// 							: undefined,
+	// 					colors:
+	// 						selectedColors.length > 0
+	// 							? selectedColors
+	// 							: undefined,
+	// 				});
+	// 				setProducts(filtered);
+	// 			} else {
+	// 				const allProducts = await getAllProducts();
+	// 				setProducts(allProducts);
+	// 			}
+	// 		} catch (error) {
+	// 			console.error("Error fetching products:", error);
+	// 			toast.error("Failed to load products");
+	// 		} finally {
+	// 			setLoading(false);
+	// 		}
+	// 	};
+
+	// 	fetchProducts();
+	// }, [selectedCategories, selectedColors]);
+
 	useEffect(() => {
 		const fetchProducts = async () => {
 			setLoading(true);
 			try {
-				if (
-					selectedCategories.length > 0 ||
-					selectedColors.length > 0
-				) {
-					const filtered = await getFilteredProducts({
-						categories:
-							selectedCategories.length > 0
-								? selectedCategories
-								: undefined,
-						colors:
-							selectedColors.length > 0
-								? selectedColors
-								: undefined,
-					});
-					setProducts(filtered);
-				} else {
-					const allProducts = await getAllProducts();
-					setProducts(allProducts);
-				}
+				const allProducts = await getAllProducts();
+				setProducts(allProducts);
 			} catch (error) {
 				console.error("Error fetching products:", error);
 				toast.error("Failed to load products");
@@ -94,7 +109,7 @@ const Category = () => {
 		};
 
 		fetchProducts();
-	}, [selectedCategories, selectedColors]);
+	}, []);
 
 	useEffect(() => {
 		if (value) {
@@ -102,11 +117,73 @@ const Category = () => {
 		}
 	}, [value]);
 
-	const filteredAndSortedProducts = useMemo(() => {
-		let filtered = products;
+	// const filteredAndSortedProducts = useMemo(() => {
+	// 	let filtered = products;
 
+	// 	if (selectedPriceRanges.length > 0) {
+	// 		filtered = products.filter((product) => {
+	// 			const priceInNGN = product.price || 0;
+	// 			const priceInUSD = convertNGNtoUSD(priceInNGN);
+
+	// 			return selectedPriceRanges.some((range) => {
+	// 				switch (range) {
+	// 					case "Under $25":
+	// 						return priceInUSD < 25;
+	// 					case "$25 - $50":
+	// 						return priceInUSD >= 25 && priceInUSD <= 50;
+	// 					case "$50 - $100":
+	// 						return priceInUSD > 50 && priceInUSD <= 100;
+	// 					case "Over $100":
+	// 						return priceInUSD > 100;
+	// 					default:
+	// 						return false;
+	// 				}
+	// 			});
+	// 		});
+	// 	}
+
+	// 	const sorted = [...filtered];
+
+	// 	switch (selectedSort) {
+	// 		case "Alphabetically, A to Z":
+	// 			return sorted.sort((a, b) =>
+	// 				(a.name || "").localeCompare(b.name || ""),
+	// 			);
+	// 		case "Alphabetically, Z to A":
+	// 			return sorted.sort((a, b) =>
+	// 				(b.name || "").localeCompare(a.name || ""),
+	// 			);
+	// 		case "Price, Low to High":
+	// 			return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+	// 		case "Price, High to Low":
+	// 			return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
+	// 		default:
+	// 			return sorted;
+	// 	}
+	// }, [products, selectedPriceRanges, selectedSort]);
+
+	const filteredAndSortedProducts = useMemo(() => {
+		let filtered = [...products];
+
+		// 🔹 Category filtering
+		if (selectedCategories.length > 0) {
+			filtered = filtered.filter((product) =>
+				selectedCategories.includes(product.category?.name || ""),
+			);
+		}
+
+		// 🔹 Color filtering
+		if (selectedColors.length > 0) {
+			filtered = filtered.filter((product) =>
+				product.colors?.some((color) =>
+					selectedColors.includes(color.title),
+				),
+			);
+		}
+
+		// 🔹 Price filtering
 		if (selectedPriceRanges.length > 0) {
-			filtered = products.filter((product) => {
+			filtered = filtered.filter((product) => {
 				const priceInNGN = product.price || 0;
 				const priceInUSD = convertNGNtoUSD(priceInNGN);
 
@@ -127,25 +204,34 @@ const Category = () => {
 			});
 		}
 
-		const sorted = [...filtered];
-
+		// 🔹 Sorting
 		switch (selectedSort) {
 			case "Alphabetically, A to Z":
-				return sorted.sort((a, b) =>
+				return filtered.sort((a, b) =>
 					(a.name || "").localeCompare(b.name || ""),
 				);
+
 			case "Alphabetically, Z to A":
-				return sorted.sort((a, b) =>
+				return filtered.sort((a, b) =>
 					(b.name || "").localeCompare(a.name || ""),
 				);
+
 			case "Price, Low to High":
-				return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+				return filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+
 			case "Price, High to Low":
-				return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
+				return filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
+
 			default:
-				return sorted;
+				return filtered;
 		}
-	}, [products, selectedPriceRanges, selectedSort]);
+	}, [
+		products,
+		selectedCategories,
+		selectedColors,
+		selectedPriceRanges,
+		selectedSort,
+	]);
 
 	return (
 		<div className="h-auto w-full bg-gray-50">
@@ -223,3 +309,29 @@ const Category = () => {
 };
 
 export default Category;
+
+// import { getAllProducts } from "@/sanity/lib/product/getAllProducts";
+// import { getFilteredProducts } from "@/sanity/lib/product/getProductsByCategory";
+// import CategoryClientView from "./_components/CategoryClientView";
+
+// interface PageProps {
+//   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+// }
+
+// export default async function CategoryPage({ searchParams }: PageProps) {
+//   const params = await searchParams;
+//   const category = params.value as string | undefined;
+
+//   let products = [];
+//   try {
+//     if (category) {
+//       products = await getFilteredProducts({ categories: [category] });
+//     } else {
+//       products = await getAllProducts();
+//     }
+//   } catch (error) {
+//     console.error("SSR Fetch Error:", error);
+//   }
+
+//   return <CategoryClientView initialProducts={products} />;
+// }

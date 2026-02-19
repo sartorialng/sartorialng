@@ -23,7 +23,7 @@ export const getBestSellers = async () => {
 		{},
 		{
 			next: {
-				revalidate: 60,
+				revalidate: 30,
 			},
 		},
 	);

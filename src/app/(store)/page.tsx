@@ -8,6 +8,10 @@ import NewArrivals from "@/components/sections/NewArrivals";
 import ReviewSlide from "@/components/sections/ReviewSlide";
 import ShopByCategory from "@/components/sections/ShopByCategory";
 import WhySartorial from "@/components/sections/WhySartorial";
+import { getBestSellers } from "@/sanity/lib/product/getBestSellers";
+import { getNewArrivals } from "@/sanity/lib/product/getNewArrivals";
+import { getAllReviews } from "@/sanity/lib/product/getReviews";
+import { getSartorialBabes } from "@/sanity/lib/product/getSartorialBabes";
 import type { Metadata } from "next";
 import Script from "next/script";
 
@@ -31,7 +35,14 @@ export const metadata: Metadata = {
 	},
 };
 
-export default function Home() {
+export default async function Home() {
+	const [bestSellers, newArrivals, reviews, babes] = await Promise.all([
+		getBestSellers(),
+		getNewArrivals(),
+		getAllReviews(),
+		getSartorialBabes(),
+	]);
+
 	return (
 		<main className="h-auto w-full bg-sartorial-offWhite">
 			<Script
@@ -57,10 +68,10 @@ export default function Home() {
 			<Header />
 			<Hero />
 			<WhySartorial />
-			<BestSellers />
-			<NewArrivals />
+			<BestSellers products={bestSellers} />
+			<NewArrivals products={newArrivals} />
 			<ShopByCategory />
-			<ReviewSlide />
+			<ReviewSlide reviews={reviews} babes={babes} />
 			<Footer />
 			<JoinSartorialBabesModal />
 			<FloatingWhatsApp />

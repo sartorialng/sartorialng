@@ -147,7 +147,10 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 
 			<div className="mt-3">
 				<div className="text-center space-y-2">
-					<h3 className="text-lg md:text-2xl font-semibold text-sartorial-green leading-5">
+					<h3
+						className="text-lg md:text-2xl font-semibold text-sartorial-green leading-snug truncate w-full"
+						title={productName}
+					>
 						{productName}
 					</h3>
 

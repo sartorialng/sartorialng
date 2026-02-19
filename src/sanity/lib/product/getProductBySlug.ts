@@ -39,7 +39,7 @@ export const getProductBySlug = async (slug: string) => {
 		{ slug },
 		{
 			next: {
-				revalidate: 60,
+				revalidate: 30,
 			},
 		},
 	);

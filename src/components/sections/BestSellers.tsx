@@ -5,24 +5,16 @@ import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useBasketStore } from "@/store/store";
 import { toast } from "sonner";
-import { getBestSellers } from "@/sanity/lib/product/getBestSellers";
-import { useEffect, useState } from "react";
 import { Product } from "../../../sanity.types";
-import ProductCardSkeleton from "../layout/ProductCardSkeleton";
 import { motion } from "framer-motion";
 
-const BestSellers = () => {
+interface BestSellersProps {
+	products: Product[];
+}
+
+const BestSellers = ({ products }: BestSellersProps) => {
 	const router = useRouter();
 	const addItem = useBasketStore((s) => s.addItem);
-
-	const [products, setProducts] = useState<Product[]>([]);
-	const [loading, setLoading] = useState(true);
-
-	useEffect(() => {
-		getBestSellers()
-			.then((data) => setProducts(data))
-			.finally(() => setLoading(false));
-	}, []);
 
 	return (
 		<div
@@ -36,35 +28,30 @@ const BestSellers = () => {
 			</div>
 
 			<div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
-				{loading
-					? Array.from({ length: 4 }).map((_, index) => (
-							<ProductCardSkeleton key={index} />
-						))
-					: products.map((product) => {
-							const colorToUse = product.colors?.[0];
+				{products.map((product) => {
+					const colorToUse = product.colors?.[0];
 
-							if (!colorToUse) {
-								console.warn("Product has no colors");
-								return;
-							}
-							return (
-								<ProductCard
-									key={product._id}
-									product={product}
-									onAddToCart={() => {
-										addItem(product, colorToUse);
-										toast.success(
-											`${product.name} added to cart`,
-										);
-									}}
-									onBuyNow={() => {
-										addItem(product, colorToUse);
-										router.push("/checkout");
-									}}
-								/>
-							);
-						})}
+					if (!colorToUse) {
+						console.warn("Product has no colors");
+						return;
+					}
+					return (
+						<ProductCard
+							key={product._id}
+							product={product}
+							onAddToCart={() => {
+								addItem(product, colorToUse);
+								toast.success(`${product.name} added to cart`);
+							}}
+							onBuyNow={() => {
+								addItem(product, colorToUse);
+								router.push("/checkout");
+							}}
+						/>
+					);
+				})}
 			</div>
+
 			<div className="mt-20 flex justify-center">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
