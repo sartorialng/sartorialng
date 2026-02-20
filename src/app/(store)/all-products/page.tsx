@@ -10,7 +10,6 @@ import { Product } from "../../../../sanity.types";
 import { getAllProducts } from "@/sanity/lib/product/getAllProducts";
 import { toast } from "sonner";
 import ProductCardSkeleton from "@/components/layout/ProductCardSkeleton";
-import { getFilteredProducts } from "@/sanity/lib/product/getProductsByCategory";
 import { convertNGNtoUSD } from "@/lib/currency";
 import { categories, colors, priceRanges } from "@/data";
 import { SortByDropdown } from "@/components/layout/SortByDropdown";
@@ -63,25 +62,8 @@ const AllProducts = () => {
 		const fetchProducts = async () => {
 			setLoading(true);
 			try {
-				if (
-					selectedCategories.length > 0 ||
-					selectedColors.length > 0
-				) {
-					const filtered = await getFilteredProducts({
-						categories:
-							selectedCategories.length > 0
-								? selectedCategories
-								: undefined,
-						colors:
-							selectedColors.length > 0
-								? selectedColors
-								: undefined,
-					});
-					setProducts(filtered);
-				} else {
-					const allProducts = await getAllProducts();
-					setProducts(allProducts);
-				}
+				const allProducts = await getAllProducts();
+				setProducts(allProducts);
 			} catch (error) {
 				console.error("Error fetching products:", error);
 				toast.error("Failed to load products");
@@ -91,35 +73,47 @@ const AllProducts = () => {
 		};
 
 		fetchProducts();
-	}, [selectedCategories, selectedColors]);
+	}, []);
 
 	const filteredAndSortedProducts = useMemo(() => {
-		let filtered = products;
+		let filtered = [...products];
+
+		if (selectedCategories.length > 0) {
+			filtered = filtered.filter((product) => {
+				const productCategories = product.categories || [];
+				return productCategories.some((cat: any) =>
+					selectedCategories.some(
+						(selected) =>
+							selected.toLowerCase() === cat.title.toLowerCase(),
+					),
+				);
+			});
+		}
+
+		if (selectedColors.length > 0) {
+			filtered = filtered.filter((product) =>
+				product.colors?.some((color: any) =>
+					selectedColors.includes(color.title),
+				),
+			);
+		}
 
 		if (selectedPriceRanges.length > 0) {
-			filtered = products.filter((product) => {
-				const priceInNGN = product.price || 0;
-				const priceInUSD = convertNGNtoUSD(priceInNGN);
-
+			filtered = filtered.filter((product) => {
+				const priceInUSD = convertNGNtoUSD(product.price || 0);
 				return selectedPriceRanges.some((range) => {
-					switch (range) {
-						case "Under $25":
-							return priceInUSD < 25;
-						case "$25 - $50":
-							return priceInUSD >= 25 && priceInUSD <= 50;
-						case "$50 - $100":
-							return priceInUSD > 50 && priceInUSD <= 100;
-						case "Over $100":
-							return priceInUSD > 100;
-						default:
-							return false;
-					}
+					if (range === "Under $25") return priceInUSD < 25;
+					if (range === "$25 - $50")
+						return priceInUSD >= 25 && priceInUSD <= 50;
+					if (range === "$50 - $100")
+						return priceInUSD > 50 && priceInUSD <= 100;
+					if (range === "Over $100") return priceInUSD > 100;
+					return false;
 				});
 			});
 		}
 
 		const sorted = [...filtered];
-
 		switch (selectedSort) {
 			case "Alphabetically, A to Z":
 				return sorted.sort((a, b) =>
@@ -136,7 +130,13 @@ const AllProducts = () => {
 			default:
 				return sorted;
 		}
-	}, [products, selectedPriceRanges, selectedSort]);
+	}, [
+		products,
+		selectedCategories,
+		selectedColors,
+		selectedPriceRanges,
+		selectedSort,
+	]);
 
 	return (
 		<div className="h-auto w-full bg-gray-50">
