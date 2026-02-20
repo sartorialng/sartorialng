@@ -17,9 +17,9 @@ const JoinSartorialBabesModal = () => {
 	const [isOpen, setIsOpen] = useState(false);
 
 	useEffect(() => {
-		const hasJoined = localStorage.getItem("hasJoinedSartorial");
+		const hasJoined = localStorage.getItem("customer");
 
-		if (!hasJoined) {
+		if (hasJoined) {
 			const timer = setTimeout(() => {
 				setIsOpen(true);
 			}, 5000);

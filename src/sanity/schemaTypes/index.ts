@@ -6,6 +6,7 @@ import { blockContentType } from "./blockContent";
 import orderType from "./order";
 import reviewType from "./review";
 import sartorialBabesType from "./sartorial-babes";
+import customerType from "./customer";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
 	types: [
@@ -16,5 +17,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
 		orderType,
 		reviewType,
 		sartorialBabesType,
+		customerType,
 	],
 };

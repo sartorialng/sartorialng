@@ -189,57 +189,16 @@ const CheckoutPage = () => {
 				}
 			}
 		},
-		// onSuccess: async (ref) => {
-		// 	const toastId = toast.loading("Processing your order...");
-
-		// 	try {
-		// 		const result = await createOrderInDatabase(
-		// 			ref.reference,
-		// 			"paystack",
-		// 		);
-		// 		toast.dismiss(toastId);
-		// 		toast.success("Payment successful! Order created.");
-		// 		useBasketStore.getState().clearBasket();
-		// 		router.push(
-		// 			`/success?orderNumber=${result.order?.orderNumber}&reference=${ref.reference}`,
-		// 		);
-		// 	} catch (error: any) {
-		// 		toast.dismiss(toastId);
-		// 		console.error("Error creating order:", error);
-
-		// 		if (error.message?.includes("Insufficient stock")) {
-		// 			toast.error(error.message, {
-		// 				duration: 6000,
-		// 				description: "Please update your cart and try again.",
-		// 			});
-		// 			router.push("/basket");
-		// 		} else if (error.message?.includes("not found")) {
-		// 			toast.error(
-		// 				"Some items in your cart are no longer available",
-		// 				{ duration: 5000 },
-		// 			);
-		// 			router.push("/basket");
-		// 		} else {
-		// 			toast.error(
-		// 				"Payment received but order creation failed. Contact support with reference: " +
-		// 					ref.reference,
-		// 				{ duration: 8000 },
-		// 			);
-		// 		}
-		// 	}
-		// },
 		onClose: () => {
 			toast.info("Payment cancelled");
 		},
 	});
 
 	const handlePayPalSuccess = async (details: any) => {
-		const toastId = toast.loading("Processing your order...");
+		setIsProcessing(true);
 
 		try {
 			const result = await createOrderInDatabase(details.id, "paypal");
-
-			toast.dismiss(toastId);
 
 			// Handle duplicate order
 			if (result.isDuplicate) {
@@ -255,7 +214,8 @@ const CheckoutPage = () => {
 				`/success?orderNumber=${result.order?.orderNumber}&reference=${details.id}`,
 			);
 		} catch (error: any) {
-			toast.dismiss(toastId);
+			setIsProcessing(false);
+
 			console.error("Error processing PayPal order:", error);
 
 			// Handle specific error types
@@ -304,5 +264,4 @@ const CheckoutPage = () => {
 	);
 };
 
-// export default CheckoutPage;
 export default dynamic(() => Promise.resolve(CheckoutPage), { ssr: false });

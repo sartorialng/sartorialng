@@ -9,6 +9,9 @@ import Link from "next/link";
 import { BillingFormValues } from "@/lib/types/types";
 import { useState } from "react";
 import PaymentMethodModal from "@/app/(store)/checkout/PaymentMethodModal";
+import { adminClient } from "@/sanity/lib/sanity.admin";
+import { client } from "@/sanity/lib/client";
+import { toast } from "sonner";
 
 interface BillingFormProps {
 	formik: FormikProps<BillingFormValues>;
@@ -28,16 +31,40 @@ const BillingForm = ({
 }: BillingFormProps) => {
 	const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-	const handleCheckoutClick = (e: React.FormEvent) => {
+	// const handleCheckoutClick = (e: React.FormEvent) => {
+	// 	e.preventDefault();
+
+	// 	formik.validateForm().then((errors) => {
+	// 		if (Object.keys(errors).length === 0) {
+	// 			localStorage.setItem("customer", JSON.stringify(formik.values));
+
+	// 			setShowPaymentModal(true);
+	// 		} else {
+	// 			formik.handleSubmit();
+	// 		}
+	// 	});
+	// };
+
+	const handleCheckoutClick = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		formik.validateForm().then((errors) => {
-			if (Object.keys(errors).length === 0) {
-				setShowPaymentModal(true);
-			} else {
-				formik.handleSubmit();
-			}
-		});
+		const errors = await formik.validateForm();
+
+		if (Object.keys(errors).length === 0) {
+			fetch("/api/customer", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(formik.values),
+			}).catch((error) => {
+				console.error("Background Sanity save failed:", error);
+			});
+
+			localStorage.setItem("customer", JSON.stringify(formik.values));
+
+			setShowPaymentModal(true);
+		} else {
+			formik.handleSubmit();
+		}
 	};
 
 	const handlePaymentConfirm = (paymentMethod: string) => {
