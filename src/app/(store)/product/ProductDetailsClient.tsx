@@ -450,7 +450,7 @@ export default function ProductDetailsClient({
 					</p>
 				</div>
 				<div className="mt-5 md:mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
-					{relatedProducts.map((product) => {
+					{relatedProducts.map((product: any) => {
 						const colorToUse = product.colors?.[0];
 
 						if (!colorToUse) {
