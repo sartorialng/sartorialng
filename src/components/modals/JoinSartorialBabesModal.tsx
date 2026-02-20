@@ -51,8 +51,6 @@ const JoinSartorialBabesModal = () => {
 					throw new Error(data.error || "Failed to submit");
 				}
 
-				localStorage.setItem("hasJoinedSartorial", "true");
-
 				toast.success("Welcome to Sartorial Babes! 🎉");
 
 				formik.resetForm();
