@@ -76,8 +76,14 @@ const ShippingDetails = () => {
 			tracking: "Available",
 		},
 		{
-			area: "International Deliveries",
-			cost: "₦268,000*",
+			area: "African Deliveries",
+			cost: "₦125,000",
+			time: "5 – 8 working days",
+			tracking: "Available",
+		},
+		{
+			area: "International (Europe, North America, Asia, etc.)",
+			cost: "₦268,000",
 			time: "14 working days",
 			tracking: "Available",
 		},

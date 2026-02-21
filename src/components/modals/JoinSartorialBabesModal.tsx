@@ -7,11 +7,13 @@ import {
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
+	DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/form/CustomInput";
 import { joinSartorialSchema } from "@/lib/validation-schemas";
 import { toast } from "sonner";
+import { XCircle } from "lucide-react";
 
 const JoinSartorialBabesModal = () => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -70,8 +72,16 @@ const JoinSartorialBabesModal = () => {
 
 	return (
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
-			<DialogContent className="sm:max-w-130 max-h-[90vh] rounded-3xl p-5 md:p-10">
-				<DialogHeader>
+			<DialogContent
+				// className="sm:max-w-130 max-h-[90vh] rounded-3xl p-5 md:p-10"
+				className="w-[95%] sm:max-w-112.5 max-h-[90vh] rounded-3xl p-6 md:p-10 overflow-y-auto"
+				showCloseButton={false}
+			>
+				<DialogClose className="absolute cursor-pointer right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+					<XCircle className="h-8 w-8 text-sartorial-green" />
+					<span className="sr-only">Close</span>
+				</DialogClose>
+				<DialogHeader className="pt-8 md:pt-2">
 					<DialogTitle className="text-xl md:text-2xl font-bold text-sartorial-green text-center">
 						JOIN THE SARTORIAL BABES&apos;S BENEFITS #SBB
 					</DialogTitle>

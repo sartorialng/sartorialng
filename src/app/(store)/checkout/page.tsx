@@ -243,9 +243,12 @@ const CheckoutPage = () => {
 	return (
 		<div className="h-auto w-full bg-gray-50">
 			<Header />
-			<div className="flex flex-col md:flex-row w-full px-6 md:px-20 py-25 md:py-40 gap-8">
-				<div className="w-full md:w-[60%] bg-[#2D5A43] rounded-sm p-5 md:p-12">
-					<h1 className="text-3xl text-white font-semibold text-center tracking-wide mb-5 md:mb-10">
+			<div className="flex flex-col md:flex-row w-full px-6 md:px-20 py-25 md:py-30 gap-8">
+				<div
+					className="w-full md:w-[60%] bg-[#2D5A43] rounded-sm p-5 md:p-12 
+                max-h-[80vh] overflow-y-auto custom-scrollbar"
+				>
+					<h1 className="text-2xl md:text-3xl text-white font-semibold text-center tracking-wide mb-5 md:mb-10">
 						Checkout
 					</h1>
 					<BillingForm

@@ -31,20 +31,6 @@ const BillingForm = ({
 }: BillingFormProps) => {
 	const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-	// const handleCheckoutClick = (e: React.FormEvent) => {
-	// 	e.preventDefault();
-
-	// 	formik.validateForm().then((errors) => {
-	// 		if (Object.keys(errors).length === 0) {
-	// 			localStorage.setItem("customer", JSON.stringify(formik.values));
-
-	// 			setShowPaymentModal(true);
-	// 		} else {
-	// 			formik.handleSubmit();
-	// 		}
-	// 	});
-	// };
-
 	const handleCheckoutClick = async (e: React.FormEvent) => {
 		e.preventDefault();
 
