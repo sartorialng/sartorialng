@@ -26,7 +26,7 @@ const Footer = () => {
 					<div className="ml-5 mt-3 text-white flex flex-col gap-4">
 						<div className="flex items-center gap-3">
 							<PhoneIcon />
-							<p>+234 916 987 1900</p>
+							<p>+234 916 987 0900</p>
 						</div>
 						<div className="flex items-center gap-3">
 							<WhatsappIcon />
