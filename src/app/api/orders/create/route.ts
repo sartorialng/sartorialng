@@ -15,6 +15,7 @@ export async function POST(req: Request) {
 			area,
 			postalCode,
 			phoneNo,
+			secondaryPhoneNo,
 			emailAddress,
 			shipToDifferentAddress,
 			shippingAddress,
@@ -23,6 +24,7 @@ export async function POST(req: Request) {
 			shippingArea,
 			shippingPostalCode,
 			shippingPhoneNo,
+			shippingSecondaryPhoneNo,
 			clerkUserId,
 			clerkUserName,
 			items,
@@ -150,6 +152,9 @@ export async function POST(req: Request) {
 				? shippingPostalCode
 				: postalCode,
 			phone: shipToDifferentAddress ? shippingPhoneNo : phoneNo,
+			secondaryPhone: shipToDifferentAddress
+				? shippingSecondaryPhoneNo
+				: secondaryPhoneNo,
 		};
 		console.log("Shipping Address Data:", shippingAddressData);
 

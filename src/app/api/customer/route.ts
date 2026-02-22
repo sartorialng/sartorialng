@@ -49,7 +49,14 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
-		const { firstName, lastName, emailAddress, phoneNo, address } = body;
+		const {
+			firstName,
+			lastName,
+			emailAddress,
+			phoneNo,
+			address,
+			secondaryPhoneNo,
+		} = body;
 
 		if (!emailAddress) {
 			return NextResponse.json(
@@ -82,6 +89,7 @@ export async function POST(request: NextRequest) {
 			lastName: lastName || "",
 			email: emailAddress,
 			phone: phoneNo || "",
+			secondaryPhone: secondaryPhoneNo || "",
 			address: address || "",
 			createdAt: new Date().toISOString(),
 		});

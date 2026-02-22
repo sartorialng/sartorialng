@@ -5,6 +5,7 @@ import {
 	MailIcon,
 	PhoneIcon,
 	SartorialFooterIcon,
+	SnapIcon,
 	TikTokIcon,
 	WhatsappIcon,
 } from "@/assets";
@@ -73,7 +74,7 @@ const Footer = () => {
 								"https://www.facebook.com/share/1H5cbvv1zc/?mibextid=wwXIfr"
 							}
 							target="_blank"
-							className="flex items-center gap-3"
+							className="hover:opacity-80 transition-opacity flex items-center gap-3"
 						>
 							<FacebookIcon />
 							<p>Facebook</p>
@@ -81,7 +82,7 @@ const Footer = () => {
 						<Link
 							href={"https://www.instagram.com/sartorialstore"}
 							target="_blank"
-							className="flex items-center gap-3"
+							className="hover:opacity-80 transition-opacity flex items-center gap-3"
 						>
 							<IgIcon />
 							<p>Instagram</p>
@@ -89,10 +90,26 @@ const Footer = () => {
 						<Link
 							href={"https://www.tiktok.com/@thesartorialstore"}
 							target="_blank"
-							className="flex items-center gap-3"
+							className="hover:opacity-80 transition-opacity not-last:flex items-center gap-3"
 						>
 							<TikTokIcon />
 							<p>TikTok</p>
+						</Link>
+						<Link
+							href="https://www.snapchat.com/add/sartobaby"
+							target="_blank"
+							className="hover:opacity-80 transition-opacity flex items-center gap-3"
+						>
+							<SnapIcon />
+							<p>Snapchat</p>
+						</Link>
+						<Link
+							href="https://wa.me/message/QH63ZFF2HQA3O1"
+							target="_blank"
+							className="hover:opacity-80 transition-opacity flex items-center gap-3"
+						>
+							<WhatsappIcon />
+							<p>WhatsApp</p>
 						</Link>
 					</div>
 				</div>

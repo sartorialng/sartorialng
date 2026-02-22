@@ -10,6 +10,10 @@ export const billingSchema = yup.object().shape({
 	area: yup.string().trim(),
 	postalCode: yup.string().trim(),
 	phoneNo: yup.string().trim().required("Phone number is required"),
+	secondaryPhoneNo: yup
+		.string()
+		.trim()
+		.required("Secondary phone number is required"),
 	emailAddress: yup
 		.string()
 		.email("Invalid email")
@@ -42,6 +46,12 @@ export const billingSchema = yup.object().shape({
 		is: true,
 		then: (schema) =>
 			schema.required("Receiver's phone number is required"),
+		otherwise: (schema) => schema.notRequired(),
+	}),
+	shippingSecondaryPhoneNo: yup.string().when("shipToDifferentAddress", {
+		is: true,
+		then: (schema) =>
+			schema.required("Receiver's secondary phone number is required"),
 		otherwise: (schema) => schema.notRequired(),
 	}),
 });

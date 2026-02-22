@@ -17,6 +17,7 @@ export interface BillingFormValues {
 	area: string;
 	postalCode: string;
 	phoneNo: string;
+	secondaryPhoneNo: string;
 	emailAddress: string;
 	saveInfo: boolean;
 	shipToDifferentAddress: boolean;
@@ -29,6 +30,7 @@ export interface BillingFormValues {
 	shippingArea: string;
 	shippingPostalCode: string;
 	shippingPhoneNo: string;
+	shippingSecondaryPhoneNo: string;
 	orderNote: string;
 }
 

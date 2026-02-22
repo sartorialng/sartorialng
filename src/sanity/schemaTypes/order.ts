@@ -141,6 +141,11 @@ const orderType = defineType({
 				{ name: "country", title: "Country", type: "string" },
 				{ name: "postalCode", title: "Postal Code", type: "string" },
 				{ name: "phone", title: "Phone Number", type: "string" },
+				{
+					name: "secondaryPhone",
+					title: "Secondary Phone Number",
+					type: "string",
+				},
 			],
 		}),
 		defineField({

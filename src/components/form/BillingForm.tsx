@@ -9,9 +9,6 @@ import Link from "next/link";
 import { BillingFormValues } from "@/lib/types/types";
 import { useState } from "react";
 import PaymentMethodModal from "@/app/(store)/checkout/PaymentMethodModal";
-import { adminClient } from "@/sanity/lib/sanity.admin";
-import { client } from "@/sanity/lib/client";
-import { toast } from "sonner";
 
 interface BillingFormProps {
 	formik: FormikProps<BillingFormValues>;
@@ -180,16 +177,29 @@ const BillingForm = ({
 					/>
 				)}
 
-				<CustomInput
-					id="phoneNo"
-					label="Phone No.*"
-					type="tel"
-					labelStyle={labelStyle}
-					inputStyle={inputStyle}
-					{...formik.getFieldProps("phoneNo")}
-					error={formik.errors.phoneNo}
-					touched={formik.touched.phoneNo}
-				/>
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<CustomInput
+						id="phoneNo"
+						label="Phone No.*"
+						type="tel"
+						labelStyle={labelStyle}
+						inputStyle={inputStyle}
+						{...formik.getFieldProps("phoneNo")}
+						error={formik.errors.phoneNo}
+						touched={formik.touched.phoneNo}
+					/>
+
+					<CustomInput
+						id="secondaryPhoneNo"
+						label="Alternate Phone No.*"
+						type="tel"
+						labelStyle={labelStyle}
+						inputStyle={inputStyle}
+						{...formik.getFieldProps("secondaryPhoneNo")}
+						error={formik.errors.secondaryPhoneNo}
+						touched={formik.touched.secondaryPhoneNo}
+					/>
+				</div>
 
 				<CustomInput
 					id="emailAddress"
@@ -347,16 +357,33 @@ const BillingForm = ({
 							/>
 						)}
 
-						<CustomInput
-							id="shippingPhoneNo"
-							label="Phone No.*"
-							type="tel"
-							labelStyle={labelStyle}
-							inputStyle={inputStyle}
-							{...formik.getFieldProps("shippingPhoneNo")}
-							error={formik.errors.shippingPhoneNo}
-							touched={formik.touched.shippingPhoneNo}
-						/>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<CustomInput
+								id="shippingPhoneNo"
+								label="Phone No.*"
+								type="tel"
+								labelStyle={labelStyle}
+								inputStyle={inputStyle}
+								{...formik.getFieldProps("shippingPhoneNo")}
+								error={formik.errors.shippingPhoneNo}
+								touched={formik.touched.shippingPhoneNo}
+							/>
+
+							<CustomInput
+								id="shippingSecondaryPhoneNo"
+								label="Alternate Phone No.*"
+								type="tel"
+								labelStyle={labelStyle}
+								inputStyle={inputStyle}
+								{...formik.getFieldProps(
+									"shippingSecondaryPhoneNo",
+								)}
+								error={formik.errors.shippingSecondaryPhoneNo}
+								touched={
+									formik.touched.shippingSecondaryPhoneNo
+								}
+							/>
+						</div>
 
 						<CustomInput
 							id="orderNote"
@@ -368,6 +395,19 @@ const BillingForm = ({
 						/>
 					</div>
 				)}
+
+				<div className="bg-white rounded-lg p-5 md:p-6 shadow-sm border border-gray-100">
+					<h3 className="text-red-600 font-bold text-lg mb-2">
+						Important Notice!
+					</h3>
+					<p className="text-[#404040] text-sm md:text-base leading-relaxed font-medium">
+						Please note that delivery within Lagos takes 24-48hrs
+						(Business Days). Inter-state takes 2-5 business days,
+						deliveries within Africa take 5-8 business days, and
+						international deliveries take 14 business days excluding
+						public holidays.
+					</p>
+				</div>
 
 				<div className="mt-5 text-white space-y-2">
 					<Button
@@ -387,13 +427,6 @@ const BillingForm = ({
 					</div>
 				</div>
 			</form>
-
-			{/* <PaymentMethodModal
-				isOpen={showPaymentModal}
-				onClose={() => setShowPaymentModal(false)}
-				onConfirm={handlePaymentConfirm}
-				totalAmount={totalAmount}
-			/> */}
 			<PaymentMethodModal
 				isOpen={showPaymentModal}
 				onClose={() => setShowPaymentModal(false)}

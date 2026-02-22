@@ -29,6 +29,11 @@ const customerType = defineType({
 			type: "string",
 		}),
 		defineField({
+			name: "secondaryPhone",
+			title: "Secondary Phone Number",
+			type: "string",
+		}),
+		defineField({
 			name: "address",
 			title: "Address",
 			type: "text",
