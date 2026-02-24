@@ -69,7 +69,7 @@ const CheckoutPage = () => {
 	const { country } = getShippingAddress();
 
 	const [couponCode, setCouponCode] = useState("");
-	const [discount, setDiscount] = useState(0);
+	const [discountPercentage, setDiscountPercentage] = useState(0);
 	const [couponStatus, setCouponStatus] = useState<
 		"idle" | "loading" | "success" | "error"
 	>("idle");
@@ -79,6 +79,40 @@ const CheckoutPage = () => {
 		formik.values.emailAddress ||
 		user?.emailAddresses?.[0]?.emailAddress ||
 		"";
+
+	// const handleApplyCoupon = async () => {
+	// 	setCouponStatus("loading");
+	// 	setCouponMessage("");
+
+	// 	try {
+	// 		const res = await fetch("/api/coupon/validate", {
+	// 			method: "POST",
+	// 			headers: { "Content-Type": "application/json" },
+	// 			body: JSON.stringify({ code: couponCode, email: userEmail }),
+	// 		});
+
+	// 		const data = await res.json();
+
+	// 		if (!res.ok || !data.valid) {
+	// 			setCouponStatus("error");
+	// 			setCouponMessage(data.message || "Invalid coupon code.");
+	// 			setDiscount(0);
+	// 			return;
+	// 		}
+
+	// 		const discountPercentage = Number(data.discountValue) || 0;
+	// 		const discountValue = Math.round(
+	// 			(discountPercentage / 100) * subtotal,
+	// 		);
+	// 		setDiscount(discountValue);
+	// 		setCouponStatus("success");
+	// 		setCouponMessage(data.message || "Coupon applied successfully!");
+	// 	} catch {
+	// 		setCouponStatus("error");
+	// 		setCouponMessage("Something went wrong. Please try again.");
+	// 		setDiscount(0);
+	// 	}
+	// };
 
 	const handleApplyCoupon = async () => {
 		setCouponStatus("loading");
@@ -96,21 +130,19 @@ const CheckoutPage = () => {
 			if (!res.ok || !data.valid) {
 				setCouponStatus("error");
 				setCouponMessage(data.message || "Invalid coupon code.");
-				setDiscount(0);
+				setDiscountPercentage(0);
 				return;
 			}
 
-			const discountPercentage = Number(data.discountValue) || 0;
-			const discountValue = Math.round(
-				(discountPercentage / 100) * subtotal,
-			);
-			setDiscount(discountValue);
+			const percentage = Number(data.discountValue) || 0;
+
+			setDiscountPercentage(percentage);
 			setCouponStatus("success");
 			setCouponMessage(data.message || "Coupon applied successfully!");
 		} catch {
 			setCouponStatus("error");
 			setCouponMessage("Something went wrong. Please try again.");
-			setDiscount(0);
+			setDiscountPercentage(0);
 		}
 	};
 
@@ -121,8 +153,11 @@ const CheckoutPage = () => {
 		? 0
 		: calculateShipping(getShippingAddress());
 
-	// const total = subtotal + shipping - discount;
-	const total = (subtotal || 0) + (shipping || 0) - (discount || 0);
+	const baseAmount = (subtotal || 0) + (shipping || 0);
+
+	const discount = Math.round((discountPercentage / 100) * baseAmount);
+
+	const total = baseAmount - discount;
 
 	const createOrderInDatabase = async (
 		paymentReference: string,
@@ -165,7 +200,8 @@ const CheckoutPage = () => {
 					total,
 					shipping,
 					subtotal,
-					amountDiscount: discount.toLocaleString(),
+					amountDiscount: discount,
+					couponCode: couponStatus === "success" ? couponCode : null,
 				}),
 			});
 
@@ -235,13 +271,11 @@ const CheckoutPage = () => {
 						duration: 6000,
 						description: "Please update your cart and try again.",
 					});
-					router.push("/basket");
 				} else if (error.message?.includes("not found")) {
 					toast.error(
 						"Some items in your cart are no longer available",
 						{ duration: 5000 },
 					);
-					router.push("/basket");
 				} else {
 					toast.error(
 						"Payment received but order creation failed. Contact support with reference: " +
@@ -289,12 +323,10 @@ const CheckoutPage = () => {
 					duration: 6000,
 					description: "Please update your cart and try again.",
 				});
-				router.push("/basket");
 			} else if (error.message?.includes("not found")) {
 				toast.error("Some items in your cart are no longer available", {
 					duration: 5000,
 				});
-				router.push("/basket");
 			} else {
 				toast.error(
 					"Payment received but order creation failed. Please contact support with reference: " +
@@ -318,7 +350,7 @@ const CheckoutPage = () => {
 	};
 
 	return (
-		<div className="h-auto w-full bg-gray-50">
+		<div className="h-auto flex flex-col bg-gray-50">
 			<Header />
 			<div className="flex flex-col md:flex-row w-full px-6 md:px-20 py-25 md:py-30 gap-8">
 				<div

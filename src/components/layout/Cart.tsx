@@ -168,12 +168,14 @@ const Cart = () => {
 							</div>
 						</div>
 
-						<Button
-							className="mt-6 h-10 w-full rounded-full bg-white text-green-900 hover:bg-white/90 cursor-pointer"
-							onClick={() => router.push("/checkout")}
-						>
-							Checkout
-						</Button>
+						<DialogClose asChild>
+							<Button
+								className="mt-6 h-10 w-full rounded-full bg-white text-green-900 hover:bg-white/90 cursor-pointer"
+								onClick={() => router.push("/checkout")}
+							>
+								Checkout
+							</Button>
+						</DialogClose>
 						<DialogClose asChild>
 							<Link
 								href="/"

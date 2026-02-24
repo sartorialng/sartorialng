@@ -34,6 +34,7 @@ export async function POST(req: Request) {
 			shipping: shippingCost,
 			subtotal,
 			amountDiscount,
+			couponCode,
 		} = body;
 
 		// Validate required fields
@@ -242,6 +243,32 @@ export async function POST(req: Request) {
 				newOrder.orderNumber,
 				error,
 			);
+		}
+
+		// After order is created successfully, redeem coupon if one was applied
+		if (couponCode) {
+			const coupon = await adminClient.fetch(
+				`*[_type == "coupon" && code == $code][0]`,
+				{ code: couponCode.toUpperCase().trim() },
+			);
+
+			if (coupon) {
+				await adminClient
+					.patch(coupon._id)
+					.set({ usedCount: (coupon.usedCount || 0) + 1 })
+					.setIfMissing({ redeemedBy: [] })
+					.append("redeemedBy", [emailAddress])
+					.commit();
+
+				// Deactivate if usage limit is now reached
+				const newUsedCount = (coupon.usedCount || 0) + 1;
+				if (coupon.usageLimit && newUsedCount >= coupon.usageLimit) {
+					await adminClient
+						.patch(coupon._id)
+						.set({ isActive: false })
+						.commit();
+				}
+			}
 		}
 
 		return NextResponse.json({

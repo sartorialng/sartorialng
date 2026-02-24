@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 			createdAt: new Date().toISOString(),
 		});
 
-		const couponCode = `WELCOME-${firstName.toUpperCase()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+		const couponCode = `WEL${crypto.randomUUID().replace(/-/g, "").slice(0, 3).toUpperCase()}`;
 
 		await adminClient.create({
 			_type: "coupon",
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 		});
 
 		await resend.emails.send({
-			from: "Sartorial Babes <team@sartorial.ng>",
+			from: "Sartorial Babes <noreply@sartorial.ng>",
 			to: emailAddress,
 			subject: "Your account has been created 🎉",
 			html: `
