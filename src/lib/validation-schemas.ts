@@ -20,6 +20,7 @@ export const billingSchema = yup.object().shape({
 		.required("Email is required"),
 	saveInfo: yup.boolean(),
 	shipToDifferentAddress: yup.boolean(),
+	hasRegistered: yup.boolean(),
 	receiverFirstName: yup.string().when("shipToDifferentAddress", {
 		is: true,
 		then: (schema) => schema.required("Receiver's first name is required"),

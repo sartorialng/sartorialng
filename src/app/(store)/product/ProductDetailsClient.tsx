@@ -234,7 +234,9 @@ export default function ProductDetailsClient({
 								</span>{" "}
 								{product.stock > 0 ? (
 									<span className="text-green-600">
-										In Stock ({product.stock} available)
+										{product.stock < 10
+											? `${product.stock} available`
+											: "In Stock"}
 									</span>
 								) : (
 									<span className="text-red-600">

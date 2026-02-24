@@ -15,6 +15,7 @@ import { CartIcon, SartorialBag } from "@/assets";
 import { useRouter } from "next/navigation";
 import { urlFor } from "@/lib/imageUrl";
 import { convertNGNtoUSD } from "@/lib/currency";
+import Link from "next/link";
 
 const Cart = () => {
 	const router = useRouter();
@@ -173,11 +174,13 @@ const Cart = () => {
 						>
 							Checkout
 						</Button>
-
 						<DialogClose asChild>
-							<button className="mx-auto mt-3 block text-sm text-white/70 hover:text-white cursor-pointer">
+							<Link
+								href="/"
+								className="mx-auto mt-3 block text-center text-sm text-white/70 hover:text-white cursor-pointer"
+							>
 								Continue Shopping
-							</button>
+							</Link>
 						</DialogClose>
 					</div>
 				)}

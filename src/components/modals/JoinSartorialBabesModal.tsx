@@ -19,15 +19,11 @@ const JoinSartorialBabesModal = () => {
 	const [isOpen, setIsOpen] = useState(false);
 
 	useEffect(() => {
-		const hasJoined = localStorage.getItem("customer");
+		const timer = setTimeout(() => {
+			setIsOpen(true);
+		}, 5000);
 
-		if (hasJoined) {
-			const timer = setTimeout(() => {
-				setIsOpen(true);
-			}, 5000);
-
-			return () => clearTimeout(timer);
-		}
+		return () => clearTimeout(timer);
 	}, []);
 
 	const formik = useFormik({

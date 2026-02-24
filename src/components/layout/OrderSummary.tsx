@@ -10,9 +10,24 @@ import { convertNGNtoUSD } from "@/lib/currency";
 interface OrderSummaryProps {
 	shipping: number;
 	total: number;
+	couponCode: string;
+	setCouponCode: (val: string) => void;
+	discount: number;
+	couponStatus: "idle" | "loading" | "success" | "error";
+	couponMessage: string;
+	onApplyCoupon: () => void;
 }
 
-const OrderSummary = ({ shipping, total }: OrderSummaryProps) => {
+const OrderSummary = ({
+	shipping,
+	total,
+	couponCode,
+	setCouponCode,
+	discount,
+	couponStatus,
+	couponMessage,
+	onApplyCoupon,
+}: OrderSummaryProps) => {
 	const mounted = useSyncExternalStore(
 		() => () => {},
 		() => true,
@@ -117,6 +132,17 @@ const OrderSummary = ({ shipping, total }: OrderSummaryProps) => {
 
 			<div className="my-4 border-t" />
 
+			{/* Show discount line if applied */}
+			{discount > 0 && (
+				<div>
+					<div className="flex justify-between text-green-600 font-medium">
+						<span>Discount:</span>
+						<span>- ₦{discount.toLocaleString()}</span>
+					</div>
+					<div className="my-4 border-t" />
+				</div>
+			)}
+
 			<div className="flex justify-between mb-6 font-bold">
 				<span>Total:</span>
 				<div className="text-right">
@@ -131,7 +157,7 @@ const OrderSummary = ({ shipping, total }: OrderSummaryProps) => {
 				</div>
 			</div>
 
-			<div className="flex gap-3">
+			{/* <div className="flex gap-3">
 				<input
 					type="text"
 					placeholder="Coupon Code"
@@ -140,6 +166,35 @@ const OrderSummary = ({ shipping, total }: OrderSummaryProps) => {
 				<Button className="text-xs md:text-base rounded-full bg-sartorial-green text-white hover:bg-green-800 h-11 cursor-pointer">
 					Apply Coupon
 				</Button>
+			</div> */}
+			<div className="flex flex-col gap-2">
+				<div className="flex gap-3">
+					<input
+						type="text"
+						placeholder="Coupon Code"
+						value={couponCode}
+						onChange={(e) => setCouponCode(e.target.value)}
+						className="w-full border rounded-full px-4 h-11 outline-none focus:ring-2 focus:ring-green-700 text-xs md:text-base"
+					/>
+					<Button
+						onClick={onApplyCoupon}
+						disabled={couponStatus === "loading" || !couponCode}
+						className="text-xs md:text-base rounded-full bg-sartorial-green text-white hover:bg-green-800 h-11 cursor-pointer"
+					>
+						{couponStatus === "loading"
+							? "Applying..."
+							: "Apply Coupon"}
+					</Button>
+				</div>
+
+				{/* Feedback message */}
+				{couponMessage && (
+					<p
+						className={`text-sm px-1 ${couponStatus === "success" ? "text-green-600" : "text-red-500"}`}
+					>
+						{couponMessage}
+					</p>
+				)}
 			</div>
 		</div>
 	);

@@ -3,6 +3,7 @@ import { BusIcon, CustomerServiceIcon, StarCircleIcon } from "@/assets";
 import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
 import { motion, Variants } from "framer-motion";
+import { useEffect, useState } from "react";
 
 const containerVariants: Variants = {
 	hidden: { opacity: 0 },
@@ -28,6 +29,16 @@ const WhySartorial = () => {
 		threshold: 0.3,
 		triggerOnce: true,
 	});
+
+	const [hasCounted, setHasCounted] = useState(false);
+
+	useEffect(() => {
+		const countedBefore = sessionStorage.getItem("counterPlayed");
+
+		if (countedBefore) {
+			setHasCounted(true);
+		}
+	}, []);
 
 	return (
 		<div className="w-full md:mt-10 px-8 md:px-20 py-10">
@@ -97,7 +108,7 @@ const WhySartorial = () => {
 			>
 				<div className="w-full md:w-1/2 border shadow-lg border-sartorial-green rounded-sm flex justify-around items-center p-5">
 					<div className="flex flex-col gap-1 items-center text-black">
-						<p className="font-bold text-[50px] md:text-[64px] text-sartorial-green">
+						{/* <p className="font-bold text-[50px] md:text-[64px] text-sartorial-green">
 							{inView ? (
 								<CountUp
 									start={9500}
@@ -108,6 +119,26 @@ const WhySartorial = () => {
 								/>
 							) : (
 								"9,500+"
+							)}
+						</p> */}
+						<p className="font-bold text-[50px] md:text-[64px] text-sartorial-green">
+							{inView && !hasCounted ? (
+								<CountUp
+									start={9500}
+									end={10500}
+									duration={2.5}
+									separator=","
+									suffix="+"
+									onEnd={() => {
+										sessionStorage.setItem(
+											"counterPlayed",
+											"true",
+										);
+										setHasCounted(true);
+									}}
+								/>
+							) : (
+								"10,500+"
 							)}
 						</p>
 						<p className="text-base text-center">

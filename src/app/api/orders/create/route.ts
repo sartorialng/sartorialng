@@ -33,6 +33,7 @@ export async function POST(req: Request) {
 			total,
 			shipping: shippingCost,
 			subtotal,
+			amountDiscount,
 		} = body;
 
 		// Validate required fields
@@ -156,7 +157,6 @@ export async function POST(req: Request) {
 				? shippingSecondaryPhoneNo
 				: secondaryPhoneNo,
 		};
-		console.log("Shipping Address Data:", shippingAddressData);
 
 		// Prepare order data
 		const orderData: any = {
@@ -173,6 +173,7 @@ export async function POST(req: Request) {
 			status: "paid",
 			orderDate: new Date().toISOString(),
 			shippingAddress: shippingAddressData,
+			amountDiscount: amountDiscount || 0,
 		};
 
 		// Add payment method specific fields

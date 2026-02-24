@@ -21,6 +21,7 @@ export interface BillingFormValues {
 	emailAddress: string;
 	saveInfo: boolean;
 	shipToDifferentAddress: boolean;
+	hasRegistered: boolean;
 	receiverFirstName: string;
 	receiverLastName: string;
 	shippingAddress: string;

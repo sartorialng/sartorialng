@@ -37,6 +37,7 @@ const CheckoutPage = () => {
 			emailAddress: "",
 			saveInfo: false,
 			shipToDifferentAddress: false,
+			hasRegistered: false,
 			receiverFirstName: "",
 			receiverLastName: "",
 			shippingAddress: "",
@@ -65,8 +66,63 @@ const CheckoutPage = () => {
 			: formik.values.area,
 	});
 
-	const shipping = calculateShipping(getShippingAddress());
-	const total = subtotal + shipping;
+	const { country } = getShippingAddress();
+
+	const [couponCode, setCouponCode] = useState("");
+	const [discount, setDiscount] = useState(0);
+	const [couponStatus, setCouponStatus] = useState<
+		"idle" | "loading" | "success" | "error"
+	>("idle");
+	const [couponMessage, setCouponMessage] = useState("");
+
+	const userEmail =
+		formik.values.emailAddress ||
+		user?.emailAddresses?.[0]?.emailAddress ||
+		"";
+
+	const handleApplyCoupon = async () => {
+		setCouponStatus("loading");
+		setCouponMessage("");
+
+		try {
+			const res = await fetch("/api/coupon/validate", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ code: couponCode, email: userEmail }),
+			});
+
+			const data = await res.json();
+
+			if (!res.ok || !data.valid) {
+				setCouponStatus("error");
+				setCouponMessage(data.message || "Invalid coupon code.");
+				setDiscount(0);
+				return;
+			}
+
+			const discountPercentage = Number(data.discountValue) || 0;
+			const discountValue = Math.round(
+				(discountPercentage / 100) * subtotal,
+			);
+			setDiscount(discountValue);
+			setCouponStatus("success");
+			setCouponMessage(data.message || "Coupon applied successfully!");
+		} catch {
+			setCouponStatus("error");
+			setCouponMessage("Something went wrong. Please try again.");
+			setDiscount(0);
+		}
+	};
+
+	const isEligibleForFreeShipping =
+		country === "Nigeria" && subtotal >= 200000;
+
+	const shipping = isEligibleForFreeShipping
+		? 0
+		: calculateShipping(getShippingAddress());
+
+	// const total = subtotal + shipping - discount;
+	const total = (subtotal || 0) + (shipping || 0) - (discount || 0);
 
 	const createOrderInDatabase = async (
 		paymentReference: string,
@@ -109,6 +165,7 @@ const CheckoutPage = () => {
 					total,
 					shipping,
 					subtotal,
+					amountDiscount: discount.toLocaleString(),
 				}),
 			});
 
@@ -158,6 +215,9 @@ const CheckoutPage = () => {
 				: undefined,
 		})),
 		onSuccess: async (ref) => {
+			if (formik.values.hasRegistered) {
+				createAccount();
+			}
 			setIsProcessing(true);
 			try {
 				const result = await createOrderInDatabase(
@@ -198,6 +258,9 @@ const CheckoutPage = () => {
 
 	const handlePayPalSuccess = async (details: any) => {
 		setIsProcessing(true);
+		if (formik.values.hasRegistered) {
+			createAccount();
+		}
 
 		try {
 			const result = await createOrderInDatabase(details.id, "paypal");
@@ -242,6 +305,18 @@ const CheckoutPage = () => {
 		}
 	};
 
+	const createAccount = () => {
+		fetch("/api/customer", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				...formik.values,
+			}),
+		}).catch((error) => {
+			console.error("Background Sanity save failed:", error);
+		});
+	};
+
 	return (
 		<div className="h-auto w-full bg-gray-50">
 			<Header />
@@ -261,7 +336,16 @@ const CheckoutPage = () => {
 					/>
 				</div>
 
-				<OrderSummary shipping={shipping} total={total} />
+				<OrderSummary
+					shipping={shipping}
+					total={total}
+					couponCode={couponCode}
+					setCouponCode={setCouponCode}
+					discount={discount}
+					couponStatus={couponStatus}
+					couponMessage={couponMessage}
+					onApplyCoupon={handleApplyCoupon}
+				/>
 			</div>
 			<Footer />
 			<ProcessingOverlay isVisible={isProcessing} />

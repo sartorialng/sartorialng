@@ -34,16 +34,6 @@ const BillingForm = ({
 		const errors = await formik.validateForm();
 
 		if (Object.keys(errors).length === 0) {
-			fetch("/api/customer", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(formik.values),
-			}).catch((error) => {
-				console.error("Background Sanity save failed:", error);
-			});
-
-			localStorage.setItem("customer", JSON.stringify(formik.values));
-
 			setShowPaymentModal(true);
 		} else {
 			formik.handleSubmit();
@@ -407,6 +397,26 @@ const BillingForm = ({
 						international deliveries take 14 business days excluding
 						public holidays.
 					</p>
+				</div>
+
+				<div className="flex items-center space-x-2">
+					<Checkbox
+						id="hasRegistered"
+						checked={formik.values.hasRegistered}
+						onCheckedChange={(checked) => {
+							formik.setFieldValue(
+								"hasRegistered",
+								checked === true,
+							);
+						}}
+						className="border-white data-[state=checked]:bg-white data-[state=checked]:text-[#2D5A43]"
+					/>
+					<label
+						htmlFor="hasRegistered"
+						className="text-base font-medium leading-none text-white cursor-pointer"
+					>
+						Join Sartorial Babes and get 50% off your next purchase!
+					</label>
 				</div>
 
 				<div className="mt-5 text-white space-y-2">

@@ -4,6 +4,8 @@ import "../globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import PayPalProvider from "@/components/layout/PayPalProvider";
+import { Suspense } from "react";
+import FacebookPixel from "@/components/fb-pixel/FacebookPixel";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -61,6 +63,9 @@ export default function RootLayout({
 				<body className={`${inter.variable} antialiased`}>
 					<PayPalProvider>{children}</PayPalProvider>
 					<Toaster position="top-right" richColors />
+					<Suspense fallback={null}>
+						<FacebookPixel />
+					</Suspense>
 				</body>
 			</html>
 		</ClerkProvider>
