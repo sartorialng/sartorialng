@@ -80,40 +80,6 @@ const CheckoutPage = () => {
 		user?.emailAddresses?.[0]?.emailAddress ||
 		"";
 
-	// const handleApplyCoupon = async () => {
-	// 	setCouponStatus("loading");
-	// 	setCouponMessage("");
-
-	// 	try {
-	// 		const res = await fetch("/api/coupon/validate", {
-	// 			method: "POST",
-	// 			headers: { "Content-Type": "application/json" },
-	// 			body: JSON.stringify({ code: couponCode, email: userEmail }),
-	// 		});
-
-	// 		const data = await res.json();
-
-	// 		if (!res.ok || !data.valid) {
-	// 			setCouponStatus("error");
-	// 			setCouponMessage(data.message || "Invalid coupon code.");
-	// 			setDiscount(0);
-	// 			return;
-	// 		}
-
-	// 		const discountPercentage = Number(data.discountValue) || 0;
-	// 		const discountValue = Math.round(
-	// 			(discountPercentage / 100) * subtotal,
-	// 		);
-	// 		setDiscount(discountValue);
-	// 		setCouponStatus("success");
-	// 		setCouponMessage(data.message || "Coupon applied successfully!");
-	// 	} catch {
-	// 		setCouponStatus("error");
-	// 		setCouponMessage("Something went wrong. Please try again.");
-	// 		setDiscount(0);
-	// 	}
-	// };
-
 	const handleApplyCoupon = async () => {
 		setCouponStatus("loading");
 		setCouponMessage("");
@@ -350,13 +316,10 @@ const CheckoutPage = () => {
 	};
 
 	return (
-		<div className="h-auto flex flex-col bg-gray-50">
+		<div className="flex flex-col bg-gray-50 w-full min-h-screen">
 			<Header />
 			<div className="flex flex-col md:flex-row w-full px-6 md:px-20 py-25 md:py-30 gap-8">
-				<div
-					className="w-full md:w-[60%] bg-[#2D5A43] rounded-sm p-5 md:p-12 
-                max-h-[80vh] overflow-y-auto custom-scrollbar"
-				>
+				<div className="w-full md:w-[60%] bg-[#2D5A43] rounded-sm p-5 md:p-12 max-h-[80vh] overflow-y-auto custom-scrollbar">
 					<h1 className="text-2xl md:text-3xl text-white font-semibold text-center tracking-wide mb-5 md:mb-10">
 						Checkout
 					</h1>

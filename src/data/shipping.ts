@@ -172,6 +172,7 @@ export const COUNTRIES = [
 
 export const NIGERIA_STATES = [
 	{ value: "Abia", label: "Abia" },
+	{ value: "Abuja", label: "FCT Abuja" },
 	{ value: "Adamawa", label: "Adamawa" },
 	{ value: "Akwa Ibom", label: "Akwa Ibom" },
 	{ value: "Anambra", label: "Anambra" },
