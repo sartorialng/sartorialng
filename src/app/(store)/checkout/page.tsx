@@ -281,7 +281,10 @@ const CheckoutPage = () => {
 		} catch (error: any) {
 			setIsProcessing(false);
 
-			console.error("Error processing PayPal order:", error);
+			console.error(
+				"Error processing PayPal order:",
+				JSON.stringify(error),
+			);
 
 			// Handle specific error types
 			if (error.message?.includes("Insufficient stock")) {
