@@ -50,7 +50,37 @@ export async function POST(request: NextRequest) {
 			createdAt: new Date().toISOString(),
 		});
 
-		const couponCode = `WEL${crypto.randomUUID().replace(/-/g, "").slice(0, 3).toUpperCase()}`;
+		const couponCode = `WEL${crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+
+		const saleEndsAt = process.env.SALE_END_DATE
+			? new Date(process.env.SALE_END_DATE)
+			: null;
+
+		const now = new Date();
+
+		let validFrom;
+		let expiresAt;
+
+		// If SALE_END_DATE exists and is valid
+		if (saleEndsAt && !isNaN(saleEndsAt.getTime())) {
+			validFrom = saleEndsAt;
+
+			// Expire 30 days AFTER validFrom
+			expiresAt = new Date(
+				saleEndsAt.getTime() + 30 * 24 * 60 * 60 * 1000,
+			);
+		} else {
+			// No SALE_END_DATE → expire 30 days from now
+			expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+		}
+
+		const footerValidityText = validFrom
+			? `Valid for 30 days after our sale ends on ${validFrom.toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric" })}. Single use only.`
+			: "Valid for 30 days. Single use only.";
+
+		const salePeriodNote = validFrom
+			? `<p style="font-size: 14px; color: #e07b39; margin-bottom: 20px;">⏳ Our current sale is active — your coupon will be valid once the sale ends.</p>`
+			: "";
 
 		await adminClient.create({
 			_type: "coupon",
@@ -61,12 +91,11 @@ export async function POST(request: NextRequest) {
 			usageLimit: 1,
 			usedCount: 0,
 			assignedTo: emailAddress,
-			expiresAt: new Date(
-				Date.now() + 30 * 24 * 60 * 60 * 1000,
-			).toISOString(),
+			...(validFrom && { validFrom: validFrom.toISOString() }),
+			expiresAt: expiresAt.toISOString(),
 		});
 
-		await resend.emails.send({
+		const emailResult = await resend.emails.send({
 			from: "Sartorial Babes <noreply@sartorial.ng>",
 			to: emailAddress,
 			subject: "Your account has been created 🎉",
@@ -86,6 +115,7 @@ export async function POST(request: NextRequest) {
 							<p style="font-size: 16px; line-height: 1.6; color: #555; margin-bottom: 30px;">
 								As a thank-you, please enjoy <strong>50% off</strong> your next order.
 							</p>
+							${salePeriodNote}
 		
 							<div style="background-color: #f4f7f5; border: 2px dashed #2c5b42; padding: 20px; display: inline-block; margin-bottom: 30px;">
 								<span style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #2c5b42; margin-bottom: 10px;">Your Code:</span>
@@ -98,13 +128,14 @@ export async function POST(request: NextRequest) {
 						</div>
 		
 						<div style="padding: 20px; background-color: #fdfdfd; border-top: 1px solid #eee; text-align: center; font-size: 12px; color: #999;">
-							<p style="margin: 5px 0;">Valid for 30 days. Single use only.</p>
+							<p style="margin: 5px 0;">${footerValidityText}</p>
 							<p style="margin: 5px 0;">&copy; 2026 Sartorial. All rights reserved.</p>
 						</div>
 					</div>
 				</div>
 			`,
 		});
+		console.log("📧 Resend result:", JSON.stringify(emailResult));
 
 		return NextResponse.json(
 			{

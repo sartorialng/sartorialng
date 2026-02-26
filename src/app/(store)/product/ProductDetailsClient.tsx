@@ -75,6 +75,7 @@ export default function ProductDetailsClient({
 	const isFavorite = isInWishlist(product?._id);
 	const isOutOfStock = product?.stock === 0;
 	const priceInDollars = convertNGNtoUSD(product.price);
+	const salePriceInDollars = convertNGNtoUSD(product.salePrice);
 
 	const handleColorSelect = (colorId: string) => {
 		setSelectedColor(colorId);
@@ -138,46 +139,27 @@ export default function ProductDetailsClient({
 													SartorialBag
 												}
 												alt={img.alt ?? "product"}
-												className="object-contain w-full h-full p-2"
+												className="object-cover w-full h-full p-1 rounded-lg"
 											/>
 										</div>
 									),
 								)}
 							</div>
 
-							{/* Main Image */}
-							{/* <div
-        									className="w-full bg-white rounded-lg flex items-center justify-center"
-        									style={{ height: "500px" }}
-        								>
-        									<Image
-        										width={500}
-        										height={500}
-        										src={
-        											selectedImage?.asset.url ??
-        											product.images[0]?.asset.url ??
-        											SartorialBag
-        										}
-        										alt={selectedImage?.alt ?? product.name}
-        										className="object-contain max-w-full max-h-full"
-        										priority
-        									/>
-        								</div> */}
 							<div
 								className="relative w-full bg-white rounded-lg flex items-center justify-center overflow-hidden"
 								style={{ height: "500px" }}
 							>
 								{/* Product Image */}
 								<Image
-									width={500}
-									height={500}
+									fill
 									src={
 										selectedImage?.asset.url ??
 										product.images[0]?.asset.url ??
 										SartorialBag
 									}
 									alt={selectedImage?.alt ?? product.name}
-									className={`object-contain max-w-full max-h-full transition-all duration-300 ${
+									className={`rounded-xl object-cover w-full h-full transition-all duration-300 ${
 										isOutOfStock
 											? "grayscale opacity-40"
 											: ""
@@ -205,20 +187,65 @@ export default function ProductDetailsClient({
 							<h1 className="text-4xl font-semibold">
 								{product.name}
 							</h1>
-							<p className="text-2xl font-bold">
-								₦{(product.price * quantity).toLocaleString()}
-							</p>
-							<p className="text-xl">
-								($
-								{(priceInDollars * quantity).toLocaleString(
-									undefined,
-									{
-										minimumFractionDigits: 2,
-										maximumFractionDigits: 2,
-									},
-								)}
-								)
-							</p>
+							{product?.onSale ? (
+								<div className="flex items-center gap-2">
+									<p className="text-2xl font-medium line-through text-sartorial-green/50">
+										₦
+										{(
+											product.price * quantity
+										).toLocaleString()}
+									</p>
+									<p className="text-2xl font-medium">
+										₦
+										{(
+											product.salePrice * quantity
+										).toLocaleString()}
+									</p>
+								</div>
+							) : (
+								<p className="text-2xl font-semibold">
+									₦
+									{(
+										product.price * quantity
+									).toLocaleString()}
+								</p>
+							)}
+							{product?.onSale ? (
+								<div className="flex items-center gap-2">
+									<p className="text-xl text-sartorial-green/40 line-through">
+										($
+										{(
+											priceInDollars * quantity
+										).toLocaleString(undefined, {
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2,
+										})}
+										)
+									</p>
+									<p className="text-xl">
+										($
+										{(
+											salePriceInDollars * quantity
+										).toLocaleString(undefined, {
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2,
+										})}
+										)
+									</p>
+								</div>
+							) : (
+								<p className="text-xl">
+									($
+									{(priceInDollars * quantity).toLocaleString(
+										undefined,
+										{
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2,
+										},
+									)}
+									)
+								</p>
+							)}
 
 							{/* Description */}
 							<div className="text-gray-700 text-sm leading-relaxed">

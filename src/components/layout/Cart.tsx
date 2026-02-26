@@ -126,21 +126,24 @@ const Cart = () => {
 									<Trash2 size={18} />
 								</button>
 								<p className="font-semibold">
-									₦
-									{(
-										(item.product.price || 0) *
+									{`₦${(
+										(item.product.onSale
+											? (item.product.salePrice ?? 0)
+											: (item.product.price ?? 0)) *
 										item.quantity
-									).toLocaleString()}
+									).toLocaleString()}`}
 								</p>
+
 								<p className="font-semibold">
-									$
-									{convertNGNtoUSD(
-										(item.product.price ?? 0) *
+									{`$${convertNGNtoUSD(
+										(item.product.onSale
+											? (item.product.salePrice ?? 0)
+											: (item.product.price ?? 0)) *
 											item.quantity,
 									).toLocaleString(undefined, {
 										minimumFractionDigits: 2,
 										maximumFractionDigits: 2,
-									})}
+									})}`}
 								</p>
 							</div>
 						</div>

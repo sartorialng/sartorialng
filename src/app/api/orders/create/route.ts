@@ -245,28 +245,62 @@ export async function POST(req: Request) {
 			);
 		}
 
-		// After order is created successfully, redeem coupon if one was applied
-		if (couponCode) {
+		// // After order is created successfully, redeem coupon if one was applied
+		// if (couponCode) {
+		// 	const coupon = await adminClient.fetch(
+		// 		`*[_type == "coupon" && code == $code][0]`,
+		// 		{ code: couponCode.toUpperCase().trim() },
+		// 	);
+
+		// 	if (coupon) {
+		// 		await adminClient
+		// 			.patch(coupon._id)
+		// 			.set({ usedCount: (coupon.usedCount || 0) + 1 })
+		// 			.setIfMissing({ redeemedBy: [] })
+		// 			.append("redeemedBy", [emailAddress])
+		// 			.commit();
+
+		// 		// Deactivate if usage limit is now reached
+		// 		const newUsedCount = (coupon.usedCount || 0) + 1;
+		// 		if (coupon.usageLimit && newUsedCount >= coupon.usageLimit) {
+		// 			await adminClient
+		// 				.patch(coupon._id)
+		// 				.set({ isActive: false })
+		// 				.commit();
+		// 		}
+		// 	}
+		// }
+
+		if (couponCode && emailAddress) {
 			const coupon = await adminClient.fetch(
 				`*[_type == "coupon" && code == $code][0]`,
 				{ code: couponCode.toUpperCase().trim() },
 			);
 
 			if (coupon) {
-				await adminClient
-					.patch(coupon._id)
-					.set({ usedCount: (coupon.usedCount || 0) + 1 })
-					.setIfMissing({ redeemedBy: [] })
-					.append("redeemedBy", [emailAddress])
-					.commit();
-
-				// Deactivate if usage limit is now reached
 				const newUsedCount = (coupon.usedCount || 0) + 1;
-				if (coupon.usageLimit && newUsedCount >= coupon.usageLimit) {
+				const isGeneralCoupon = !coupon.assignedTo;
+
+				if (isGeneralCoupon) {
+					// General coupon — track per-user redemption, never deactivate based on usageLimit
+					// (usageLimit on general coupons = ignored, one-per-person is enforced via redeemedBy)
 					await adminClient
 						.patch(coupon._id)
-						.set({ isActive: false })
+						.set({ usedCount: newUsedCount })
+						.setIfMissing({ redeemedBy: [] })
+						.append("redeemedBy", [emailAddress])
 						.commit();
+				} else {
+					// Personal coupon — assigned to a specific email, just increment count and deactivate when exhausted
+					const patch = adminClient.patch(coupon._id).set({
+						usedCount: newUsedCount,
+						...(coupon.usageLimit &&
+							newUsedCount >= coupon.usageLimit && {
+								isActive: false,
+							}),
+					});
+
+					await patch.commit();
 				}
 			}
 		}

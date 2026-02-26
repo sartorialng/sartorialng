@@ -80,17 +80,30 @@ const WishList = () => {
 
 								<div className="flex flex-col items-center md:items-end flex-1 w-full">
 									<p className="text-lg font-medium text-gray-700">
-										₦{(product.price || 0).toLocaleString()}
+										{product?.onSale
+											? `₦${(product.salePrice || 0).toLocaleString()}`
+											: `₦${(product.price || 0).toLocaleString()}`}
 									</p>
 									<p className="text-gray-500">
-										$
-										{(product.price
-											? convertNGNtoUSD(product.price)
-											: 0
-										).toLocaleString(undefined, {
-											minimumFractionDigits: 2,
-											maximumFractionDigits: 2,
-										})}
+										{product?.onSale
+											? `$${(product.salePrice
+													? convertNGNtoUSD(
+															product.salePrice,
+														)
+													: 0
+												).toLocaleString(undefined, {
+													minimumFractionDigits: 2,
+													maximumFractionDigits: 2,
+												})}`
+											: `$${(product.price
+													? convertNGNtoUSD(
+															product.price,
+														)
+													: 0
+												).toLocaleString(undefined, {
+													minimumFractionDigits: 2,
+													maximumFractionDigits: 2,
+												})}`}
 									</p>
 
 									<div className="md:ml-10 mt-4 flex items-center justify-between gap-4 md:justify-end">

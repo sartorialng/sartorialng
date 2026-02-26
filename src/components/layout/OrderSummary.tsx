@@ -47,7 +47,7 @@ const OrderSummary = ({
 			<h2 className="text-xl font-bold mb-6">Order Summary</h2>
 
 			<div className="space-y-6">
-				{groupedItems.map((item) => {
+				{/* {groupedItems.map((item) => {
 					const nairaTotal =
 						(item.product.price || 0) * item.quantity;
 					const dollarTotal = convertNGNtoUSD(nairaTotal);
@@ -91,6 +91,57 @@ const OrderSummary = ({
 										minimumFractionDigits: 2,
 										maximumFractionDigits: 2,
 									})}
+								</p>
+							</div>
+						</div>
+					);
+				})} */}
+				{groupedItems.map((item) => {
+					const unitPrice = item.product.onSale
+						? (item.product.salePrice ?? 0)
+						: (item.product.price ?? 0);
+
+					const nairaTotal = unitPrice * item.quantity;
+					const dollarTotal = convertNGNtoUSD(nairaTotal);
+
+					const imageUrl = item.product?.images?.[0]?.asset
+						? urlFor(item.product.images[0])
+						: SartorialBag;
+
+					const imageAlt = item?.product?.name ?? "product-name";
+
+					return (
+						<div
+							key={item.product._id}
+							className="flex items-center justify-between"
+						>
+							<div className="flex items-center gap-3">
+								<Image
+									src={imageUrl}
+									alt={imageAlt}
+									width={40}
+									height={40}
+									className="rounded-md object-cover"
+								/>
+								<div className="flex flex-col">
+									<p className="text-sm md:text-base font-medium">
+										{item.product.name}
+									</p>
+									{item.selectedColor && (
+										<p className="text-xs">
+											Color: {item.selectedColor.title}
+										</p>
+									)}
+								</div>
+							</div>
+
+							<div className="text-right text-sm">
+								<p>{`₦${nairaTotal.toLocaleString()}`}</p>
+								<p className="text-gray-500">
+									{`$${dollarTotal.toLocaleString(undefined, {
+										minimumFractionDigits: 2,
+										maximumFractionDigits: 2,
+									})}`}
 								</p>
 							</div>
 						</div>
@@ -157,16 +208,6 @@ const OrderSummary = ({
 				</div>
 			</div>
 
-			{/* <div className="flex gap-3">
-				<input
-					type="text"
-					placeholder="Coupon Code"
-					className="w-full border rounded-full px-4 h-11 outline-none focus:ring-2 focus:ring-green-700 text-xs md:text-base"
-				/>
-				<Button className="text-xs md:text-base rounded-full bg-sartorial-green text-white hover:bg-green-800 h-11 cursor-pointer">
-					Apply Coupon
-				</Button>
-			</div> */}
 			<div className="flex flex-col gap-2">
 				<div className="flex gap-3">
 					<input

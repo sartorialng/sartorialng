@@ -27,6 +27,7 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 	const productId = product?._id ?? "";
 	const productName = product?.name ?? "Product";
 	const productPrice = product?.price ?? 0;
+	const salePrice = product?.salePrice ?? 0;
 	const productSlug =
 		product?.slug?.current ??
 		productName.toLowerCase().replace(/\s+/g, "-");
@@ -40,6 +41,7 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 	const isFavorite = isInWishlist(productId);
 
 	const priceInDollars = product ? convertNGNtoUSD(productPrice) : 0;
+	const salePriceInDollars = product ? convertNGNtoUSD(salePrice) : 0;
 
 	useEffect(() => {
 		if (isSignedIn) {
@@ -125,8 +127,8 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 								src={imageUrl}
 								alt={imageAlt}
 								fill
-								sizes="(max-width: 768px) 100vw, 300px"
-								className={`object-contain rounded-sm transition-opacity ${
+								// sizes="(max-width: 768px) 100vw, 300px"
+								className={`object-cover rounded-sm transition-opacity ${
 									isOutOfStock
 										? "opacity-50 grayscale"
 										: "opacity-100"
@@ -145,8 +147,8 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 				</div>
 			</Link>
 
-			<div className="mt-3">
-				<div className="text-center space-y-2">
+			<div className="mt-1">
+				<div className="text-center space-y-0">
 					<h3
 						className="text-lg md:text-2xl font-semibold text-sartorial-green leading-snug truncate w-full"
 						title={productName}
@@ -154,12 +156,47 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 						{productName}
 					</h3>
 
-					{productPrice > 0 && (
-						<div className="flex md:flex-col items-center gap-2 md:gap-0 justify-center">
-							<p className="text-sartorial-green text-sm md:text-xl">
+					{product.onSale ? (
+						<div className="flex flex-col items-center justify-center">
+							{/* Naira Prices */}
+							<div className="flex items-baseline gap-2">
+								<p className="text-sartorial-green/50 line-through text-sm md:text-lg font-medium">
+									₦{productPrice.toLocaleString()}
+								</p>
+								<p className="text-sartorial-green text-base md:text-lg font-semibold tracking-tight">
+									₦{salePrice.toLocaleString()}
+								</p>
+							</div>
+
+							{/* Dollar Prices */}
+							<div className="flex items-baseline gap-2">
+								<p className="text-sartorial-green/40 line-through text-xs md:text-sm">
+									($
+									{priceInDollars.toLocaleString(undefined, {
+										minimumFractionDigits: 2,
+										maximumFractionDigits: 2,
+									})}
+									)
+								</p>
+								<p className="text-sartorial-green text-xs md:text-sm font-medium">
+									($
+									{salePriceInDollars.toLocaleString(
+										undefined,
+										{
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2,
+										},
+									)}
+									)
+								</p>
+							</div>
+						</div>
+					) : (
+						<div className="flex flex-col items-center justify-center">
+							<p className="text-sartorial-green text-base md:text-lg font-semibold tracking-tight">
 								₦{productPrice.toLocaleString()}
 							</p>
-							<p className="text-xs md:text-sm text-sartorial-green">
+							<p className="text-sartorial-green text-xs md:text-sm font-medium">
 								($
 								{priceInDollars.toLocaleString(undefined, {
 									minimumFractionDigits: 2,
@@ -181,7 +218,6 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 						}}
 						disabled={isOutOfStock}
 					>
-						{/* Add to Cart */}
 						<span className="hidden md:inline">Add to Cart</span>
 						<ShoppingCartIcon className="inline md:hidden w-4 h-4" />
 					</Button>

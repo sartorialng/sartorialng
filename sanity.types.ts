@@ -13,6 +13,76 @@
  */
 
 // Source: schema.json
+export type Coupon = {
+	_id: string;
+	_type: "coupon";
+	_createdAt: string;
+	_updatedAt: string;
+	_rev: string;
+	code?: string;
+	discountType?: "percentage" | "fixed";
+	discountValue?: number;
+	isActive?: boolean;
+	validFrom?: string;
+	expiresAt?: string;
+	usageLimit?: number;
+	usedCount?: number;
+	assignedTo?: string;
+	redeemedBy?: Array<string>;
+};
+
+export type Customer = {
+	_id: string;
+	_type: "customer";
+	_createdAt: string;
+	_updatedAt: string;
+	_rev: string;
+	firstName?: string;
+	lastName?: string;
+	email?: string;
+	phone?: string;
+	secondaryPhone?: string;
+	address?: string;
+	createdAt?: string;
+};
+
+export type SartorialBabe = {
+	_id: string;
+	_type: "sartorialBabe";
+	_createdAt: string;
+	_updatedAt: string;
+	_rev: string;
+	name?: string;
+	image?: {
+		asset?: {
+			_ref: string;
+			_type: "reference";
+			_weak?: boolean;
+			[internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+		};
+		media?: unknown;
+		hotspot?: SanityImageHotspot;
+		crop?: SanityImageCrop;
+		_type: "image";
+	};
+};
+
+export type SanityImageCrop = {
+	_type: "sanity.imageCrop";
+	top?: number;
+	bottom?: number;
+	left?: number;
+	right?: number;
+};
+
+export type SanityImageHotspot = {
+	_type: "sanity.imageHotspot";
+	x?: number;
+	y?: number;
+	height?: number;
+	width?: number;
+};
+
 export type Review = {
 	_id: string;
 	_type: "review";
@@ -34,7 +104,6 @@ export type Order = {
 	_rev: string;
 	orderNumber?: string;
 	paystackReference?: string;
-	paystackCustomerId?: string;
 	paypalOrderId?: string;
 	clerkUserId?: string;
 	customerName?: string;
@@ -64,6 +133,7 @@ export type Order = {
 		country?: string;
 		postalCode?: string;
 		phone?: string;
+		secondaryPhone?: string;
 	};
 	paymentMethod?: "paystack" | "paypal";
 	shippingCost?: number;
@@ -137,7 +207,9 @@ export type Product = {
 	}>;
 	description?: BlockContent;
 	detailedDescription?: string;
+	onSale?: boolean;
 	price?: number;
+	salePrice?: number;
 	colors?: Array<{ _id: string; title: string }>;
 	categories?: Array<{
 		_ref: string;
@@ -158,22 +230,6 @@ export type Color = {
 	_updatedAt: string;
 	_rev: string;
 	title?: string;
-};
-
-export type SanityImageCrop = {
-	_type: "sanity.imageCrop";
-	top?: number;
-	bottom?: number;
-	left?: number;
-	right?: number;
-};
-
-export type SanityImageHotspot = {
-	_type: "sanity.imageHotspot";
-	x?: number;
-	y?: number;
-	height?: number;
-	width?: number;
 };
 
 export type SanityImagePaletteSwatch = {
@@ -273,6 +329,11 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
+	| Coupon
+	| Customer
+	| SartorialBabe
+	| SanityImageCrop
+	| SanityImageHotspot
 	| Review
 	| Order
 	| BlockContent
@@ -280,8 +341,6 @@ export type AllSanitySchemaTypes =
 	| Slug
 	| Product
 	| Color
-	| SanityImageCrop
-	| SanityImageHotspot
 	| SanityImagePaletteSwatch
 	| SanityImagePalette
 	| SanityImageDimensions
@@ -295,12 +354,14 @@ export declare const internalGroqTypeReferenceTo: unique symbol;
 
 // Source: src/sanity/lib/product/getAllProducts.ts
 // Variable: ALL_PRODUCTS_QUERY
-// Query: *[_type == "product"] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      price,      stock,      isBestSeller,      isNewArrival,      images[]{ asset->{url}, alt },      colors[]->{        _id,        title      }    }
+// Query: *[_type == "product"] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      onSale,      price,      salePrice,      stock,      isBestSeller,      isNewArrival,      images[]{ asset->{url}, alt },      colors[]->{        _id,        title      },      categories[]->{        _id,        title,        "slug": slug.current      }    }
 export type ALL_PRODUCTS_QUERY_RESULT = Array<{
 	_id: string;
 	name: string | null;
 	slug: string | null;
+	onSale: boolean | null;
 	price: number | null;
+	salePrice: number | null;
 	stock: number | null;
 	isBestSeller: boolean | null;
 	isNewArrival: boolean | null;
@@ -314,16 +375,23 @@ export type ALL_PRODUCTS_QUERY_RESULT = Array<{
 		_id: string;
 		title: string | null;
 	}> | null;
+	categories: Array<{
+		_id: string;
+		title: string | null;
+		slug: string | null;
+	}> | null;
 }>;
 
 // Source: src/sanity/lib/product/getBestSellers.ts
 // Variable: query
-// Query: *[_type == "product" && isBestSeller == true] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      price,      stock,      isBestSeller,      isNewArrival,      images[]{ asset->{url}, alt },      colors[]->{        _id,        title      }    }
+// Query: *[_type == "product" && isBestSeller == true] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      onSale,      price,      salePrice,      stock,      isBestSeller,      isNewArrival,      images[]{ asset->{url}, alt },      colors[]->{        _id,        title      }    }
 export type QueryResult = Array<{
 	_id: string;
 	name: string | null;
 	slug: string | null;
+	onSale: boolean | null;
 	price: number | null;
+	salePrice: number | null;
 	stock: number | null;
 	isBestSeller: true;
 	isNewArrival: boolean | null;
@@ -370,12 +438,14 @@ export type MY_ORDERS_QUERY_RESULT = Array<{
 
 // Source: src/sanity/lib/product/getNewArrivals.ts
 // Variable: NEW_ARRIVALS_QUERY
-// Query: *[_type == "product" && isNewArrival == true] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      price,      stock,      isBestSeller,      isNewArrival,      images[]{ asset->{url}, alt },      colors[]->{        _id,        title      }    }
+// Query: *[_type == "product" && isNewArrival == true] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      onSale,      price,      salePrice,      stock,      isBestSeller,      isNewArrival,      images[]{ asset->{url}, alt },      colors[]->{        _id,        title      }    }
 export type NEW_ARRIVALS_QUERY_RESULT = Array<{
 	_id: string;
 	name: string | null;
 	slug: string | null;
+	onSale: boolean | null;
 	price: number | null;
+	salePrice: number | null;
 	stock: number | null;
 	isBestSeller: boolean | null;
 	isNewArrival: true;
@@ -393,12 +463,14 @@ export type NEW_ARRIVALS_QUERY_RESULT = Array<{
 
 // Source: src/sanity/lib/product/getProductBySlug.ts
 // Variable: PRODUCT_BY_SLUG_QUERY
-// Query: *[_type == "product" && slug.current == $slug][0] {      _id,      name,      "slug": slug.current,      price,      stock,      description,      detailedDescription,      isBestSeller,      isNewArrival,      images[]{        alt,        asset->{url},        "color": color->{          _id,          title,          hex        }      },      colors[]->{        _id,        title,        hex      },      categories[]->{        _id,        name      }    }
+// Query: *[_type == "product" && slug.current == $slug][0] {      _id,      name,      "slug": slug.current,      onSale,      price,      salePrice,      stock,      description,      detailedDescription,      isBestSeller,      isNewArrival,      images[]{        alt,        asset->{url},        "color": color->{          _id,          title,          hex        }      },      colors[]->{        _id,        title,        hex      },      categories[]->{        _id,        name      }    }
 export type PRODUCT_BY_SLUG_QUERY_RESULT = {
 	_id: string;
 	name: string | null;
 	slug: string | null;
+	onSale: boolean | null;
 	price: number | null;
+	salePrice: number | null;
 	stock: number | null;
 	description: BlockContent | null;
 	detailedDescription: string | null;
@@ -473,16 +545,37 @@ export type ALL_REVIEWS_QUERY_RESULT = Array<{
 	date: string | null;
 }>;
 
+// Source: src/sanity/lib/product/getSartorialBabes.ts
+// Variable: ALL_BABES_QUERY
+// Query: *[_type == "sartorialBabe"] | order(_createdAt desc) {      _id,      name,      image    }
+export type ALL_BABES_QUERY_RESULT = Array<{
+	_id: string;
+	name: string | null;
+	image: {
+		asset?: {
+			_ref: string;
+			_type: "reference";
+			_weak?: boolean;
+			[internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+		};
+		media?: unknown;
+		hotspot?: SanityImageHotspot;
+		crop?: SanityImageCrop;
+		_type: "image";
+	} | null;
+}>;
+
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {
 	interface SanityQueries {
-		'\n    *[_type == "product"] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      price,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      images[]{ asset->{url}, alt },\n      colors[]->{\n        _id,\n        title\n      }\n    }\n  ': ALL_PRODUCTS_QUERY_RESULT;
-		'\n    *[_type == "product" && isBestSeller == true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      price,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      images[]{ asset->{url}, alt },\n      colors[]->{\n        _id,\n        title\n      }\n    }\n  ': QueryResult;
+		'\n    *[_type == "product"] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      images[]{ asset->{url}, alt },\n      colors[]->{\n        _id,\n        title\n      },\n      categories[]->{\n        _id,\n        title,\n        "slug": slug.current\n      }\n    }\n  ': ALL_PRODUCTS_QUERY_RESULT;
+		'\n    *[_type == "product" && isBestSeller == true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      images[]{ asset->{url}, alt },\n      colors[]->{\n        _id,\n        title\n      }\n    }\n  ': QueryResult;
 		'\n      *[_type == "order" && clerkUserId == $userId] | order(orderDate desc) {\n        _id,\n        orderNumber,\n        orderDate,\n        status,\n        totalPrice,\n        currency,\n        products[]{\n          quantity,\n          selectedColor,\n          product->{\n            name,\n            price,\n            images[]{ asset->{url}, alt }\n          }\n        }\n      }\n    ': MY_ORDERS_QUERY_RESULT;
-		'\n    *[_type == "product" && isNewArrival == true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      price,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      images[]{ asset->{url}, alt },\n      colors[]->{\n        _id,\n        title\n      }\n    }\n  ': NEW_ARRIVALS_QUERY_RESULT;
-		'\n    *[_type == "product" && slug.current == $slug][0] {\n      _id,\n      name,\n      "slug": slug.current,\n      price,\n      stock,\n      description,\n      detailedDescription,\n      isBestSeller,\n      isNewArrival,\n      images[]{\n        alt,\n        asset->{url},\n        "color": color->{\n          _id,\n          title,\n          hex\n        }\n      },\n      colors[]->{\n        _id,\n        title,\n        hex\n      },\n      categories[]->{\n        _id,\n        name\n      }\n    }\n  ': PRODUCT_BY_SLUG_QUERY_RESULT;
+		'\n    *[_type == "product" && isNewArrival == true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      images[]{ asset->{url}, alt },\n      colors[]->{\n        _id,\n        title\n      }\n    }\n  ': NEW_ARRIVALS_QUERY_RESULT;
+		'\n    *[_type == "product" && slug.current == $slug][0] {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      price,\n      salePrice,\n      stock,\n      description,\n      detailedDescription,\n      isBestSeller,\n      isNewArrival,\n      images[]{\n        alt,\n        asset->{url},\n        "color": color->{\n          _id,\n          title,\n          hex\n        }\n      },\n      colors[]->{\n        _id,\n        title,\n        hex\n      },\n      categories[]->{\n        _id,\n        name\n      }\n    }\n  ': PRODUCT_BY_SLUG_QUERY_RESULT;
 		'\n    *[_type == "product"  ] {\n      _id,\n      name,\n      "slug": slug.current,\n      price,\n      stock,\n      description,\n      detailedDescription,\n      isBestSeller,\n      isNewArrival,\n      images[]{\n        alt,\n        asset->{url},\n        "color": color->{\n          _id,\n          title,\n          hex\n        }\n      },\n      colors[]->{\n        _id,\n        title,\n        hex\n      },\n      categories[]->{\n        _id,\n        title,\n        "slug": slug.current\n      }\n    }\n  ': FILTERED_PRODUCTS_QUERY_RESULT;
 		'\n    *[_type == "review" && isApproved == true] | order(date desc) {\n      _id,\n      customerName,\n      rating,\n      comment,\n      date\n    }\n  ': ALL_REVIEWS_QUERY_RESULT;
+		'\n    *[_type == "sartorialBabe"] | order(_createdAt desc) {\n      _id,\n      name,\n      image\n    }\n  ': ALL_BABES_QUERY_RESULT;
 	}
 }

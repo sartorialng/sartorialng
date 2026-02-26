@@ -38,27 +38,6 @@ export const useBasketStore = create<BasketState>()(
 		(set, get) => ({
 			items: [],
 
-			// addItem: (product) =>
-			// 	set((state) => {
-			// 		const existingItem = state.items.find(
-			// 			(item) => item.product._id === product._id,
-			// 		);
-
-			// 		if (existingItem) {
-			// 			return {
-			// 				items: state.items.map((item) =>
-			// 					item.product._id === product._id
-			// 						? { ...item, quantity: item.quantity + 1 }
-			// 						: item,
-			// 				),
-			// 			};
-			// 		} else {
-			// 			return {
-			// 				items: [...state.items, { product, quantity: 1 }],
-			// 			};
-			// 		}
-			// 	}),
-
 			addItem: (
 				product: Product,
 				selectedColor?: { _id: string; title: string },
@@ -88,33 +67,6 @@ export const useBasketStore = create<BasketState>()(
 				});
 			},
 
-			// removeItem: (productId) =>
-			// 	set((state) => {
-			// 		const existingItem = state.items.find(
-			// 			(item) => item.product._id === productId,
-			// 		);
-
-			// 		if (!existingItem) {
-			// 			return state;
-			// 		}
-
-			// 		if (existingItem.quantity > 1) {
-			// 			return {
-			// 				items: state.items.map((item) =>
-			// 					item.product._id === productId
-			// 						? { ...item, quantity: item.quantity - 1 }
-			// 						: item,
-			// 				),
-			// 			};
-			// 		} else {
-			// 			return {
-			// 				items: state.items.filter(
-			// 					(item) => item.product._id !== productId,
-			// 				),
-			// 			};
-			// 		}
-			// 	}),
-
 			removeItem: (
 				productId: string,
 				selectedColor?: { _id: string; title: string },
@@ -141,10 +93,22 @@ export const useBasketStore = create<BasketState>()(
 
 			clearBasket: () => set({ items: [] }),
 
+			// getTotalPrice: () => {
+			// 	return get().items.reduce(
+			// 		(total, item) =>
+			// 			total + (item.product.price || 0) * item.quantity,
+			// 		0,
+			// 	);
+			// },
+
 			getTotalPrice: () => {
 				return get().items.reduce(
 					(total, item) =>
-						total + (item.product.price || 0) * item.quantity,
+						total +
+						(item.product.onSale
+							? (item.product.salePrice ?? 0)
+							: (item.product.price ?? 0)) *
+							item.quantity,
 					0,
 				);
 			},

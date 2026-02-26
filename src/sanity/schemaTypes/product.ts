@@ -65,10 +65,26 @@ const productType = defineType({
 				"Paste the full product description here with all details and bullet points",
 		}),
 		defineField({
+			name: "onSale",
+			title: "On Sale",
+			type: "boolean",
+			initialValue: false,
+			description:
+				"Toggle this to activate the sale price. Make sure Sale Price is set.",
+		}),
+		defineField({
 			name: "price",
 			title: "Price",
 			type: "number",
 			validation: (Rule) => Rule.required(),
+		}),
+		defineField({
+			name: "salePrice",
+			title: "Sale Price",
+			type: "number",
+			description:
+				"If set, this will be used as the active price during a sale. Leave empty when not on sale.",
+			validation: (Rule) => Rule.positive(),
 		}),
 		defineField({
 			name: "colors",

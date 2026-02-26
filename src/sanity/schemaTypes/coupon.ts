@@ -36,6 +36,13 @@ const couponType = defineType({
 			initialValue: true,
 		}),
 		defineField({
+			name: "validFrom",
+			title: "Valid From",
+			type: "datetime",
+			description:
+				"Coupon cannot be used before this date (use this to block coupons during sales periods)",
+		}),
+		defineField({
 			name: "expiresAt",
 			title: "Expires At",
 			type: "datetime",
