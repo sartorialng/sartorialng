@@ -142,9 +142,11 @@ export default function ProductDetailsClient({
 											}`}
 											onClick={() => {
 												setSelectedImage(img);
-												handleColorSelect(
-													img.color._id,
-												);
+												if (img?.color?._id) {
+													handleColorSelect(
+														img.color._id,
+													);
+												}
 											}}
 										>
 											<Image
