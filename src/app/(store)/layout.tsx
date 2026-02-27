@@ -5,7 +5,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import PayPalProvider from "@/components/layout/PayPalProvider";
 import { Suspense } from "react";
-import FacebookPixel from "@/components/fb-pixel/FacebookPixel";
+import FacebookPixel from "@/components/pixel/FacebookPixel";
+import SnapPixel from "@/components/pixel/SnapPixel";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -65,6 +66,7 @@ export default function RootLayout({
 					<Toaster position="top-right" richColors />
 					<Suspense fallback={null}>
 						<FacebookPixel />
+						<SnapPixel />
 					</Suspense>
 				</body>
 			</html>
