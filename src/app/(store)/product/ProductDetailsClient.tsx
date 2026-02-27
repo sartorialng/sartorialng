@@ -17,6 +17,7 @@ import { BusIcon2, ReturnIcon, SartorialBag } from "@/assets";
 import { useWishlistStore } from "@/store/useWishlistStore";
 import { useBasketStore } from "@/store/store";
 import { convertNGNtoUSD } from "@/lib/currency";
+import Link from "next/link";
 
 export type Color = {
 	_id: string;
@@ -77,8 +78,20 @@ export default function ProductDetailsClient({
 	const priceInDollars = convertNGNtoUSD(product.price);
 	const salePriceInDollars = convertNGNtoUSD(product.salePrice);
 
+	// const handleColorSelect = (colorId: string) => {
+	// 	setSelectedColor(colorId);
+	// };
+
 	const handleColorSelect = (colorId: string) => {
 		setSelectedColor(colorId);
+
+		const matchedImage = product.images.find(
+			(img: ProductImage) => img.color?._id === colorId,
+		);
+
+		if (matchedImage) {
+			setSelectedImage(matchedImage);
+		}
 	};
 
 	const toggleFavorite = (e: React.MouseEvent) => {
@@ -110,7 +123,7 @@ export default function ProductDetailsClient({
 		<div className="h-auto w-full bg-sartorial-offWhite">
 			<Header />
 
-			<div className="w-full pt-10 pb-10 px-5 md:px-20 md:pt-40">
+			<div className="w-full pt-20 pb-10 px-5 md:px-20 md:pt-40">
 				<div className="w-full flex flex-col md:flex-row justify-between gap-5">
 					{/* Images Section */}
 					<div className="w-full md:w-[60%]">
@@ -121,7 +134,7 @@ export default function ProductDetailsClient({
 									(img: ProductImage, index: number) => (
 										<div
 											key={index}
-											className={`w-20 h-20 md:w-30 md:h-30 border rounded-lg cursor-pointer transition-all flex items-center justify-center ${
+											className={`w-20 h-20 border rounded-lg cursor-pointer transition-all flex items-center justify-center ${
 												selectedImage?.asset.url ===
 												img.asset.url
 													? "border-sartorial-green border-2"
@@ -129,6 +142,9 @@ export default function ProductDetailsClient({
 											}`}
 											onClick={() => {
 												setSelectedImage(img);
+												handleColorSelect(
+													img.color._id,
+												);
 											}}
 										>
 											<Image
@@ -146,10 +162,7 @@ export default function ProductDetailsClient({
 								)}
 							</div>
 
-							<div
-								className="relative w-full bg-white rounded-lg flex items-center justify-center overflow-hidden"
-								style={{ height: "500px" }}
-							>
+							<div className="relative h-[300px] md:h-[500px] w-full bg-white rounded-lg flex items-center justify-center overflow-hidden">
 								{/* Product Image */}
 								<Image
 									fill
@@ -393,27 +406,36 @@ export default function ProductDetailsClient({
 						<div className="mt-5 border border-[#40404040] rounded-sm">
 							<div className="flex items-center gap-5 py-3 px-6 border-b border-[#40404040]">
 								<BusIcon2 />
-								<div className="flex flex-col gap-2">
+								<div className="flex flex-col gap-1">
 									<p className="text-xl font-semibold">
 										Fast Delivery
 									</p>
-									<p className="text-sm underline cursor-pointer">
-										Enter your postal code for Delivery
-										Availability
+									<p className="text-sm">
+										Shipping fee according to your location.{" "}
+										<Link
+											href="/shipping-details"
+											className="cursor-pointer underline"
+										>
+											Details
+										</Link>
 									</p>
 								</div>
 							</div>
 							<div className="flex items-center gap-5 py-3 px-6">
 								<ReturnIcon />
-								<div className="flex flex-col gap-2">
+								<div className="flex flex-col gap-1">
 									<p className="text-xl font-semibold">
 										Return Delivery
 									</p>
 									<p className="text-sm">
-										Free 30 Days Delivery Returns.{" "}
-										<span className="underline cursor-pointer">
+										24hrs order exchange for customers
+										within Lagos.{" "}
+										<Link
+											href="/refund-and-returns"
+											className="cursor-pointer underline"
+										>
 											Details
-										</span>
+										</Link>
 									</p>
 								</div>
 							</div>
@@ -486,6 +508,7 @@ export default function ProductDetailsClient({
 							console.warn("Product has no colors");
 							return;
 						}
+
 						return (
 							<ProductCard
 								key={product._id}

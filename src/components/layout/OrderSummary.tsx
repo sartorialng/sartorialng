@@ -43,7 +43,7 @@ const OrderSummary = ({
 		);
 
 	return (
-		<div className="w-full md:w-[40%] bg-white p-5 md:p-8 rounded-sm shadow-sm h-fit">
+		<div className="w-full md:w-[40%] bg-white p-5 md:p-8 rounded-sm shadow-sm">
 			<h2 className="text-xl font-bold mb-6">Order Summary</h2>
 
 			<div className="space-y-6">
@@ -112,7 +112,7 @@ const OrderSummary = ({
 
 					return (
 						<div
-							key={item.product._id}
+							key={`${item.product._id}-${item.selectedColor?.title ?? "default"}`}
 							className="flex items-center justify-between"
 						>
 							<div className="flex items-center gap-3">

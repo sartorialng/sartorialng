@@ -93,7 +93,7 @@ const ShippingDetails = () => {
 		<div className="h-auto w-full bg-gray-50 flex flex-col">
 			<Header />
 			<div className="w-full mt-10 md:mt-20 py-10 px-5 md:px-20">
-				<div className="bg-[#8EC09E45] text-[#1B4332] p-6 md:p-8 rounded-sm">
+				<div className="bg-[#8EC09E45] text-sartorial-green p-6 md:p-8 rounded-sm">
 					<h1 className="text-2xl font-bold text-center mb-8 uppercase tracking-wide">
 						Shipping Details
 					</h1>

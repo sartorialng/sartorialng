@@ -38,6 +38,7 @@ import Sustainability from "./icons/sustainability.svg";
 import Sustainability2 from "./icons/sustainability.png";
 import Trust from "./icons/trust.svg";
 import CEO2 from "./icons/ceo2.svg";
+import CEO3 from "./icons/ceo3.svg";
 import FAQ from "./images/faq.png";
 import CheckoutImage from "./images/checkout-image.png";
 import MasterCard from "./icons/mastercard-logo.svg";
@@ -97,6 +98,7 @@ export {
 	Sustainability2,
 	Trust,
 	CEO2,
+	CEO3,
 	FAQ,
 	CheckoutImage,
 	MasterCard,

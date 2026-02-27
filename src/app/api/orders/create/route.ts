@@ -35,6 +35,7 @@ export async function POST(req: Request) {
 			subtotal,
 			amountDiscount,
 			couponCode,
+			orderNote,
 		} = body;
 
 		// Validate required fields
@@ -173,6 +174,7 @@ export async function POST(req: Request) {
 			currency: paymentMethod === "paypal" ? "USD" : "NGN",
 			status: "paid",
 			orderDate: new Date().toISOString(),
+			orderNote: orderNote,
 			shippingAddress: shippingAddressData,
 			amountDiscount: amountDiscount || 0,
 		};

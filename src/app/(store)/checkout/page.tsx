@@ -321,30 +321,32 @@ const CheckoutPage = () => {
 	return (
 		<div className="flex flex-col bg-gray-50 w-full min-h-screen">
 			<Header />
-			<div className="flex flex-col md:flex-row w-full px-6 md:px-20 py-25 md:py-30 gap-8">
-				<div className="w-full md:w-[60%] bg-[#2D5A43] rounded-sm p-5 md:p-12 max-h-[80vh] overflow-y-auto custom-scrollbar">
-					<h1 className="text-2xl md:text-3xl text-white font-semibold text-center tracking-wide mb-5 md:mb-10">
-						Checkout
-					</h1>
-					<BillingForm
-						formik={formik}
-						onPaystack={handlePaystackPayment}
-						onPayPal={handlePayPalSuccess}
-						totalAmount={total}
+			<main className="flex-1">
+				<div className="flex flex-col md:flex-row w-full px-6 md:px-20 py-25 md:py-30 gap-8">
+					<div className="w-full md:w-[60%] bg-[#2D5A43] rounded-sm p-5 md:p-12 max-h-[80vh] overflow-y-auto custom-scrollbar">
+						<h1 className="text-2xl md:text-3xl text-white font-semibold text-center tracking-wide mb-5 md:mb-10">
+							Checkout
+						</h1>
+						<BillingForm
+							formik={formik}
+							onPaystack={handlePaystackPayment}
+							onPayPal={handlePayPalSuccess}
+							totalAmount={total}
+						/>
+					</div>
+
+					<OrderSummary
+						shipping={shipping}
+						total={total}
+						couponCode={couponCode}
+						setCouponCode={setCouponCode}
+						discount={discount}
+						couponStatus={couponStatus}
+						couponMessage={couponMessage}
+						onApplyCoupon={handleApplyCoupon}
 					/>
 				</div>
-
-				<OrderSummary
-					shipping={shipping}
-					total={total}
-					couponCode={couponCode}
-					setCouponCode={setCouponCode}
-					discount={discount}
-					couponStatus={couponStatus}
-					couponMessage={couponMessage}
-					onApplyCoupon={handleApplyCoupon}
-				/>
-			</div>
+			</main>
 			<Footer />
 			<ProcessingOverlay isVisible={isProcessing} />
 		</div>

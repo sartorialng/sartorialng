@@ -18,6 +18,7 @@ export const billingSchema = yup.object().shape({
 		.string()
 		.email("Invalid email")
 		.required("Email is required"),
+	orderNote: yup.string().trim(),
 	saveInfo: yup.boolean(),
 	shipToDifferentAddress: yup.boolean(),
 	hasRegistered: yup.boolean(),

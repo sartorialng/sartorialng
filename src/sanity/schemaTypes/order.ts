@@ -177,6 +177,11 @@ const orderType = defineType({
 			type: "datetime",
 			validation: (Rule) => Rule.required(),
 		}),
+		defineField({
+			name: "orderNote",
+			title: "Order Note",
+			type: "string",
+		}),
 	],
 	preview: {
 		select: {

@@ -19,6 +19,7 @@ interface BillingFormProps {
 
 const labelStyle = "text-gray-400 font-normal text-sm";
 const inputStyle = "w-full bg-gray-100 border-none h-10 text-black";
+const textAreaStyle = "w-full bg-gray-100 border-none text-black";
 
 const BillingForm = ({
 	formik,
@@ -202,8 +203,17 @@ const BillingForm = ({
 					touched={formik.touched.emailAddress}
 				/>
 
+				<CustomInput
+					id="orderNote"
+					label="Leave a note (E.g I want to...)"
+					multiline
+					labelStyle={labelStyle}
+					inputStyle={textAreaStyle}
+					{...formik.getFieldProps("orderNote")}
+				/>
+
 				{/* Save Info & Ship to Different Address checkboxes */}
-				<div className="flex items-center space-x-2 pt-4">
+				<div className="flex items-center space-x-2 pt-2">
 					<Checkbox
 						id="saveInfo"
 						className="border-white data-[state=checked]:bg-white data-[state=checked]:text-[#2D5A43]"
@@ -220,7 +230,7 @@ const BillingForm = ({
 					</label>
 				</div>
 
-				<div className="flex items-center space-x-2 pt-6 pb-2">
+				<div className="flex items-center space-x-2 pt-2 pb-2">
 					<Checkbox
 						id="shipToDifferentAddress"
 						className="border-white data-[state=checked]:bg-white data-[state=checked]:text-[#2D5A43]"
@@ -374,15 +384,6 @@ const BillingForm = ({
 								}
 							/>
 						</div>
-
-						<CustomInput
-							id="orderNote"
-							label="Order Note (Optional)"
-							type="text"
-							labelStyle={labelStyle}
-							inputStyle={inputStyle}
-							{...formik.getFieldProps("orderNote")}
-						/>
 					</div>
 				)}
 
