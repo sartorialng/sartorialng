@@ -10,6 +10,7 @@ import {
 	Sustainability,
 	Trust,
 	Authenticity,
+	BrandLogo,
 } from "@/assets";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
@@ -98,13 +99,18 @@ const AboutUs = () => {
 				initial="hidden"
 				whileInView="show"
 				viewport={{ once: true }}
-				className="bg-sartorial-offWhite w-full flex flex-col md:flex-row items-center py-10 px-6 md:px-20 gap-10"
+				className="bg-sartorial-offWhite w-full flex flex-col md:flex-row py-10 px-6 md:px-20 gap-10"
 			>
-				<motion.div variants={fadeLeft} className="w-full md:w-[50%]">
-					<Image
+				<motion.div variants={fadeLeft} className="w-full  md:w-[50%]">
+					{/* <Image
 						src={CEO}
 						alt="CEO"
 						className="w-full h-100 object-contain"
+					/> */}
+					<Image
+						src={BrandLogo}
+						alt="Sartorial Logo"
+						className="w-full h-50 md:h-80 object-contain"
 					/>
 				</motion.div>
 
@@ -116,26 +122,26 @@ const AboutUs = () => {
 						Our Story
 					</h2>
 
-					<p className="text-base md:text-lg leading-relaxed font-medium">
+					<p className="text-base leading-relaxed font-medium">
 						Sartorial was created with intention to design pieces
 						that are refined, functional, and enduring.
 					</p>
 
-					<p className="text-base md:text-lg leading-relaxed font-medium">
+					<p className="text-base leading-relaxed font-medium">
 						Born in response to an industry driven by fast trends
 						and excess, Sartorial takes a more considered approach.
 						The brand was founded on the belief that style should
 						last, both in form and in relevance.
 					</p>
 
-					<p className="text-base md:text-lg leading-relaxed font-medium">
+					<p className="text-base leading-relaxed font-medium">
 						Rooted in contemporary culture and shaped by a global
 						perspective, Sartorial represents a new standard of
 						quiet luxury. One that values intention over excess and
 						longevity over trends.
 					</p>
 
-					<p className="text-base md:text-lg leading-relaxed font-medium">
+					<p className="text-base leading-relaxed font-medium">
 						Sartorial is not about owning more.
 						<br />
 						It is about owning better.

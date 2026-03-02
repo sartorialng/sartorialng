@@ -139,7 +139,7 @@ const ReviewSlide = ({ reviews, babes }: ReviewSlideProps) => {
 					<h2 className="text-4xl md:text-6xl font-black text-sartorial-green uppercase tracking-tighter">
 						Happy Sartorial <br />
 						<span
-							className="text-outline-green text-transparent"
+							className="text-outline-green text-transparent tracking-wider md:tracking-wide"
 							style={{ WebkitTextStroke: "1px #1A3326" }}
 						>
 							Babes

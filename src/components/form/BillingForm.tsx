@@ -416,7 +416,7 @@ const BillingForm = ({
 						htmlFor="hasRegistered"
 						className="text-base font-medium leading-none text-white cursor-pointer"
 					>
-						Join Sartorial Babes and get 50% off your next purchase!
+						Join Sartorial Babes and get 20% off your next purchase!
 					</label>
 				</div>
 
