@@ -14,6 +14,8 @@ import { formatDate } from "@/lib/helper";
 import { urlFor } from "@/sanity/lib/image";
 import { Instagram } from "@/assets";
 import { SartorialBabe } from "@/lib/types/types";
+import { useEffect, useState } from "react";
+import type { EmblaCarouselType } from "embla-carousel";
 
 interface ReviewSlideProps {
 	reviews: Review[];
@@ -21,6 +23,33 @@ interface ReviewSlideProps {
 }
 
 const ReviewSlide = ({ reviews, babes }: ReviewSlideProps) => {
+	const [api, setApi] = useState<EmblaCarouselType | null>(null);
+
+	useEffect(() => {
+		if (!api) return;
+
+		let interval: NodeJS.Timeout;
+
+		const startAutoPlay = () => {
+			interval = setInterval(() => {
+				api.scrollNext();
+			}, 3000);
+		};
+
+		const stopAutoPlay = () => clearInterval(interval);
+
+		startAutoPlay();
+
+		api.on("pointerDown", stopAutoPlay);
+		api.on("pointerUp", startAutoPlay);
+
+		return () => {
+			stopAutoPlay();
+			api.off("pointerDown", stopAutoPlay);
+			api.off("pointerUp", startAutoPlay);
+		};
+	}, [api]);
+
 	return (
 		<div className="w-full px-4 md:px-20 py-16 bg-white overflow-hidden">
 			{/* --- SECTION 1: REVIEWS CAROUSEL --- */}
@@ -125,6 +154,7 @@ const ReviewSlide = ({ reviews, babes }: ReviewSlideProps) => {
 				</div>
 
 				<Carousel
+					setApi={(api) => setApi(api ?? null)}
 					opts={{ align: "start", loop: babes.length > 4 }}
 					className="w-full overflow-visible"
 				>

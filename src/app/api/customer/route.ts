@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 			_type: "coupon",
 			code: couponCode,
 			discountType: "percentage",
-			discountValue: 50,
+			discountValue: 20,
 			isActive: true,
 			usageLimit: 1,
 			usedCount: 0,
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
 			expiresAt: expiresAt.toISOString(),
 		});
 
-		const emailResult = await resend.emails.send({
+		await resend.emails.send({
 			from: "Sartorial Babes <noreply@sartorial.ng>",
 			to: emailAddress,
 			subject: "Your account has been created 🎉",
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
 								Your account has been successfully created. We're thrilled to have you in our community of style.
 							</p>
 							<p style="font-size: 16px; line-height: 1.6; color: #555; margin-bottom: 30px;">
-								As a thank-you, please enjoy <strong>50% off</strong> your next order.
+								As a thank-you, please enjoy <strong>20% off</strong> your next order.
 							</p>
 							${salePeriodNote}
 		
@@ -135,7 +135,6 @@ export async function POST(request: NextRequest) {
 				</div>
 			`,
 		});
-		console.log("📧 Resend result:", JSON.stringify(emailResult));
 
 		return NextResponse.json(
 			{

@@ -52,7 +52,6 @@ const Footer = () => {
 						<Link href={"/refund-and-returns"}>
 							Refund & Returns
 						</Link>
-						<Link href={"/privacy-policy"}>Privacy Policy</Link>
 					</div>
 				</div>
 				<div className="mt-4 md:mt-8 text-white">
@@ -64,6 +63,9 @@ const Footer = () => {
 						<Link href={"/terms-and-condition"}>
 							Terms & Conditions
 						</Link>
+						<Link href={"/privacy-policy"}>
+							Privacy Policy
+						</Link>{" "}
 					</div>
 				</div>
 				<div className="mt-4 md:mt-8 text-white">

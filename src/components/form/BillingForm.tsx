@@ -89,7 +89,7 @@ const BillingForm = ({
 
 				<CustomInput
 					id="address"
-					label="Address*"
+					label="Address* (e.g. 16 Samuel Street, Ogudu, Lagos)"
 					type="text"
 					labelStyle={labelStyle}
 					inputStyle={inputStyle}

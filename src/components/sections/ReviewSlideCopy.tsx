@@ -45,8 +45,6 @@ const ReviewSlide = () => {
 			.finally(() => setIsReviewsLoading(false));
 	}, []);
 
-	console.log(reviews);
-
 	return (
 		<div className="w-full mt-10 px-4 md:px-20 py-10 bg-white">
 			<div className="flex flex-col items-center mb-10">

@@ -16,6 +16,7 @@ interface OrderSummaryProps {
 	couponStatus: "idle" | "loading" | "success" | "error";
 	couponMessage: string;
 	onApplyCoupon: () => void;
+	vat: number;
 }
 
 const OrderSummary = ({
@@ -27,6 +28,7 @@ const OrderSummary = ({
 	couponStatus,
 	couponMessage,
 	onApplyCoupon,
+	vat,
 }: OrderSummaryProps) => {
 	const mounted = useSyncExternalStore(
 		() => () => {},
@@ -47,55 +49,6 @@ const OrderSummary = ({
 			<h2 className="text-xl font-bold mb-6">Order Summary</h2>
 
 			<div className="space-y-6">
-				{/* {groupedItems.map((item) => {
-					const nairaTotal =
-						(item.product.price || 0) * item.quantity;
-					const dollarTotal = convertNGNtoUSD(nairaTotal);
-
-					const imageUrl = item.product?.images?.[0]?.asset
-						? urlFor(item.product.images[0])
-						: SartorialBag;
-
-					const imageAlt = item?.product?.name ?? "product-name";
-
-					return (
-						<div
-							key={item.product._id}
-							className="flex items-center justify-between"
-						>
-							<div className="flex items-center gap-3">
-								<Image
-									src={imageUrl}
-									alt={imageAlt}
-									width={40}
-									height={40}
-									className="rounded-md object-cover"
-								/>
-								<div className="flex flex-col">
-									<p className="text-sm md:text-base font-medium">
-										{item.product.name}
-									</p>
-									{item.selectedColor && (
-										<p className="text-xs">
-											Color: {item.selectedColor.title}
-										</p>
-									)}
-								</div>
-							</div>
-
-							<div className="text-right text-sm">
-								<p>₦{nairaTotal.toLocaleString()}</p>
-								<p className="text-gray-500">
-									$
-									{dollarTotal.toLocaleString(undefined, {
-										minimumFractionDigits: 2,
-										maximumFractionDigits: 2,
-									})}
-								</p>
-							</div>
-						</div>
-					);
-				})} */}
 				{groupedItems.map((item) => {
 					const unitPrice = item.product.onSale
 						? (item.product.salePrice ?? 0)
@@ -164,7 +117,27 @@ const OrderSummary = ({
 					</p>
 				</div>
 			</div>
+			<div className="my-4 border-t" />
 
+			<div className="flex justify-between mb-4">
+				<p className="flex items-baseline gap-1 font-medium text-gray-900">
+					<span>VAT</span>
+					<span className="text-xs font-normal text-gray-500">
+						(7.5% on goods only)
+					</span>
+					<span>:</span>
+				</p>
+				<div className="text-right">
+					<p>₦{vat.toLocaleString()}</p>
+					<p className="text-gray-500 text-sm">
+						$
+						{convertNGNtoUSD(vat).toLocaleString(undefined, {
+							minimumFractionDigits: 2,
+							maximumFractionDigits: 2,
+						})}
+					</p>
+				</div>
+			</div>
 			<div className="my-4 border-t" />
 
 			<div className="flex justify-between mb-4">
@@ -180,10 +153,8 @@ const OrderSummary = ({
 					</p>
 				</div>
 			</div>
-
 			<div className="my-4 border-t" />
 
-			{/* Show discount line if applied */}
 			{discount > 0 && (
 				<div>
 					<div className="flex justify-between text-green-600 font-medium">

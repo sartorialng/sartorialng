@@ -14,11 +14,7 @@ export async function POST(req: Request) {
 			);
 		}
 
-		console.log("Capturing PayPal order:", orderID);
-
 		const capture = await captureOrder(orderID);
-
-		console.log("PayPal order captured successfully:", capture);
 
 		return NextResponse.json(capture);
 	} catch (error: any) {

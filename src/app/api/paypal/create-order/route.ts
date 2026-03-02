@@ -14,11 +14,7 @@ export async function POST(req: Request) {
 			);
 		}
 
-		console.log("Creating PayPal order for amount:", amount);
-
 		const order = await createOrder(amount);
-
-		console.log("PayPal order created successfully:", order.id);
 
 		return NextResponse.json(order);
 	} catch (error: any) {

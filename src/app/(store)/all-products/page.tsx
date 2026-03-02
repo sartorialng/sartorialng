@@ -141,7 +141,7 @@ const AllProducts = () => {
 	return (
 		<div className="h-auto w-full bg-gray-50">
 			<Header />
-			<div className="flex flex-col md:flex-row w-full px-6 md:px-10 pt-30 pb-20 md:py-40 gap-5 md:gap-8">
+			<div className="flex flex-col md:flex-row w-full px-6 md:px-10 pt-20 pb-20 md:py-25 gap-5 md:gap-8 md:items-start">
 				<div className="flex justify-between items-center">
 					<FilterSidebar
 						categories={categories}

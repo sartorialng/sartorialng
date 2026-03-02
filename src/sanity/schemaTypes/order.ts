@@ -166,6 +166,12 @@ const orderType = defineType({
 			validation: (Rule) => Rule.min(0),
 		}),
 		defineField({
+			name: "vat",
+			title: "VAT",
+			type: "number",
+			validation: (Rule) => Rule.min(0),
+		}),
+		defineField({
 			name: "subtotal",
 			title: "Subtotal",
 			type: "number",

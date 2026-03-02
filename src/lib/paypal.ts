@@ -67,8 +67,6 @@ export async function createOrder(amount: number) {
 			}),
 		});
 
-		console.log(response);
-
 		if (!response.ok) {
 			const error = await response.text();
 			console.error("PayPal createOrder error:", error);

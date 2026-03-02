@@ -30,16 +30,10 @@ export default function OrderPendingPage() {
 			setDisplayCount(attempts);
 
 			try {
-				console.log(
-					`Checking order... Attempt ${attempts}/${maxChecks}`,
-				);
-
 				const res = await fetch(
 					`/api/orders/check-order?reference=${reference}`,
 				);
 				const data = await res.json();
-
-				console.log("Check order response:", data);
 
 				if (data.status === "success") {
 					if (hasProcessed.current) return; // Double-check after async wait
