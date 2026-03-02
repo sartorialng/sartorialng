@@ -1,5 +1,4 @@
 "use client";
-
 import {
 	AboutUsSartorialIcon2,
 	CEO,
@@ -11,7 +10,6 @@ import {
 	Sustainability,
 	Trust,
 	Authenticity,
-	CEO3,
 } from "@/assets";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
@@ -257,7 +255,7 @@ const AboutUs = () => {
 
 				<motion.div variants={fadeRight} className="w-full md:w-1/2">
 					<Image
-						src={CEO3}
+						src={CEO}
 						alt="CEO"
 						className="w-full h-100 object-contain"
 					/>
