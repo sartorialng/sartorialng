@@ -122,8 +122,8 @@ const OrderSummary = ({
 			<div className="flex justify-between mb-4">
 				<p className="flex items-baseline gap-1 font-medium text-gray-900">
 					<span>VAT</span>
-					<span className="text-xs font-normal text-gray-500">
-						(7.5% on goods only)
+					<span className="text-sm font-normal text-gray-500">
+						(7.5% on items only)
 					</span>
 					<span>:</span>
 				</p>
