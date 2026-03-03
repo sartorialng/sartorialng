@@ -1,7 +1,6 @@
 import FloatingWhatsApp from "@/components/layout/FloatingWhatsapp";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
-// import JoinSartorialBabesModal from "@/components/modals/JoinSartorialBabesModal";
 import BestSellers from "@/components/sections/BestSellers";
 import Hero from "@/components/sections/Hero";
 import NewArrivals from "@/components/sections/NewArrivals";
@@ -19,10 +18,19 @@ export const metadata: Metadata = {
 	title: "Buy Premium Bags Online in Nigeria | Sartorial",
 	description:
 		"Sartorial is an online fashion store in Nigeria offering premium bags and accessories for women. Shop stylish handbags and more today.",
+	keywords: [
+		"fashion store",
+		"fashion bags",
+		"online store",
+		"buy bags online",
+		"women fashion",
+		"Sartorial",
+		"sartorial.ng",
+	],
 	openGraph: {
 		images: [
 			{
-				url: "https://res.cloudinary.com/dkoi9zeli/image/upload/v1770062376/sartorial_bag_l4n0le.png",
+				url: "https://res.cloudinary.com/dkoi9zeli/image/upload/v1772530357/seo_mn0xjp.jpg",
 				width: 1200,
 				height: 630,
 				alt: "Sartorial Premium Bags",
@@ -73,7 +81,6 @@ export default async function Home() {
 			<ShopByCategory />
 			<ReviewSlide reviews={reviews} babes={babes} />
 			<Footer />
-			{/* <JoinSartorialBabesModal /> */}
 			<FloatingWhatsApp />
 		</main>
 	);
