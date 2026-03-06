@@ -4,6 +4,7 @@ export const headerLinks = [
 	{ href: "/#best-sellers", label: "Best Sellers" },
 	{ href: "/all-products", label: "All Products" },
 	{ href: "/about-us", label: "About Us" },
+	{ href: "/#pre-sale", label: "Pre-Sale" },
 ];
 
 export const sortOptions = [

@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useWishlistStore } from "@/store/useWishlistStore";
 import { Product } from "../../../sanity.types";
-import { SartorialBag } from "@/assets";
+import { PreSale, SartorialBag } from "@/assets";
 import { urlFor } from "@/lib/imageUrl";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { toast } from "sonner";
@@ -37,6 +37,7 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 		: SartorialBag;
 	const imageAlt = product?.name ?? "product-name";
 	const isOutOfStock = product?.stock === 0;
+	const onPreSale = product?.onPreSale;
 
 	const isFavorite = isInWishlist(productId);
 
@@ -101,8 +102,14 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 	return (
 		<div className="w-full max-w-sm border-none cursor-pointer">
 			<Link href={`/product/${productSlug}`}>
-				<div className="bg-white p-3 md:p-5 rounded-lg hover:border-2 hover:border-sartorial-green hover:shadow-lg transition-all duration-200">
+				<div className="bg-white p-3 md:px-5 md:py-5 rounded-lg hover:border-2 hover:border-sartorial-green hover:shadow-lg transition-all duration-200">
 					<div className="flex justify-end mb-2 md:mb-4">
+						{/* <Image
+							height={35}
+							width={35}
+							src={PreSale}
+							alt="pre-sale-logo"
+						/> */}
 						<button
 							onClick={toggleFavorite}
 							className="transition-transform hover:scale-110 focus:outline-none"
@@ -144,6 +151,16 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 							)}
 						</div>
 					</div>
+					{onPreSale && (
+						<div className="flex justify-end">
+							<Image
+								height={35}
+								width={35}
+								src={PreSale}
+								alt="pre-sale-logo"
+							/>
+						</div>
+					)}
 				</div>
 			</Link>
 

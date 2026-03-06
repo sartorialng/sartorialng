@@ -54,6 +54,7 @@ import ContactEmail from "./icons/contact-email-icon.svg";
 import BrandLogo from "./icons/sartorial.svg";
 import Instagram from "./icons/InstaIcon";
 import SnapIcon from "./icons/SnapIcon";
+import PreSale from "./icons/pre-sale.svg";
 
 export {
 	SnapIcon,
@@ -112,4 +113,5 @@ export {
 	ContactPhone,
 	ContactEmail,
 	BrandLogo,
+	PreSale,
 };

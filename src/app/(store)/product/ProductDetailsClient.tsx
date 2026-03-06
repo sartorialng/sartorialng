@@ -336,7 +336,10 @@ export default function ProductDetailsClient({
 										handleQuantityChange("decrement")
 									}
 									className="cursor-pointer text-sartorial-green border-2 border-sartorial-green rounded-tl-sm rounded-bl-sm h-10 px-3 md:px-4 text-xl hover:bg-gray-50 transition-colors"
-									disabled={quantity <= 1}
+									disabled={
+										quantity <= 1 &&
+										product.onPreSale === false
+									}
 								>
 									-
 								</button>
@@ -348,7 +351,10 @@ export default function ProductDetailsClient({
 										handleQuantityChange("increment")
 									}
 									className="cursor-pointer text-sartorial-green border-2 border-sartorial-green rounded-tr-sm rounded-br-sm h-10 px-3 md:px-4 text-xl hover:bg-gray-50 transition-colors"
-									disabled={quantity >= product.stock}
+									disabled={
+										quantity >= product.stock &&
+										product.onPreSale === false
+									}
 								>
 									+
 								</button>
@@ -358,7 +364,10 @@ export default function ProductDetailsClient({
 							<Button
 								variant="outline"
 								className="cursor-pointer text-sartorial-green border-2 border-sartorial-green rounded-sm h-10 px-4 md:px-10 hover:bg-gray-50"
-								disabled={product.stock <= 0}
+								disabled={
+									product.stock <= 0 &&
+									product.onPreSale === false
+								}
 								onClick={() => {
 									const colorInfo = product.colors?.find(
 										(c: Color) => c._id === selectedColor,

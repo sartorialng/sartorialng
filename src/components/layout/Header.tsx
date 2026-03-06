@@ -28,6 +28,8 @@ import Image from "next/image";
 
 const Cart = dynamic(() => import("./Cart"), { ssr: false });
 
+const ADMIN_ID = "user_39M1CciWPscVNEhg5Uc1TUJ6MAg";
+
 const Header = () => {
 	const { user, isSignedIn } = useUser();
 	const { openSignIn } = useClerk();
@@ -113,7 +115,7 @@ const Header = () => {
 						</Link>
 					</div>
 					<div className="hidden md:flex items-center gap-20">
-						<div className="flex items-center gap-10">
+						<div className="flex items-center gap-7">
 							{headerLinks.map(({ href, label }) => (
 								<Link
 									key={href}
@@ -174,6 +176,15 @@ const Header = () => {
 												<Star className="h-4 w-4" />
 											}
 										/>
+										{ADMIN_ID === user.id && (
+											<UserButton.Link
+												label="Manage Orders"
+												href="/account/manage-orders"
+												labelIcon={
+													<Package className="h-4 w-4" />
+												}
+											/>
+										)}
 									</UserButton.MenuItems>
 								</UserButton>
 

@@ -770,6 +770,13 @@
         },
         "optional": true
       },
+      "vat": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "number"
+        },
+        "optional": true
+      },
       "subtotal": {
         "type": "objectAttribute",
         "value": {
@@ -778,6 +785,13 @@
         "optional": true
       },
       "orderDate": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "orderNote": {
         "type": "objectAttribute",
         "value": {
           "type": "string"
@@ -1351,6 +1365,13 @@
         "optional": true
       },
       "isNewArrival": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": true
+      },
+      "onPreSale": {
         "type": "objectAttribute",
         "value": {
           "type": "boolean"

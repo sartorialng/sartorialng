@@ -119,6 +119,13 @@ const productType = defineType({
 			initialValue: false,
 			description: "Show in New Arrivals section",
 		}),
+		defineField({
+			name: "onPreSale",
+			title: "Pre-Sale",
+			type: "boolean",
+			initialValue: false,
+			description: "Show in Pre-Sale section",
+		}),
 	],
 	preview: {
 		select: {
