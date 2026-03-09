@@ -87,7 +87,7 @@ const ManageOrders = () => {
 
 	if (!isLoaded) return null;
 
-	if (isLoaded && user?.id !== ADMIN_ID) return null;
+	if (isLoaded && user?.id !== ADMIN_ID_PROD) return null;
 
 	return (
 		<div className="min-h-screen flex flex-col bg-[#f7f8f6]">
