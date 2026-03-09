@@ -19,7 +19,7 @@ import {
 	User,
 } from "lucide-react";
 import { getOrderById } from "@/sanity/lib/product/getOrderById";
-import { Order } from "../manage-orders/types";
+import { Order } from "../manage-orders/_components/types";
 import Image from "next/image";
 
 const STATUS_STYLES: Record<string, string> = {
