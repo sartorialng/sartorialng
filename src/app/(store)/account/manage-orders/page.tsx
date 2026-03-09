@@ -1,14 +1,12 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
 import { Package, TrendingUp, ShoppingCart, Clock } from "lucide-react";
-
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-
-import { columns } from "./columns";
+import { columns } from "./_components/columns";
 import { getAllOrders } from "@/sanity/lib/product/getAllOrders";
-import { formatCurrency, Order } from "./types";
-import { DataTable } from "./data-table";
+import { formatCurrency, Order } from "./_components/types";
+import { DataTable } from "./_components/data-table";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
