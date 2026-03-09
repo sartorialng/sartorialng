@@ -28,7 +28,8 @@ import Image from "next/image";
 
 const Cart = dynamic(() => import("./Cart"), { ssr: false });
 
-const ADMIN_ID = "user_39M1CciWPscVNEhg5Uc1TUJ6MAg";
+// const ADMIN_ID_DEV = "user_39M1CciWPscVNEhg5Uc1TUJ6MAg";
+const ADMIN_ID_PROD = "user_39wBf3PwG09fju12n0INXiq2yQ9";
 
 const Header = () => {
 	const { user, isSignedIn } = useUser();
@@ -176,7 +177,7 @@ const Header = () => {
 												<Star className="h-4 w-4" />
 											}
 										/>
-										{ADMIN_ID === user.id && (
+										{ADMIN_ID_PROD === user.id && (
 											<UserButton.Link
 												label="Manage Orders"
 												href="/account/manage-orders"

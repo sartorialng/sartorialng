@@ -52,7 +52,8 @@ const SkeletonRows = () => (
 	</>
 );
 
-const ADMIN_ID = "user_39M1CciWPscVNEhg5Uc1TUJ6MAg";
+// const ADMIN_ID_DEV = "user_39M1CciWPscVNEhg5Uc1TUJ6MAg";
+const ADMIN_ID_PROD = "user_39wBf3PwG09fju12n0INXiq2yQ9";
 
 const ManageOrders = () => {
 	const { user, isLoaded } = useUser();
@@ -62,7 +63,8 @@ const ManageOrders = () => {
 
 	useEffect(() => {
 		if (!isLoaded) return;
-		if (user?.id !== ADMIN_ID) {
+
+		if (user?.id !== ADMIN_ID_PROD) {
 			router.replace("/");
 			return;
 		}
@@ -83,7 +85,9 @@ const ManageOrders = () => {
 		return { total, revenue, pending, delivered, currency };
 	}, [orders]);
 
-	if (!isLoaded || user?.id !== ADMIN_ID) return null;
+	if (!isLoaded) return null;
+
+	if (isLoaded && user?.id !== ADMIN_ID) return null;
 
 	return (
 		<div className="min-h-screen flex flex-col bg-[#f7f8f6]">
