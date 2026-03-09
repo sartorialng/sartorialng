@@ -107,20 +107,20 @@ export async function POST(req: Request) {
 				continue;
 			}
 
-			if (product.stock < item.quantity) {
-				return NextResponse.json(
-					{
-						error: `Insufficient stock for "${product.name}". Available: ${product.stock}, Requested: ${item.quantity}`,
-						insufficientStock: true,
-						product: {
-							name: product.name,
-							available: product.stock,
-							requested: item.quantity,
-						},
-					},
-					{ status: 400 },
-				);
-			}
+			// if (product.stock < item.quantity) {
+			// 	return NextResponse.json(
+			// 		{
+			// 			error: `Insufficient stock for "${product.name}". Available: ${product.stock}, Requested: ${item.quantity}`,
+			// 			insufficientStock: true,
+			// 			product: {
+			// 				name: product.name,
+			// 				available: product.stock,
+			// 				requested: item.quantity,
+			// 			},
+			// 		},
+			// 		{ status: 400 },
+			// 	);
+			// }
 		}
 
 		// Map items to Sanity products format

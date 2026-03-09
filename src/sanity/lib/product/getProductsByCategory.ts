@@ -34,6 +34,8 @@ export const getFilteredProducts = async ({
       "slug": slug.current,
       price,
       stock,
+	  onPreOrder,
+      preOrderAvailability,
       description,
       detailedDescription,
       isBestSeller,

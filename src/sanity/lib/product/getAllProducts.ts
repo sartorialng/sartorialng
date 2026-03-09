@@ -13,6 +13,8 @@ export const getAllProducts = async () => {
       stock,
       isBestSeller,
       isNewArrival,
+      onPreOrder,
+      preOrderAvailability,
       images[]{ asset->{url}, alt },
       colors[]->{
         _id,

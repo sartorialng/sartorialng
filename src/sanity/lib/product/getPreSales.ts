@@ -14,6 +14,8 @@ export const getPreSale = async () => {
       isBestSeller,
       isNewArrival,
       onPreSale,
+      onPreOrder,
+      preOrderAvailability,
       images[]{ asset->{url}, alt },
       colors[]->{
         _id,

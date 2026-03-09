@@ -1377,6 +1377,20 @@
           "type": "boolean"
         },
         "optional": true
+      },
+      "onPreOrder": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": true
+      },
+      "preOrderAvailability": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
       }
     }
   },

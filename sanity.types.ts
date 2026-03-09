@@ -224,6 +224,8 @@ export type Product = {
 	isBestSeller?: boolean;
 	isNewArrival?: boolean;
 	onPreSale?: boolean;
+	onPreOrder?: boolean;
+	preOrderAvailability?: string;
 };
 
 export type Color = {
@@ -355,6 +357,55 @@ export type AllSanitySchemaTypes =
 
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
+// Source: src/sanity/lib/product/getAllOrders.ts
+// Variable: ALL_ORDERS_QUERY
+// Query: *[_type == "order"] | order(orderDate desc) {      _id,      orderNumber,      paymentMethod,      paystackReference,      paypalOrderId,      orderDate,      customerName,      email,      status,      totalPrice,      currency,      amountDiscount,      clerkUserId,      products[]{        quantity,        selectedColor,        product->{          name,          price,          images[]{ asset->{url}, alt }        }      },      shippingAddress,      shippingCost,      vat,      subtotal,      orderNote    }
+export type ALL_ORDERS_QUERY_RESULT = Array<{
+	_id: string;
+	orderNumber: string | null;
+	paymentMethod: "paypal" | "paystack" | null;
+	paystackReference: string | null;
+	paypalOrderId: string | null;
+	orderDate: string | null;
+	customerName: string | null;
+	email: string | null;
+	status: "cancelled" | "delivered" | "paid" | "pending" | "shipped" | null;
+	totalPrice: number | null;
+	currency: string | null;
+	amountDiscount: number | null;
+	clerkUserId: string | null;
+	products: Array<{
+		quantity: number | null;
+		selectedColor: {
+			colorId?: string;
+			colorTitle?: string;
+		} | null;
+		product: {
+			name: string | null;
+			price: number | null;
+			images: Array<{
+				asset: {
+					url: string | null;
+				} | null;
+				alt: string | null;
+			}> | null;
+		} | null;
+	}> | null;
+	shippingAddress: {
+		address?: string;
+		city?: string;
+		state?: string;
+		country?: string;
+		postalCode?: string;
+		phone?: string;
+		secondaryPhone?: string;
+	} | null;
+	shippingCost: number | null;
+	vat: number | null;
+	subtotal: number | null;
+	orderNote: string | null;
+}>;
+
 // Source: src/sanity/lib/product/getAllProducts.ts
 // Variable: ALL_PRODUCTS_QUERY
 // Query: *[_type == "product"] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      onSale,      price,      salePrice,      stock,      isBestSeller,      isNewArrival,      images[]{ asset->{url}, alt },      colors[]->{        _id,        title      },      categories[]->{        _id,        title,        "slug": slug.current      }    }
@@ -463,6 +514,55 @@ export type NEW_ARRIVALS_QUERY_RESULT = Array<{
 		title: string | null;
 	}> | null;
 }>;
+
+// Source: src/sanity/lib/product/getOrderById.ts
+// Variable: ORDER_BY_ID_QUERY
+// Query: *[_type == "order" && _id == $_id][0] {        _id,        orderNumber,        paymentMethod,        paystackReference,        paypalOrderId,        orderDate,        customerName,        email,        status,        totalPrice,        currency,        amountDiscount,        clerkUserId,        products[]{          quantity,          selectedColor,          product->{            name,            price,            images[]{ asset->{url}, alt }          }        },        shippingAddress,        shippingCost,        vat,        subtotal,        orderNote      }
+export type ORDER_BY_ID_QUERY_RESULT = {
+	_id: string;
+	orderNumber: string | null;
+	paymentMethod: "paypal" | "paystack" | null;
+	paystackReference: string | null;
+	paypalOrderId: string | null;
+	orderDate: string | null;
+	customerName: string | null;
+	email: string | null;
+	status: "cancelled" | "delivered" | "paid" | "pending" | "shipped" | null;
+	totalPrice: number | null;
+	currency: string | null;
+	amountDiscount: number | null;
+	clerkUserId: string | null;
+	products: Array<{
+		quantity: number | null;
+		selectedColor: {
+			colorId?: string;
+			colorTitle?: string;
+		} | null;
+		product: {
+			name: string | null;
+			price: number | null;
+			images: Array<{
+				asset: {
+					url: string | null;
+				} | null;
+				alt: string | null;
+			}> | null;
+		} | null;
+	}> | null;
+	shippingAddress: {
+		address?: string;
+		city?: string;
+		state?: string;
+		country?: string;
+		postalCode?: string;
+		phone?: string;
+		secondaryPhone?: string;
+	} | null;
+	shippingCost: number | null;
+	vat: number | null;
+	subtotal: number | null;
+	orderNote: string | null;
+} | null;
 
 // Source: src/sanity/lib/product/getPreSales.ts
 // Variable: PRE_SALE_QUERY
@@ -598,10 +698,12 @@ export type ALL_BABES_QUERY_RESULT = Array<{
 import "@sanity/client";
 declare module "@sanity/client" {
 	interface SanityQueries {
+		'\n    *[_type == "order"] | order(orderDate desc) {\n      _id,\n      orderNumber,\n      paymentMethod,\n      paystackReference,\n      paypalOrderId,\n      orderDate,\n      customerName,\n      email,\n      status,\n      totalPrice,\n      currency,\n      amountDiscount,\n      clerkUserId,\n      products[]{\n        quantity,\n        selectedColor,\n        product->{\n          name,\n          price,\n          images[]{ asset->{url}, alt }\n        }\n      },\n      shippingAddress,\n      shippingCost,\n      vat,\n      subtotal,\n      orderNote\n    }\n  ': ALL_ORDERS_QUERY_RESULT;
 		'\n    *[_type == "product"] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      images[]{ asset->{url}, alt },\n      colors[]->{\n        _id,\n        title\n      },\n      categories[]->{\n        _id,\n        title,\n        "slug": slug.current\n      }\n    }\n  ': ALL_PRODUCTS_QUERY_RESULT;
 		'\n    *[_type == "product" && isBestSeller == true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      images[]{ asset->{url}, alt },\n      colors[]->{\n        _id,\n        title\n      }\n    }\n  ': QueryResult;
 		'\n      *[_type == "order" && clerkUserId == $userId] | order(orderDate desc) {\n        _id,\n        orderNumber,\n        orderDate,\n        status,\n        totalPrice,\n        currency,\n        products[]{\n          quantity,\n          selectedColor,\n          product->{\n            name,\n            price,\n            images[]{ asset->{url}, alt }\n          }\n        }\n      }\n    ': MY_ORDERS_QUERY_RESULT;
 		'\n    *[_type == "product" && isNewArrival == true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      images[]{ asset->{url}, alt },\n      colors[]->{\n        _id,\n        title\n      }\n    }\n  ': NEW_ARRIVALS_QUERY_RESULT;
+		'\n      *[_type == "order" && _id == $_id][0] {\n        _id,\n        orderNumber,\n        paymentMethod,\n        paystackReference,\n        paypalOrderId,\n        orderDate,\n        customerName,\n        email,\n        status,\n        totalPrice,\n        currency,\n        amountDiscount,\n        clerkUserId,\n        products[]{\n          quantity,\n          selectedColor,\n          product->{\n            name,\n            price,\n            images[]{ asset->{url}, alt }\n          }\n        },\n        shippingAddress,\n        shippingCost,\n        vat,\n        subtotal,\n        orderNote\n      }\n    ': ORDER_BY_ID_QUERY_RESULT;
 		'\n    *[_type == "product" && onPreSale == true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      onPreSale,\n      images[]{ asset->{url}, alt },\n      colors[]->{\n        _id,\n        title\n      }\n    }\n  ': PRE_SALE_QUERY_RESULT;
 		'\n    *[_type == "product" && slug.current == $slug][0] {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      price,\n      salePrice,\n      stock,\n      description,\n      detailedDescription,\n      isBestSeller,\n      isNewArrival,\n      images[]{\n        alt,\n        asset->{url},\n        "color": color->{\n          _id,\n          title,\n          hex\n        }\n      },\n      colors[]->{\n        _id,\n        title,\n        hex\n      },\n      categories[]->{\n        _id,\n        name\n      }\n    }\n  ': PRODUCT_BY_SLUG_QUERY_RESULT;
 		'\n    *[_type == "product"  ] {\n      _id,\n      name,\n      "slug": slug.current,\n      price,\n      stock,\n      description,\n      detailedDescription,\n      isBestSeller,\n      isNewArrival,\n      images[]{\n        alt,\n        asset->{url},\n        "color": color->{\n          _id,\n          title,\n          hex\n        }\n      },\n      colors[]->{\n        _id,\n        title,\n        hex\n      },\n      categories[]->{\n        _id,\n        title,\n        "slug": slug.current\n      }\n    }\n  ': FILTERED_PRODUCTS_QUERY_RESULT;

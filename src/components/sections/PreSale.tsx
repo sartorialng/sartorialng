@@ -19,35 +19,48 @@ const PreSale = ({ products }: PreSaleProps) => {
 				<p className="text-2xl md:text-4xl font-semibold md:font-bold text-sartorial-green">
 					Pre-Sale
 				</p>
-				<p className="text-sartorial-green">
+				<p className="text-sartorial-green text-center">
 					Shop on presale before the official launch and enjoy
 					exclusive discounts.
 				</p>
 			</div>
-			<div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
-				{products.map((product) => {
-					const colorToUse = product.colors?.[0];
 
-					if (!colorToUse) {
-						console.warn("Product has no colors");
-						return;
-					}
-					return (
-						<ProductCard
-							key={product._id}
-							product={product}
-							onAddToCart={() => {
-								addItem(product, colorToUse);
-								toast.success(`${product.name} added to cart`);
-							}}
-							onBuyNow={() => {
-								addItem(product, colorToUse);
-								router.push("/checkout");
-							}}
-						/>
-					);
-				})}
-			</div>
+			{products.length === 0 ? (
+				<div className="flex flex-col items-center justify-center text-center">
+					<p className="text-sartorial-green max-w-md">
+						Check back soon to shop early and enjoy special launch
+						discounts.
+					</p>
+				</div>
+			) : (
+				<div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+					{products.map((product) => {
+						const colorToUse = product.colors?.[0];
+
+						if (!colorToUse) {
+							console.warn("Product has no colors");
+							return null;
+						}
+
+						return (
+							<ProductCard
+								key={product._id}
+								product={product}
+								onAddToCart={() => {
+									addItem(product, colorToUse);
+									toast.success(
+										`${product.name} added to cart`,
+									);
+								}}
+								onBuyNow={() => {
+									addItem(product, colorToUse);
+									router.push("/checkout");
+								}}
+							/>
+						);
+					})}
+				</div>
+			)}
 		</div>
 	);
 };

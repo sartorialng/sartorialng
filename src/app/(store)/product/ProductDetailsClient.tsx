@@ -361,37 +361,74 @@ export default function ProductDetailsClient({
 							</div>
 
 							{/* Buy Now Button */}
-							<Button
-								variant="outline"
-								className="cursor-pointer text-sartorial-green border-2 border-sartorial-green rounded-sm h-10 px-4 md:px-10 hover:bg-gray-50"
-								disabled={
-									product.stock <= 0 &&
-									product.onPreSale === false
-								}
-								onClick={() => {
-									const colorInfo = product.colors?.find(
-										(c: Color) => c._id === selectedColor,
-									);
-
-									for (let i = 0; i < quantity; i++) {
-										addItem(
-											product,
-											colorInfo
-												? {
-														_id: colorInfo._id,
-														title: colorInfo.title,
-													}
-												: undefined,
-										);
+							{product?.onPreOrder ? (
+								<Button
+									variant="outline"
+									className="cursor-pointer text-sartorial-green border-2 border-sartorial-green rounded-sm h-10 px-4 md:px-10 hover:bg-gray-50"
+									disabled={
+										product.stock <= 0 &&
+										product.onPreSale === false
 									}
-									toast.success(
-										`${product.name}${colorInfo ? ` (${colorInfo.title})` : ""} added to cart`,
-									);
-									router.push("/checkout");
-								}}
-							>
-								Buy Now
-							</Button>
+									onClick={() => {
+										const colorInfo = product.colors?.find(
+											(c: Color) =>
+												c._id === selectedColor,
+										);
+
+										for (let i = 0; i < quantity; i++) {
+											addItem(
+												product,
+												colorInfo
+													? {
+															_id: colorInfo._id,
+															title: colorInfo.title,
+														}
+													: undefined,
+											);
+										}
+										toast.success(
+											`${product.name}${colorInfo ? ` (${colorInfo.title})` : ""} added to cart`,
+										);
+										router.push("/checkout");
+									}}
+								>
+									Pre Order
+								</Button>
+							) : (
+								<Button
+									variant="outline"
+									className="cursor-pointer text-sartorial-green border-2 border-sartorial-green rounded-sm h-10 px-4 md:px-10 hover:bg-gray-50"
+									disabled={
+										!product.onPreSale &&
+										!product.onPreOrder &&
+										isOutOfStock
+									}
+									onClick={() => {
+										const colorInfo = product.colors?.find(
+											(c: Color) =>
+												c._id === selectedColor,
+										);
+
+										for (let i = 0; i < quantity; i++) {
+											addItem(
+												product,
+												colorInfo
+													? {
+															_id: colorInfo._id,
+															title: colorInfo.title,
+														}
+													: undefined,
+											);
+										}
+										toast.success(
+											`${product.name}${colorInfo ? ` (${colorInfo.title})` : ""} added to cart`,
+										);
+										router.push("/checkout");
+									}}
+								>
+									Buy Now
+								</Button>
+							)}
 
 							{/* Wishlist Button */}
 							<button

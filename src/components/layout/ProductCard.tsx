@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Heart, ShoppingCartIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -11,6 +11,7 @@ import { urlFor } from "@/lib/imageUrl";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { convertNGNtoUSD } from "@/lib/currency";
+import PreOrderNoticeModal from "../modals/PreOrderNoticeModal";
 
 interface ProductCardProps {
 	product: Product;
@@ -19,6 +20,7 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
+	const [showPreOrder, setShowPreOrder] = useState(false);
 	const { addToWishlist, removeFromWishlist, isInWishlist } =
 		useWishlistStore();
 	const { isSignedIn } = useUser();
@@ -37,6 +39,10 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 		: SartorialBag;
 	const imageAlt = product?.name ?? "product-name";
 	const isOutOfStock = product?.stock === 0;
+	const onPreOrder = product?.onPreOrder;
+
+	const preOrderAvailability = product?.preOrderAvailability;
+
 	const onPreSale = product?.onPreSale;
 
 	const isFavorite = isInWishlist(productId);
@@ -104,12 +110,6 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 			<Link href={`/product/${productSlug}`}>
 				<div className="bg-white p-3 md:px-5 md:py-5 rounded-lg hover:border-2 hover:border-sartorial-green hover:shadow-lg transition-all duration-200">
 					<div className="flex justify-end mb-2 md:mb-4">
-						{/* <Image
-							height={35}
-							width={35}
-							src={PreSale}
-							alt="pre-sale-logo"
-						/> */}
 						<button
 							onClick={toggleFavorite}
 							className="transition-transform hover:scale-110 focus:outline-none"
@@ -225,31 +225,53 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 					)}
 				</div>
 
-				<div className="flex flex-row items-center justify-between gap-2 sm:gap-3 mt-2 md:mt-4">
-					<Button
-						variant="outline"
-						className="flex-1 text-[11px] md:text-base h-8 md:h-10 border-2 border-sartorial-green hover:bg-gray-50 text-sartorial-green font-medium rounded-sm cursor-pointer"
-						onClick={(e) => {
-							e.preventDefault();
-							onAddToCart?.();
-						}}
-						disabled={isOutOfStock}
-					>
-						<span className="hidden md:inline">Add to Cart</span>
-						<ShoppingCartIcon className="inline md:hidden w-4 h-4" />
-					</Button>
-					<Button
-						className="flex-1 text-[11px] md:text-base h-8 md:h-10 bg-sartorial-green hover:bg-green-800 text-white font-medium rounded-sm cursor-pointer"
-						onClick={(e) => {
-							e.preventDefault();
-							onBuyNow?.();
-						}}
-						disabled={isOutOfStock}
-					>
-						Buy Now
-					</Button>
-				</div>
+				{onPreOrder ? (
+					<div className="flex flex-row items-center justify-center mt-2 md:mt-4">
+						<Button
+							className="text-[11px] md:text-base h-8 md:h-10 bg-sartorial-green hover:bg-green-800 text-white font-medium rounded-sm cursor-pointer"
+							onClick={() => setShowPreOrder(true)}
+						>
+							Pre Order
+						</Button>
+					</div>
+				) : (
+					<div className="flex flex-row items-center justify-between gap-2 sm:gap-3 mt-2 md:mt-4">
+						<Button
+							variant="outline"
+							className="flex-1 text-[11px] md:text-base h-8 md:h-10 border-2 border-sartorial-green hover:bg-gray-50 text-sartorial-green font-medium rounded-sm cursor-pointer"
+							onClick={(e) => {
+								e.preventDefault();
+								onAddToCart?.();
+							}}
+							disabled={isOutOfStock && !onPreOrder && !onPreSale}
+						>
+							<span className="hidden md:inline">
+								Add to Cart
+							</span>
+							<ShoppingCartIcon className="inline md:hidden w-4 h-4" />
+						</Button>
+						<Button
+							className="flex-1 text-[11px] md:text-base h-8 md:h-10 bg-sartorial-green hover:bg-green-800 text-white font-medium rounded-sm cursor-pointer"
+							onClick={(e) => {
+								e.preventDefault();
+								onBuyNow?.();
+							}}
+							disabled={isOutOfStock && !onPreOrder && !onPreSale}
+						>
+							Buy Now
+						</Button>
+					</div>
+				)}
 			</div>
+
+			<PreOrderNoticeModal
+				date={preOrderAvailability ? preOrderAvailability : ""}
+				isOpen={showPreOrder}
+				onClose={() => setShowPreOrder(false)}
+				onContinue={() => {
+					onBuyNow?.();
+				}}
+			/>
 		</div>
 	);
 };

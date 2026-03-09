@@ -42,7 +42,7 @@ export function calculateShipping({
 
 export const formatDate = (dateString: string) => {
 	const date = new Date(dateString);
-	return date.toLocaleDateString("en-US", {
+	return date.toLocaleDateString("en-GB", {
 		month: "short",
 		day: "numeric",
 		year: "numeric",

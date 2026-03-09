@@ -9,6 +9,9 @@ import Link from "next/link";
 import { BillingFormValues } from "@/lib/types/types";
 import { useState } from "react";
 import PaymentMethodModal from "@/app/(store)/checkout/PaymentMethodModal";
+import { toast } from "sonner";
+import { useBasketStore } from "@/store/store";
+import { Loader2 } from "lucide-react";
 
 interface BillingFormProps {
 	formik: FormikProps<BillingFormValues>;
@@ -28,16 +31,53 @@ const BillingForm = ({
 	totalAmount,
 }: BillingFormProps) => {
 	const [showPaymentModal, setShowPaymentModal] = useState(false);
+	const [isValidating, setIsValidating] = useState(false);
+	const groupedItems = useBasketStore((s) => s.getGroupedItems());
+
+	// const handleCheckoutClick = async (e: React.FormEvent) => {
+	// 	e.preventDefault();
+
+	// 	const errors = await formik.validateForm();
+
+	// 	if (Object.keys(errors).length === 0) {
+	// 		setShowPaymentModal(true);
+	// 	} else {
+	// 		formik.handleSubmit();
+	// 	}
+	// };
 
 	const handleCheckoutClick = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		const errors = await formik.validateForm();
 
-		if (Object.keys(errors).length === 0) {
-			setShowPaymentModal(true);
-		} else {
+		if (Object.keys(errors).length > 0) {
 			formik.handleSubmit();
+			return;
+		}
+
+		try {
+			setIsValidating(true);
+			const response = await fetch("/api/inventory/check", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(groupedItems),
+			});
+
+			const result = await response.json();
+
+			if (!response.ok || !result.allInStock) {
+				toast.error(
+					result.message || "Some items are no longer available.",
+				);
+				return;
+			}
+
+			setShowPaymentModal(true);
+		} catch (error) {
+			toast.error("Connectivity issue. Please try again.");
+		} finally {
+			setIsValidating(false);
 		}
 	};
 
@@ -425,7 +465,14 @@ const BillingForm = ({
 						className="mt-2 h-12 w-full rounded-full bg-white text-green-900 hover:bg-white/90 cursor-pointer"
 						type="submit"
 					>
-						Checkout
+						{isValidating ? (
+							<span className="flex items-center gap-2">
+								<Loader2 className="h-4 w-4 animate-spin" />
+								Validating...
+							</span>
+						) : (
+							"Checkout"
+						)}
 					</Button>
 
 					<div className="mt-5 md:mt-3 text-white flex justify-center items-center gap-4 underline text-[10px] md:text-xs">

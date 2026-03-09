@@ -51,7 +51,7 @@ const CheckoutPage = () => {
 			orderNote: "",
 		},
 		validationSchema: billingSchema,
-		onSubmit: (values) => console.log("Form Data", values),
+		onSubmit: () => console.log("Form Data Submitted"),
 	});
 
 	const getShippingAddress = () => ({

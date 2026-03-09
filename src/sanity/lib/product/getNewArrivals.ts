@@ -13,6 +13,8 @@ export const getNewArrivals = async () => {
       stock,
       isBestSeller,
       isNewArrival,
+      onPreOrder,
+      preOrderAvailability,
       images[]{ asset->{url}, alt },
       colors[]->{
         _id,
