@@ -1378,6 +1378,13 @@
         },
         "optional": true
       },
+      "preSaleAvailability": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
       "onPreOrder": {
         "type": "objectAttribute",
         "value": {

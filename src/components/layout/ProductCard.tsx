@@ -12,6 +12,7 @@ import { useUser, useClerk } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { convertNGNtoUSD } from "@/lib/currency";
 import PreOrderNoticeModal from "../modals/PreOrderNoticeModal";
+import PreSaleNoticeModal from "../modals/PreSaleNoticeModal";
 
 interface ProductCardProps {
 	product: Product;
@@ -21,6 +22,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 	const [showPreOrder, setShowPreOrder] = useState(false);
+	const [showPreSale, setShowPreSale] = useState(false);
 	const { addToWishlist, removeFromWishlist, isInWishlist } =
 		useWishlistStore();
 	const { isSignedIn } = useUser();
@@ -42,6 +44,7 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 	const onPreOrder = product?.onPreOrder;
 
 	const preOrderAvailability = product?.preOrderAvailability;
+	const preSaleAvailability = product?.preSaleAvailability;
 
 	const onPreSale = product?.onPreSale;
 
@@ -241,7 +244,11 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 							className="flex-1 text-[11px] md:text-base h-8 md:h-10 border-2 border-sartorial-green hover:bg-gray-50 text-sartorial-green font-medium rounded-sm cursor-pointer"
 							onClick={(e) => {
 								e.preventDefault();
-								onAddToCart?.();
+								if (onPreSale) {
+									setShowPreSale(true);
+								} else {
+									onAddToCart?.();
+								}
 							}}
 							disabled={isOutOfStock && !onPreOrder && !onPreSale}
 						>
@@ -254,7 +261,11 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 							className="flex-1 text-[11px] md:text-base h-8 md:h-10 bg-sartorial-green hover:bg-green-800 text-white font-medium rounded-sm cursor-pointer"
 							onClick={(e) => {
 								e.preventDefault();
-								onBuyNow?.();
+								if (onPreSale) {
+									setShowPreSale(true);
+								} else {
+									onBuyNow?.();
+								}
 							}}
 							disabled={isOutOfStock && !onPreOrder && !onPreSale}
 						>
@@ -268,6 +279,14 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 				date={preOrderAvailability ? preOrderAvailability : ""}
 				isOpen={showPreOrder}
 				onClose={() => setShowPreOrder(false)}
+				onContinue={() => {
+					onBuyNow?.();
+				}}
+			/>
+			<PreSaleNoticeModal
+				date={preSaleAvailability ? preSaleAvailability : ""}
+				isOpen={showPreSale}
+				onClose={() => setShowPreSale(false)}
 				onContinue={() => {
 					onBuyNow?.();
 				}}

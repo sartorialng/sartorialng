@@ -127,6 +127,11 @@ const productType = defineType({
 			description: "Show in Pre-Sale section",
 		}),
 		defineField({
+			name: "preSaleAvailability",
+			title: "Pre Sale Available from",
+			type: "datetime",
+		}),
+		defineField({
 			name: "onPreOrder",
 			title: "Pre-Order",
 			type: "boolean",

@@ -111,7 +111,7 @@ const PaymentMethodModal = ({
 						</div>
 
 						{/* PayPal Option */}
-						<div
+						{/* <div
 							className={`relative flex items-start sm:items-center gap-3 sm:space-x-4 rounded-lg border-2 p-4 sm:p-6 cursor-pointer transition-all ${
 								selectedMethod === "paypal"
 									? "border-sartorial-green bg-green-50"
@@ -143,6 +143,44 @@ const PaymentMethodModal = ({
 										width={100}
 										height={30}
 										className="h-6 w-auto object-contain"
+										unoptimized
+									/>
+								</div>
+							</Label>
+						</div> */}
+						<div
+							className={`relative flex items-start sm:items-center gap-3 sm:space-x-4 rounded-lg border-2 p-4 sm:p-6 cursor-not-allowed transition-all opacity-70 border-gray-100 bg-gray-50/50`}
+						>
+							<RadioGroupItem
+								value="paypal"
+								id="paypal"
+								className="h-5 w-5 mt-1 sm:mt-0"
+								disabled
+							/>
+							<Label
+								htmlFor="paypal"
+								className="flex-1 cursor-not-allowed"
+							>
+								<div className="w-full flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+									<div>
+										<div className="flex items-center gap-2">
+											<p className="text-base font-semibold text-gray-400">
+												Pay with PayPal
+											</p>
+											<span className="text-xs font-medium bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full">
+												Coming Soon
+											</span>
+										</div>
+										<p className="text-sm text-gray-400 mt-1">
+											Pay via PayPal or Credit/Debit Card
+										</p>
+									</div>
+									<Image
+										src={PayPal}
+										alt="PayPal"
+										width={100}
+										height={30}
+										className="h-6 w-auto object-contain opacity-40"
 										unoptimized
 									/>
 								</div>

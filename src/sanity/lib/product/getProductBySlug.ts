@@ -15,6 +15,8 @@ export const getProductBySlug = async (slug: string) => {
       detailedDescription,
       isBestSeller,
       isNewArrival,
+      onPreSale,
+      preSaleAvailability,
       onPreOrder,
       preOrderAvailability,
       images[]{
