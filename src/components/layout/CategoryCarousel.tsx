@@ -11,6 +11,7 @@ import {
 } from "@/assets";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import CountdownTimer from "./CountdownTimer";
 
 const CategoryCarousel = () => {
 	const [currentSlide, setCurrentSlide] = useState(0);
@@ -57,7 +58,7 @@ const CategoryCarousel = () => {
 	}, []);
 
 	return (
-		<>
+		<div className="relative">
 			<div className="pt-15 md:pt-15 flex flex-col items-center w-full overflow-hidden gap-4 bg-gray-50">
 				<div className="relative w-full h-30 md:h-96">
 					{slides.map((slide, index) => (
@@ -113,7 +114,8 @@ const CategoryCarousel = () => {
 					))}
 				</div>
 			</div>
-		</>
+			<CountdownTimer />
+		</div>
 	);
 };
 

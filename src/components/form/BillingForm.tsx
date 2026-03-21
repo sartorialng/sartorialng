@@ -7,7 +7,7 @@ import { AREAS, COUNTRIES, NIGERIA_STATES } from "@/data/shipping";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BillingFormValues } from "@/lib/types/types";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import PaymentMethodModal from "@/app/(store)/checkout/PaymentMethodModal";
 import { toast } from "sonner";
 import { useBasketStore } from "@/store/store";
@@ -18,6 +18,7 @@ interface BillingFormProps {
 	onPaystack: () => void;
 	onPayPal: (details: any) => void;
 	totalAmount: number;
+	setIsSalesModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const labelStyle = "text-gray-400 font-normal text-sm";
@@ -29,6 +30,7 @@ const BillingForm = ({
 	onPaystack,
 	onPayPal,
 	totalAmount,
+	setIsSalesModalOpen,
 }: BillingFormProps) => {
 	const [showPaymentModal, setShowPaymentModal] = useState(false);
 	const [isValidating, setIsValidating] = useState(false);
@@ -264,7 +266,7 @@ const BillingForm = ({
 					/>
 					<label
 						htmlFor="saveInfo"
-						className="text-sm font-medium leading-none text-gray-200 cursor-pointer"
+						className="text-xs md:text-sm font-medium leading-none text-gray-200 cursor-pointer"
 					>
 						Save this information for faster check-out next time
 					</label>
@@ -284,7 +286,7 @@ const BillingForm = ({
 					/>
 					<label
 						htmlFor="shipToDifferentAddress"
-						className="text-lg font-medium leading-none text-white cursor-pointer"
+						className="text-sm md:text-base font-medium leading-none text-white cursor-pointer"
 					>
 						Ship to a different address
 					</label>
@@ -427,7 +429,20 @@ const BillingForm = ({
 					</div>
 				)}
 
-				<div className="bg-white rounded-lg p-5 md:p-6 shadow-sm border border-gray-100">
+				<div className="bg-white rounded-lg p-4 md:p-5 shadow-sm border border-gray-100">
+					<h3 className="text-red-600 font-bold text-lg mb-2">
+						Important Notice!
+					</h3>
+					<p className="text-[#404040] text-xs md:text-base leading-relaxed font-medium">
+						Please note that delivery starts when sales is generally
+						over. Delivery within Lagos takes 24-48hrs (Business
+						Days). <br /> Inter-state takes 2-5 business days,
+						deliveries within Africa take 5-8 business days, and
+						international deliveries take 14 business days excluding
+						public holidays.
+					</p>
+				</div>
+				{/* <div className="bg-white rounded-lg p-4 md:p-5 shadow-sm border border-gray-100">
 					<h3 className="text-red-600 font-bold text-lg mb-2">
 						Important Notice!
 					</h3>
@@ -438,9 +453,9 @@ const BillingForm = ({
 						international deliveries take 14 business days excluding
 						public holidays.
 					</p>
-				</div>
+				</div> */}
 
-				<div className="flex items-center space-x-2">
+				<div className="flex space-x-2">
 					<Checkbox
 						id="hasRegistered"
 						checked={formik.values.hasRegistered}
@@ -454,10 +469,41 @@ const BillingForm = ({
 					/>
 					<label
 						htmlFor="hasRegistered"
-						className="text-base font-medium leading-none text-white cursor-pointer"
+						className="text-sm md:text-base font-medium leading-4 md:leading-none text-white cursor-pointer"
 					>
 						Join Sartorial Babes and get 20% off your next purchase!
 					</label>
+				</div>
+
+				<div className="">
+					<div className="flex space-x-2">
+						<Checkbox
+							id="hasReadTC"
+							checked={formik.values.hasReadTC}
+							onCheckedChange={(checked) => {
+								formik.setFieldValue(
+									"hasReadTC",
+									checked === true,
+								);
+							}}
+							className="border-white data-[state=checked]:bg-white data-[state=checked]:text-[#2D5A43]"
+						/>
+						<p className=" text-sm md:text-base font-medium leading-4 md:leading-none text-white cursor-pointer">
+							I confirm that I have read and accept the Discount
+							Sales{" "}
+							<span
+								className="underline hover:text-gray-100 cursor-pointer"
+								onClick={() => setIsSalesModalOpen(true)}
+							>
+								Terms and Condition
+							</span>
+						</p>
+					</div>
+					{formik.touched.hasReadTC && formik.errors.hasReadTC && (
+						<p className="text-red-400 text-sm mt-2">
+							{formik.errors.hasReadTC}
+						</p>
+					)}
 				</div>
 
 				<div className="mt-5 text-white space-y-2">

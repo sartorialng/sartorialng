@@ -22,6 +22,10 @@ export const billingSchema = yup.object().shape({
 	saveInfo: yup.boolean(),
 	shipToDifferentAddress: yup.boolean(),
 	hasRegistered: yup.boolean(),
+	hasReadTC: yup
+		.boolean()
+		.oneOf([true], "Please read the Discount Sales Terms and Conditions")
+		.required("Please read the Discount Sales Terms and Conditions"),
 	receiverFirstName: yup.string().when("shipToDifferentAddress", {
 		is: true,
 		then: (schema) => schema.required("Receiver's first name is required"),
