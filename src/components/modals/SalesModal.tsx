@@ -22,7 +22,7 @@ const SalesModal = () => {
 				className="w-[95%] sm:max-w-112.5 max-h-[85vh] p-0 border-none overflow-hidden bg-transparent shadow-none"
 				showCloseButton={false}
 			>
-				<DialogClose className="absolute cursor-pointer right-14 top-4 z-50 rounded-full opacity-80 transition-opacity hover:opacity-100 focus:outline-none">
+				<DialogClose className="absolute cursor-pointer right-4 md:right-14 top-4 z-50 rounded-full opacity-80 transition-opacity hover:opacity-100 focus:outline-none">
 					<X className="h-5 w-5 text-white drop-shadow-lg" />
 					<span className="sr-only">Close</span>
 				</DialogClose>

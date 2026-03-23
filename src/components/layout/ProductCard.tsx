@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useWishlistStore } from "@/store/useWishlistStore";
 import { Product } from "../../../sanity.types";
-import { PreSale, SartorialBag } from "@/assets";
+import { FastDelivery, SartorialBag } from "@/assets";
 import { urlFor } from "@/lib/imageUrl";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { toast } from "sonner";
@@ -112,25 +112,71 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 		<div className="w-full max-w-sm border-none cursor-pointer">
 			<Link href={`/product/${productSlug}`}>
 				<div className="bg-white p-3 md:px-5 md:py-5 rounded-lg hover:border-2 hover:border-sartorial-green hover:shadow-lg transition-all duration-200">
-					<div className="flex justify-end mb-2 md:mb-4">
-						<button
-							onClick={toggleFavorite}
-							className="transition-transform hover:scale-110 focus:outline-none"
-							aria-label={
-								isFavorite
-									? "Remove from wishlist"
-									: "Add to wishlist"
-							}
-						>
-							<Heart
-								className={`h-4 w-4 md:w-6 md:h-6 transition-colors cursor-pointer ${
+					{product?.onCombo ? (
+						<div className="flex justify-between mb-2 md:mb-4">
+							<div className="bg-[#2d5a43] text-white px-2 py-1.5 rounded-lg flex items-end justify-between w-fit gap-4">
+								<div className="flex flex-col leading-tight">
+									<span className="text-[10px] font-bold opacity-90 tracking-wide">
+										Combo
+									</span>
+									<span className="text-[10px] font-semibold whitespace-nowrap">
+										Free Shipping
+									</span>
+								</div>
+								<div className="shrink-0 ">
+									<Image
+										src={FastDelivery}
+										alt="fast-delivery-icon"
+										className="h-4 w-4"
+									/>
+								</div>
+								{/* <div className="shrink-0 ">
+									<Truck
+										size={20}
+										strokeWidth={2.5}
+										className="text-white"
+									/>
+								</div> */}
+							</div>
+							<button
+								onClick={toggleFavorite}
+								className="transition-transform hover:scale-110 focus:outline-none"
+								aria-label={
 									isFavorite
-										? "fill-sartorial-green text-sartorial-green"
-										: "fill-none text-sartorial-green"
-								}`}
-							/>
-						</button>
-					</div>
+										? "Remove from wishlist"
+										: "Add to wishlist"
+								}
+							>
+								<Heart
+									className={`h-4 w-4 md:w-6 md:h-6 transition-colors cursor-pointer ${
+										isFavorite
+											? "fill-sartorial-green text-sartorial-green"
+											: "fill-none text-sartorial-green"
+									}`}
+								/>
+							</button>
+						</div>
+					) : (
+						<div className="flex justify-end mb-2 md:mb-4">
+							<button
+								onClick={toggleFavorite}
+								className="transition-transform hover:scale-110 focus:outline-none"
+								aria-label={
+									isFavorite
+										? "Remove from wishlist"
+										: "Add to wishlist"
+								}
+							>
+								<Heart
+									className={`h-4 w-4 md:w-6 md:h-6 transition-colors cursor-pointer ${
+										isFavorite
+											? "fill-sartorial-green text-sartorial-green"
+											: "fill-none text-sartorial-green"
+									}`}
+								/>
+							</button>
+						</div>
+					)}
 					<div className="flex justify-center mb-2">
 						<div className="relative w-full h-30 md:h-50">
 							<Image
@@ -154,7 +200,7 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 							)}
 						</div>
 					</div>
-					{onPreSale && (
+					{/* {product?.onSale && (
 						<div className="flex justify-end">
 							<Image
 								height={35}
@@ -162,6 +208,22 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 								src={PreSale}
 								alt="pre-sale-logo"
 							/>
+						</div>
+					)} */}
+					{product?.onSale && product?.discountValue && (
+						<div className="flex justify-end">
+							<div
+								className="flex flex-col items-center justify-center w-10 h-10 bg-[#b2f2d6] text-[#2d5a43] font-bold leading-tight"
+								style={{
+									clipPath:
+										"polygon(50% 0%, 65% 15%, 85% 15%, 85% 35%, 100% 50%, 85% 65%, 85% 85%, 65% 85%, 50% 100%, 35% 85%, 15% 85%, 15% 65%, 0% 50%, 15% 35%, 15% 15%, 35% 15%)",
+								}}
+							>
+								<span className="text-xs">
+									{product.discountValue}%
+								</span>
+								<span className="text-[10px] -mt-1">Off</span>
+							</div>
 						</div>
 					)}
 				</div>

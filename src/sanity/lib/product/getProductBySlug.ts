@@ -8,6 +8,8 @@ export const getProductBySlug = async (slug: string) => {
       name,
       "slug": slug.current,
       onSale,
+      onCombo,
+      discountValue,
       price,
       salePrice,
       stock,

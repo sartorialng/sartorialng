@@ -43,7 +43,8 @@ const CountdownTimer = () => {
 	}, []);
 
 	return (
-		<div className="top-26 right-2 md:right-3 absolute w-auto mx-auto py-1 px-1 md:py-4 opacity-80 md:opacity-90 bg-white rounded-sm md:rounded-lg shadow-sm border border-gray-50 z-30">
+		// <div className="top-26 right-2 md:right-3 absolute w-auto mx-auto py-1 px-1 md:py-4 opacity-80 md:opacity-90 bg-white rounded-sm md:rounded-lg shadow-sm border border-gray-50 z-30">
+		<div className="top-26 right-2 md:right-3 absolute w-auto mx-auto py-1 px-1 md:py-4 bg-white rounded-sm md:rounded-lg shadow-sm border border-gray-50 z-30">
 			<h3 className="text-center text-xs md:text-base text-sartorial-green font-medium mb-2 md:mb-4 text-wrap">
 				Sartorial Easter Event Starts in
 			</h3>

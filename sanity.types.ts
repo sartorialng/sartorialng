@@ -12,6 +12,8 @@
  * ---------------------------------------------------------------------------------
  */
 
+export declare const internalGroqTypeReferenceTo: unique symbol;
+
 // Source: schema.json
 export type Coupon = {
 	_id: string;
@@ -46,6 +48,13 @@ export type Customer = {
 	createdAt?: string;
 };
 
+export type SanityImageAssetReference = {
+	_ref: string;
+	_type: "reference";
+	_weak?: boolean;
+	[internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+};
+
 export type SartorialBabe = {
 	_id: string;
 	_type: "sartorialBabe";
@@ -54,12 +63,7 @@ export type SartorialBabe = {
 	_rev: string;
 	name?: string;
 	image?: {
-		asset?: {
-			_ref: string;
-			_type: "reference";
-			_weak?: boolean;
-			[internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-		};
+		asset?: SanityImageAssetReference;
 		media?: unknown;
 		hotspot?: SanityImageHotspot;
 		crop?: SanityImageCrop;
@@ -96,6 +100,13 @@ export type Review = {
 	isApproved?: boolean;
 };
 
+export type ProductReference = {
+	_ref: string;
+	_type: "reference";
+	_weak?: boolean;
+	[internalGroqTypeReferenceTo]?: "product";
+};
+
 export type Order = {
 	_id: string;
 	_type: "order";
@@ -109,12 +120,7 @@ export type Order = {
 	customerName?: string;
 	email?: string;
 	products?: Array<{
-		product?: {
-			_ref: string;
-			_type: "reference";
-			_weak?: boolean;
-			[internalGroqTypeReferenceTo]?: "product";
-		};
+		product?: ProductReference;
 		quantity?: number;
 		selectedColor?: {
 			colorId?: string;
@@ -179,6 +185,20 @@ export type Slug = {
 	source?: string;
 };
 
+export type ColorReference = {
+	_ref: string;
+	_type: "reference";
+	_weak?: boolean;
+	[internalGroqTypeReferenceTo]?: "color";
+};
+
+export type CategoryReference = {
+	_ref: string;
+	_type: "reference";
+	_weak?: boolean;
+	[internalGroqTypeReferenceTo]?: "category";
+};
+
 export type Product = {
 	_id: string;
 	_type: "product";
@@ -188,38 +208,28 @@ export type Product = {
 	name?: string;
 	slug?: Slug;
 	images?: Array<{
-		asset?: {
-			_ref: string;
-			_type: "reference";
-			_weak?: boolean;
-			[internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-		};
+		asset?: SanityImageAssetReference;
 		media?: unknown;
 		hotspot?: SanityImageHotspot;
 		crop?: SanityImageCrop;
 		alt?: string;
-		color?: {
-			_ref: string;
-			_type: "reference";
-			_weak?: boolean;
-			[internalGroqTypeReferenceTo]?: "color";
-		};
+		color?: ColorReference;
 		_type: "image";
 		_key: string;
 	}>;
 	description?: BlockContent;
 	detailedDescription?: string;
 	onSale?: boolean;
+	onCombo?: boolean;
+	discountValue?: number;
 	price?: number;
 	salePrice?: number;
 	colors?: Array<{ _id: string; title: string }>;
-	categories?: Array<{
-		_ref: string;
-		_type: "reference";
-		_weak?: boolean;
-		_key: string;
-		[internalGroqTypeReferenceTo]?: "category";
-	}>;
+	categories?: Array<
+		{
+			_key: string;
+		} & CategoryReference
+	>;
 	stock?: number;
 	isBestSeller?: boolean;
 	isNewArrival?: boolean;
@@ -337,14 +347,18 @@ export type Geopoint = {
 export type AllSanitySchemaTypes =
 	| Coupon
 	| Customer
+	| SanityImageAssetReference
 	| SartorialBabe
 	| SanityImageCrop
 	| SanityImageHotspot
 	| Review
+	| ProductReference
 	| Order
 	| BlockContent
 	| Category
 	| Slug
+	| ColorReference
+	| CategoryReference
 	| Product
 	| Color
 	| SanityImagePaletteSwatch
@@ -355,8 +369,6 @@ export type AllSanitySchemaTypes =
 	| SanityAssetSourceData
 	| SanityImageAsset
 	| Geopoint;
-
-export declare const internalGroqTypeReferenceTo: unique symbol;
 
 // Source: src/sanity/lib/product/getAllOrders.ts
 // Variable: ALL_ORDERS_QUERY
@@ -705,12 +717,7 @@ export type ALL_BABES_QUERY_RESULT = Array<{
 	_id: string;
 	name: string | null;
 	image: {
-		asset?: {
-			_ref: string;
-			_type: "reference";
-			_weak?: boolean;
-			[internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-		};
+		asset?: SanityImageAssetReference;
 		media?: unknown;
 		hotspot?: SanityImageHotspot;
 		crop?: SanityImageCrop;

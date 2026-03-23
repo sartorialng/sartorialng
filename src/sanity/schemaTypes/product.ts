@@ -73,6 +73,19 @@ const productType = defineType({
 				"Toggle this to activate the sale price. Make sure Sale Price is set.",
 		}),
 		defineField({
+			name: "onCombo",
+			title: "On Combo",
+			type: "boolean",
+			initialValue: false,
+			description: "Toggle this to activate the combo",
+		}),
+		defineField({
+			name: "discountValue",
+			title: "Discount Value",
+			type: "number",
+			validation: (Rule) => Rule.positive(),
+		}),
+		defineField({
 			name: "price",
 			title: "Price",
 			type: "number",

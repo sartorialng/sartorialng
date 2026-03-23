@@ -115,8 +115,10 @@ const CheckoutPage = () => {
 		}
 	};
 
+	const hasComboItem = useBasketStore((s) => s.hasComboItem());
+
 	const isEligibleForFreeShipping =
-		country === "Nigeria" && subtotal >= 200000;
+		hasComboItem || (country === "Nigeria" && subtotal >= 200000);
 
 	const shipping = isEligibleForFreeShipping
 		? 0

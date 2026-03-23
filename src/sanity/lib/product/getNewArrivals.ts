@@ -8,6 +8,8 @@ export const getNewArrivals = async () => {
       name,
       "slug": slug.current,
       onSale,
+      onCombo,
+      discountValue,
       price,
       salePrice,
       stock,
