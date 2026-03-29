@@ -229,11 +229,12 @@ const CheckoutPage = () => {
 				: undefined,
 		})),
 		onSuccess: async (ref) => {
-			if (formik.values.hasRegistered) {
-				createAccount();
-			}
 			setIsProcessing(true);
 			try {
+				if (formik.values.hasRegistered) {
+					await createAccount();
+				}
+
 				const result = await createOrderInDatabase(
 					ref.reference,
 					"paystack",
@@ -318,16 +319,21 @@ const CheckoutPage = () => {
 		}
 	};
 
-	const createAccount = () => {
-		fetch("/api/customer", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				...formik.values,
-			}),
-		}).catch((error) => {
-			console.error("Background Sanity save failed:", error);
-		});
+	const createAccount = async () => {
+		try {
+			const res = await fetch("/api/customer", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ ...formik.values }),
+			});
+
+			if (!res.ok) {
+				const data = await res.json();
+				console.error("Account creation failed:", data);
+			}
+		} catch (error) {
+			console.error("Background account creation failed:", error);
+		}
 	};
 
 	return (

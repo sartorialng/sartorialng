@@ -591,7 +591,7 @@ export async function POST(req: Request) {
 				firstName || clerkUserName?.split(" ")[0] || "there";
 
 			await resend.emails.send({
-				from: "Sartorial Babes <noreply@sartorial.ng>",
+				from: "Sartorial <noreply@sartorial.ng>",
 				to: emailAddress,
 				subject: `Order confirmed — ${newOrder.orderNumber} 🛍️`,
 				html: `
