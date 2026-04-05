@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useRef, useState } from "react";
 import ProcessingOverlay from "@/components/layout/ProcessingOverlay";
-import SalesTCModal from "@/components/modals/SalesTCModal";
+// import SalesTCModal from "@/components/modals/SalesTCModal";
 
 const CheckoutPage = () => {
 	const isCreatingOrder = useRef(false);
@@ -22,7 +22,7 @@ const CheckoutPage = () => {
 	const { user } = useUser();
 	const subtotal = useBasketStore((s) => s.getTotalPrice());
 	const [isProcessing, setIsProcessing] = useState(false);
-	const [isSalesModalOpen, setIsSalesModalOpen] = useState(false);
+	// const [isSalesModalOpen, setIsSalesModalOpen] = useState(false);
 
 	const formik = useFormik({
 		initialValues: {
@@ -40,7 +40,7 @@ const CheckoutPage = () => {
 			saveInfo: false,
 			shipToDifferentAddress: false,
 			hasRegistered: false,
-			hasReadTC: false,
+			// hasReadTC: false,
 			receiverFirstName: "",
 			receiverLastName: "",
 			shippingAddress: "",
@@ -350,7 +350,7 @@ const CheckoutPage = () => {
 							onPaystack={handlePaystackPayment}
 							onPayPal={handlePayPalSuccess}
 							totalAmount={total}
-							setIsSalesModalOpen={setIsSalesModalOpen}
+							// setIsSalesModalOpen={setIsSalesModalOpen}
 						/>
 					</div>
 
@@ -369,10 +369,10 @@ const CheckoutPage = () => {
 			</main>
 			<Footer />
 			<ProcessingOverlay isVisible={isProcessing} />
-			<SalesTCModal
+			{/* <SalesTCModal
 				isSalesModalOpen={isSalesModalOpen}
 				setIsSalesModalOpen={setIsSalesModalOpen}
-			/>
+			/> */}
 		</div>
 	);
 };

@@ -11,7 +11,7 @@ import {
 } from "@/assets";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import CountdownTimer from "./CountdownTimer";
+// import CountdownTimer from "./CountdownTimer";
 
 const HeroCarousel = () => {
 	const [currentSlide, setCurrentSlide] = useState(0);
@@ -114,7 +114,7 @@ const HeroCarousel = () => {
 					))}
 				</div>
 			</div>
-			<CountdownTimer />
+			{/* <CountdownTimer /> */}
 		</div>
 	);
 };

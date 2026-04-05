@@ -1,7 +1,7 @@
 export const SHIPPING_ZONES = [
 	{
 		area: "Mainland 1",
-		cost: 3500,
+		cost: 4500,
 		locations: [
 			"Yaba",
 			"Gbagada",
@@ -17,7 +17,7 @@ export const SHIPPING_ZONES = [
 	},
 	{
 		area: "Mainland 2",
-		cost: 4500,
+		cost: 5500,
 		locations: [
 			"Ago Palace",
 			"Okota",
@@ -31,7 +31,7 @@ export const SHIPPING_ZONES = [
 	},
 	{
 		area: "Mainland 3",
-		cost: 6000,
+		cost: 7000,
 		locations: [
 			"Apapa",
 			"Ajegunle",
@@ -44,7 +44,7 @@ export const SHIPPING_ZONES = [
 	},
 	{
 		area: "Mainland 4",
-		cost: 5000,
+		cost: 6000,
 		locations: [
 			"Ikorodu",
 			"Abulegba",
@@ -60,17 +60,17 @@ export const SHIPPING_ZONES = [
 	},
 	{
 		area: "Mainland 5",
-		cost: 6500,
+		cost: 8000,
 		locations: ["Akute", "Arepo", "Badagry", "Olowora"],
 	},
 	{
 		area: "Mainland 6",
-		cost: 4500,
+		cost: 5500,
 		locations: ["Magodo", "Omole", "Ogudu", "Ketu", "Ojota"],
 	},
 	{
 		area: "Island 1",
-		cost: 3500,
+		cost: 6000,
 		locations: [
 			"Obalende",
 			"Ikoyi",
@@ -82,7 +82,7 @@ export const SHIPPING_ZONES = [
 	},
 	{
 		area: "Island 2",
-		cost: 4000,
+		cost: 7000,
 		locations: [
 			"Ilaje",
 			"Osapa London",
@@ -94,16 +94,16 @@ export const SHIPPING_ZONES = [
 	},
 	{
 		area: "Chevron/VGC area",
-		cost: 4500,
+		cost: 7000,
 		locations: ["Chevron", "Conservation", "Orchid", "VGC"],
 	},
 	{
 		area: "Island 3",
-		cost: 5000,
+		cost: 8000,
 		locations: ["Ajah", "Badore", "Abraham Adesanya", "Lekki Gardens"],
 	},
-	{ area: "Island 4", cost: 6000, locations: ["Sangotedo"] },
-	{ area: "Inter-State", cost: 7000, locations: [] },
+	{ area: "Island 4", cost: 8000, locations: ["Sangotedo"] },
+	{ area: "Inter-State", cost: 10000, locations: [] },
 	{ area: "African Countries", cost: 125000, locations: [] },
 	{ area: "International", cost: 268000, locations: [] },
 ];
