@@ -7,6 +7,7 @@ import PayPalProvider from "@/components/layout/PayPalProvider";
 import { Suspense } from "react";
 import FacebookPixel from "@/components/pixel/FacebookPixel";
 import SnapPixel from "@/components/pixel/SnapPixel";
+import TikTokPixel from "@/components/pixel/TikTokPixel";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -67,6 +68,7 @@ export default function RootLayout({
 					<Suspense fallback={null}>
 						<FacebookPixel />
 						<SnapPixel />
+						<TikTokPixel />
 					</Suspense>
 				</body>
 			</html>
