@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { convertNGNtoUSD } from "@/lib/currency";
 import PreOrderNoticeModal from "../modals/PreOrderNoticeModal";
 import PreSaleNoticeModal from "../modals/PreSaleNoticeModal";
+import { trackTikTokEvent } from "@/lib/tiktok-events";
 
 interface ProductCardProps {
 	product: Product;
@@ -309,6 +310,14 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 								if (onPreSale) {
 									setShowPreSale(true);
 								} else {
+									trackTikTokEvent({
+										event_name: "AddToCart",
+										value: product.onSale
+											? salePrice
+											: productPrice,
+										currency: "NGN",
+										url: window.location.href,
+									});
 									onAddToCart?.();
 								}
 							}}
@@ -326,6 +335,14 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 								if (onPreSale) {
 									setShowPreSale(true);
 								} else {
+									trackTikTokEvent({
+										event_name: "InitiateCheckout",
+										value: product.onSale
+											? salePrice
+											: productPrice,
+										currency: "NGN",
+										url: window.location.href,
+									});
 									onBuyNow?.();
 								}
 							}}

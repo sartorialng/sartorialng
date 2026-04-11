@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
@@ -18,6 +18,7 @@ import { useWishlistStore } from "@/store/useWishlistStore";
 import { useBasketStore } from "@/store/store";
 import { convertNGNtoUSD } from "@/lib/currency";
 import Link from "next/link";
+import { trackTikTokEvent } from "@/lib/tiktok-events";
 
 export type Color = {
 	_id: string;
@@ -118,6 +119,15 @@ export default function ProductDetailsClient({
 		{ id: "shipping", label: "Shipping" },
 		{ id: "additional-info", label: "Additional Information" },
 	];
+
+	useEffect(() => {
+		trackTikTokEvent({
+			event_name: "ViewContent",
+			url: window.location.href,
+			value: initialProduct.price,
+			currency: "NGN",
+		});
+	}, []);
 
 	return (
 		<div className="h-auto w-full bg-sartorial-offWhite">
