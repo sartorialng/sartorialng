@@ -9,29 +9,37 @@ export async function POST(req: NextRequest) {
 
 	const payload = {
 		pixel_code: PIXEL_ID,
-		test_event_code: "", // optional: fill in during testing
-		timestamp: new Date().toISOString(),
-		partner_name: "TikTok",
-		context: {
-			page: { url: url || "" },
-			user: {
-				email: email ? hashValue(email) : undefined,
-				phone_number: phone ? hashValue(phone) : undefined,
+		event_source: "web",
+		// test_event_code: "TEST123",
+		events: [
+			{
+				event: event_name,
+				event_id: crypto.randomUUID(),
+				timestamp: Math.floor(Date.now() / 1000),
+
+				context: {
+					page: { url: url || "" },
+					user: {
+						email: email ? await hashValue(email) : undefined,
+						phone_number: phone
+							? await hashValue(phone)
+							: undefined,
+					},
+					ip: req.headers.get("x-forwarded-for") || "",
+					user_agent: req.headers.get("user-agent") || "",
+				},
+
+				properties: {
+					value: value || 0,
+					currency: currency || "NGN",
+					order_id: order_id || undefined,
+				},
 			},
-			ip: req.headers.get("x-forwarded-for") || "",
-			user_agent: req.headers.get("user-agent") || "",
-		},
-		properties: {
-			currency: currency || "NGN",
-			value: value || 0,
-			order_id: order_id || undefined,
-		},
-		event: event_name, // e.g. "Purchase", "ViewContent", "AddToCart"
-		event_id: crypto.randomUUID(),
+		],
 	};
 
 	const response = await fetch(
-		`https://business-api.tiktok.com/open_api/v1.3/event/track/`,
+		"https://business-api.tiktok.com/open_api/v1.3/event/track/",
 		{
 			method: "POST",
 			headers: {
