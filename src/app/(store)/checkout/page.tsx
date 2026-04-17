@@ -12,8 +12,9 @@ import { usePaystackCheckout } from "@/lib/paystack";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ProcessingOverlay from "@/components/layout/ProcessingOverlay";
+import { trackTikTokEvent } from "@/lib/tiktok-events";
 // import SalesTCModal from "@/components/modals/SalesTCModal";
 
 const CheckoutPage = () => {
@@ -335,6 +336,29 @@ const CheckoutPage = () => {
 			console.error("Background account creation failed:", error);
 		}
 	};
+
+	useEffect(() => {
+		const fireEvent = () => {
+			trackTikTokEvent({
+				event_name: "InitiateCheckout",
+				value: subtotal,
+				currency: "NGN",
+				url: window.location.href,
+			});
+		};
+
+		if (window.ttq) {
+			fireEvent();
+		} else {
+			const interval = setInterval(() => {
+				if (window.ttq) {
+					fireEvent();
+					clearInterval(interval);
+				}
+			}, 100);
+			return () => clearInterval(interval);
+		}
+	}, []);
 
 	return (
 		<div className="flex flex-col bg-gray-50 w-full min-h-screen">

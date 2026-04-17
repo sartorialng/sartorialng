@@ -12,6 +12,14 @@ export async function trackTikTokEvent(params: {
 	currency?: string;
 	order_id?: string;
 }) {
+	if (typeof window !== "undefined" && window.ttq) {
+		window.ttq.track(params.event_name, {
+			value: params.value,
+			currency: params.currency,
+			content_type: "product",
+		});
+	}
+
 	await fetch("/api/tiktok-event", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },

@@ -121,13 +121,33 @@ export default function ProductDetailsClient({
 	];
 
 	useEffect(() => {
-		trackTikTokEvent({
-			event_name: "ViewContent",
-			url: window.location.href,
-			value: initialProduct.price,
-			currency: "NGN",
-		});
-	}, []);
+		const price =
+			initialProduct.onSale && initialProduct.salePrice
+				? initialProduct.salePrice
+				: initialProduct.price;
+
+		const fireEvent = () => {
+			trackTikTokEvent({
+				event_name: "ViewContent",
+				url: window.location.href,
+				value: price,
+				currency: "NGN",
+			});
+		};
+
+		if (window.ttq) {
+			fireEvent();
+		} else {
+			const interval = setInterval(() => {
+				if (window.ttq) {
+					fireEvent();
+					clearInterval(interval);
+				}
+			}, 100);
+
+			return () => clearInterval(interval);
+		}
+	}, [initialProduct.price, initialProduct.onSale, initialProduct.salePrice]);
 
 	return (
 		<div className="h-auto w-full bg-sartorial-offWhite">
