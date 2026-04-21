@@ -36,18 +36,6 @@ const BillingForm = ({
 	const [isValidating, setIsValidating] = useState(false);
 	const groupedItems = useBasketStore((s) => s.getGroupedItems());
 
-	// const handleCheckoutClick = async (e: React.FormEvent) => {
-	// 	e.preventDefault();
-
-	// 	const errors = await formik.validateForm();
-
-	// 	if (Object.keys(errors).length === 0) {
-	// 		setShowPaymentModal(true);
-	// 	} else {
-	// 		formik.handleSubmit();
-	// 	}
-	// };
-
 	const handleCheckoutClick = async (e: React.FormEvent) => {
 		e.preventDefault();
 
@@ -55,6 +43,7 @@ const BillingForm = ({
 
 		if (Object.keys(errors).length > 0) {
 			formik.handleSubmit();
+			toast.error("Please fill in all required fields");
 			return;
 		}
 
@@ -446,7 +435,7 @@ const BillingForm = ({
 					<h3 className="text-red-600 font-bold text-lg mb-2">
 						Important Notice!
 					</h3>
-					<p className="text-[#404040] text-sm md:text-base leading-relaxed font-medium">
+					<p className="text-[#404040] text-xs md:text-base leading-relaxed font-medium">
 						Please note that delivery within Lagos takes 24-48hrs
 						(Business Days). Inter-state takes 2-5 business days,
 						deliveries within Africa take 5-8 business days, and

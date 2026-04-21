@@ -5,9 +5,25 @@ export const billingSchema = yup.object().shape({
 	lastName: yup.string().trim().required("Last name is required"),
 	address: yup.string().trim().required("Street address is required"),
 	country: yup.string().trim().required("Country is required"),
-	state: yup.string().trim(),
+	state: yup
+		.string()
+		.trim()
+		.when("country", {
+			is: "Nigeria",
+			then: (schema) =>
+				schema.required("State is required for Nigeria delivery"),
+			otherwise: (schema) => schema.notRequired(),
+		}),
 	apartment: yup.string().trim(),
-	area: yup.string().trim(),
+	area: yup
+		.string()
+		.trim()
+		.when("state", {
+			is: "Lagos",
+			then: (schema) =>
+				schema.required("Area is required for delivery within Lagos"),
+			otherwise: (schema) => schema.notRequired(),
+		}),
 	postalCode: yup.string().trim(),
 	phoneNo: yup.string().trim().required("Phone number is required"),
 	secondaryPhoneNo: yup
@@ -46,8 +62,27 @@ export const billingSchema = yup.object().shape({
 		then: (schema) => schema.required("Country is required"),
 		otherwise: (schema) => schema.notRequired(),
 	}),
-	shippingState: yup.string().trim(),
-	shippingArea: yup.string().trim(),
+	shippingState: yup
+		.string()
+		.trim()
+		.when(["shipToDifferentAddress", "shippingCountry"], {
+			is: (shipToDifferentAddress: boolean, shippingCountry: string) =>
+				shipToDifferentAddress === true &&
+				shippingCountry === "Nigeria",
+			then: (schema) =>
+				schema.required("State is required for Nigeria delivery"),
+			otherwise: (schema) => schema.notRequired(),
+		}),
+	shippingArea: yup
+		.string()
+		.trim()
+		.when(["shipToDifferentAddress", "shippingState"], {
+			is: (shipToDifferentAddress: boolean, shippingState: string) =>
+				shipToDifferentAddress === true && shippingState === "Lagos",
+			then: (schema) =>
+				schema.required("Area is required for Lagos delivery"),
+			otherwise: (schema) => schema.notRequired(),
+		}),
 	shippingPhoneNo: yup.string().when("shipToDifferentAddress", {
 		is: true,
 		then: (schema) =>
