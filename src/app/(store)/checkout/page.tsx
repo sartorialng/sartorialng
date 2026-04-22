@@ -240,6 +240,20 @@ const CheckoutPage = () => {
 					ref.reference,
 					"paystack",
 				);
+				trackTikTokEvent({
+					event_name: "Purchase",
+					value: total,
+					currency: "NGN",
+					url: window.location.href,
+					order_id: result.order?.orderNumber,
+					email: formik.values.emailAddress,
+					contents: useBasketStore.getState().items.map((item) => ({
+						content_id: item.product._id ?? "",
+						content_name: item.product.name ?? undefined,
+						quantity: item.quantity,
+						price: item.product.price ?? 0,
+					})),
+				});
 				useBasketStore.getState().clearBasket();
 				router.push(
 					`/success?orderNumber=${result.order?.orderNumber}&reference=${ref.reference}`,
@@ -287,6 +301,20 @@ const CheckoutPage = () => {
 			}
 
 			// Clear basket and redirect
+			trackTikTokEvent({
+				event_name: "Purchase",
+				value: total,
+				currency: "USD",
+				url: window.location.href,
+				order_id: result.order?.orderNumber,
+				email: formik.values.emailAddress,
+				contents: useBasketStore.getState().items.map((item) => ({
+					content_id: item.product._id ?? "",
+					content_name: item.product.name ?? undefined,
+					quantity: item.quantity,
+					price: item.product.price ?? 0,
+				})),
+			});
 			useBasketStore.getState().clearBasket();
 			// router.push(`/order-pending?reference=${details.id}`);
 			router.push(

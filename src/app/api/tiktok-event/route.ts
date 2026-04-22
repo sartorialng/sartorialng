@@ -5,7 +5,7 @@ const ACCESS_TOKEN = "b5cd025bd7e70cde6806cf1770935a446670994e";
 
 export async function POST(req: NextRequest) {
 	const body = await req.json();
-	const { event_name, email, phone, url, value, currency, order_id } = body;
+	const { event_name, email, phone, url, value, currency, order_id, contents } = body;
 
 	const payload = {
 		pixel_code: PIXEL_ID,
@@ -32,7 +32,9 @@ export async function POST(req: NextRequest) {
 				properties: {
 					value: value || 0,
 					currency: currency || "NGN",
+					content_type: "product",
 					order_id: order_id || undefined,
+					...(contents && { contents }),
 				},
 			},
 		],

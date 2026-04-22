@@ -317,6 +317,8 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 											: productPrice,
 										currency: "NGN",
 										url: window.location.href,
+										content_id: productId,
+										content_name: productName,
 									});
 									onAddToCart?.();
 								}

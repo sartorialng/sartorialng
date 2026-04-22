@@ -132,6 +132,8 @@ export default function ProductDetailsClient({
 				url: window.location.href,
 				value: price,
 				currency: "NGN",
+				content_id: initialProduct._id,
+				content_name: initialProduct.name,
 			});
 		};
 
