@@ -407,6 +407,21 @@ export default function ProductDetailsClient({
 												c._id === selectedColor,
 										);
 
+										trackTikTokEvent({
+											event_name: "AddToCart",
+											value:
+												product.onSale &&
+												product.salePrice
+													? product.salePrice *
+														quantity
+													: product.price * quantity,
+											currency: "NGN",
+											url: window.location.href,
+											content_id: initialProduct._id,
+											content_name: initialProduct.name,
+											quantity,
+										});
+
 										for (let i = 0; i < quantity; i++) {
 											addItem(
 												product,
@@ -440,6 +455,21 @@ export default function ProductDetailsClient({
 											(c: Color) =>
 												c._id === selectedColor,
 										);
+
+										trackTikTokEvent({
+											event_name: "AddToCart",
+											value:
+												product.onSale &&
+												product.salePrice
+													? product.salePrice *
+														quantity
+													: product.price * quantity,
+											currency: "NGN",
+											url: window.location.href,
+											content_id: initialProduct._id,
+											content_name: initialProduct.name,
+											quantity,
+										});
 
 										for (let i = 0; i < quantity; i++) {
 											addItem(
