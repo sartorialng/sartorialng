@@ -15,7 +15,6 @@ import { getPreSale } from "@/sanity/lib/product/getPreSales";
 import { getAllReviews } from "@/sanity/lib/product/getReviews";
 import { getSartorialBabes } from "@/sanity/lib/product/getSartorialBabes";
 import type { Metadata } from "next";
-import Script from "next/script";
 
 export const metadata: Metadata = {
 	title: "Buy Premium Bags Online in Nigeria | Sartorial",
@@ -56,26 +55,51 @@ export default async function Home() {
 			getPreSale(),
 		]);
 
+	const organizationSchema = {
+		"@context": "https://schema.org",
+		"@type": "Organization",
+		name: "Sartorial",
+		url: "https://www.sartorial.ng",
+		logo: "https://res.cloudinary.com/dkoi9zeli/image/upload/v1770800367/sartorial_zn5q28.svg",
+		description: "Premium bags and accessories for women in Nigeria.",
+		address: {
+			"@type": "PostalAddress",
+			addressCountry: "NG",
+		},
+		sameAs: [
+			"https://www.instagram.com/thesartorialstore",
+			"https://www.tiktok.com/@thesartorialstore",
+		],
+	};
+
+	const websiteSchema = {
+		"@context": "https://schema.org",
+		"@type": "WebSite",
+		name: "Sartorial",
+		url: "https://www.sartorial.ng",
+		potentialAction: {
+			"@type": "SearchAction",
+			target: {
+				"@type": "EntryPoint",
+				urlTemplate:
+					"https://www.sartorial.ng/search?q={search_term_string}",
+			},
+			"query-input": "required name=search_term_string",
+		},
+	};
+
 	return (
 		<main className="h-auto w-full bg-sartorial-offWhite">
-			<Script
-				id="sartorial-structured-data"
+			<script
 				type="application/ld+json"
-				strategy="afterInteractive"
 				dangerouslySetInnerHTML={{
-					__html: JSON.stringify({
-						"@context": "https://schema.org",
-						"@type": "OnlineStore",
-						name: "Sartorial",
-						url: "https://www.sartorial.ng",
-						logo: "https://res.cloudinary.com/dkoi9zeli/image/upload/v1770800367/sartorial_zn5q28.svg",
-						description:
-							"Premium bags and accessories for women in Nigeria.",
-						address: {
-							"@type": "PostalAddress",
-							addressCountry: "NG",
-						},
-					}),
+					__html: JSON.stringify(organizationSchema),
+				}}
+			/>
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(websiteSchema),
 				}}
 			/>
 			<Header />

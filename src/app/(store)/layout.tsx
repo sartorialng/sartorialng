@@ -16,6 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+	metadataBase: new URL("https://www.sartorial.ng"),
 	title: "Sartorial – Premium Bags for Every Woman",
 	description:
 		"Shop premium bags and accessories for women on Sartorial. Quality styles delivered to your doorstep.",

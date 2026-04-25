@@ -4,6 +4,8 @@ import { getProductBySlug } from "@/sanity/lib/product/getProductBySlug";
 import { getBestSellers } from "@/sanity/lib/product/getBestSellers";
 import ProductDetailsClient from "../ProductDetailsClient";
 
+const BASE_URL = "https://www.sartorial.ng";
+
 interface PageProps {
 	params: Promise<{ slug: string }>;
 }
@@ -16,11 +18,46 @@ export async function generateMetadata({
 
 	if (!product) return { title: "Product Not Found" };
 
+	const price = product.onSale && product.salePrice
+		? product.salePrice
+		: product.price;
+	const imageUrl = product.images?.[0]?.asset?.url || "";
+	const category = product.categories?.[0]?.name ?? "Bags";
+
 	return {
-		title: `${product.name} - Buy Online | Sartorial`,
-		description: `Shop the ${product.name} at Sartorial. Premium bags and accessories in Nigeria.`,
+		title: `${product.name} | Buy Online in Nigeria – Sartorial`,
+		description: `Shop the ${product.name} at Sartorial. Premium ${category.toLowerCase()} for women in Nigeria. Fast delivery nationwide.`,
+		keywords: [
+			product.name,
+			category,
+			"buy bags online Nigeria",
+			"women bags Nigeria",
+			"Sartorial",
+		],
+		alternates: {
+			canonical: `/product/${slug}`,
+		},
 		openGraph: {
-			images: [product.images?.[0]?.asset?.url || ""],
+			title: `${product.name} – Sartorial`,
+			description: `Shop the ${product.name}. Premium ${category.toLowerCase()} for women in Nigeria.`,
+			url: `${BASE_URL}/product/${slug}`,
+			type: "website",
+			images: imageUrl
+				? [
+						{
+							url: imageUrl,
+							width: 800,
+							height: 800,
+							alt: product.name,
+						},
+					]
+				: [],
+		},
+		twitter: {
+			card: "summary_large_image",
+			title: `${product.name} – Sartorial`,
+			description: `Shop the ${product.name} at Sartorial Nigeria.`,
+			images: imageUrl ? [imageUrl] : [],
 		},
 	};
 }
@@ -35,10 +72,79 @@ export default async function ProductPage({ params }: PageProps) {
 
 	if (!product) notFound();
 
+	const price = product.onSale && product.salePrice
+		? product.salePrice
+		: product.price;
+	const imageUrl = product.images?.[0]?.asset?.url || "";
+	const availability =
+		product.stock > 0 || product.onPreOrder || product.onPreSale
+			? "https://schema.org/InStock"
+			: "https://schema.org/OutOfStock";
+	const category = product.categories?.[0]?.name ?? "Bags";
+
+	const productSchema = {
+		"@context": "https://schema.org",
+		"@type": "Product",
+		name: product.name,
+		image: imageUrl,
+		description: `Shop the ${product.name} at Sartorial. Premium ${category.toLowerCase()} for women in Nigeria.`,
+		sku: product._id,
+		brand: {
+			"@type": "Brand",
+			name: "Sartorial",
+		},
+		offers: {
+			"@type": "Offer",
+			url: `${BASE_URL}/product/${slug}`,
+			priceCurrency: "NGN",
+			price: price,
+			availability,
+			seller: {
+				"@type": "Organization",
+				name: "Sartorial",
+			},
+		},
+	};
+
+	const breadcrumbSchema = {
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		itemListElement: [
+			{
+				"@type": "ListItem",
+				position: 1,
+				name: "Home",
+				item: BASE_URL,
+			},
+			{
+				"@type": "ListItem",
+				position: 2,
+				name: "All Products",
+				item: `${BASE_URL}/all-products`,
+			},
+			{
+				"@type": "ListItem",
+				position: 3,
+				name: product.name,
+				item: `${BASE_URL}/product/${slug}`,
+			},
+		],
+	};
+
 	return (
-		<ProductDetailsClient
-			initialProduct={product}
-			initialRelated={relatedProducts}
-		/>
+		<>
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+			/>
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+			/>
+			<ProductDetailsClient
+				initialProduct={product}
+				initialRelated={relatedProducts}
+			/>
+		</>
 	);
 }
