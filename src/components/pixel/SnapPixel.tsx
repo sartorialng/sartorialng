@@ -4,7 +4,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import Script from "next/script";
 
-const SNAP_PIXEL_ID = "ba6a6bed-0aa4-4269-a370-76301b0f41b8";
+const SNAP_PIXEL_ID = "31bfe258-9f77-46a0-b0d0-c1a3f9fdd715";
 
 declare global {
 	interface Window {
