@@ -24,7 +24,9 @@ export default function SnapPixel() {
 		}
 
 		if (typeof window.snaptr === "function") {
-			window.snaptr("track", "PAGE_VIEW");
+			const scidMatch = document.cookie.match(/_scid=([^;]+)/);
+			const uuid_c1 = scidMatch ? decodeURIComponent(scidMatch[1]) : undefined;
+			window.snaptr("track", "PAGE_VIEW", uuid_c1 ? { uuid_c1 } : {});
 		}
 	}, [pathname, searchParams]);
 
@@ -38,7 +40,9 @@ export default function SnapPixel() {
                 u.parentNode.insertBefore(r,u);})(window,document,
                 'https://sc-static.net/scevent.min.js');
 
-                snaptr('init', '${SNAP_PIXEL_ID}', {});
+                var scidMatch = document.cookie.match(/_scid=([^;]+)/);
+                var uuid_c1 = scidMatch ? decodeURIComponent(scidMatch[1]) : undefined;
+                snaptr('init', '${SNAP_PIXEL_ID}', uuid_c1 ? { uuid_c1: uuid_c1 } : {});
                 snaptr('track', 'PAGE_VIEW');
             `}
 		</Script>

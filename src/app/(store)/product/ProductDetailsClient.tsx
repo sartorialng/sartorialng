@@ -19,6 +19,7 @@ import { useBasketStore } from "@/store/store";
 import { convertNGNtoUSD } from "@/lib/currency";
 import Link from "next/link";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
+import { snapViewContent, snapAddToCart } from "@/lib/snap-events";
 
 export type Color = {
 	_id: string;
@@ -134,6 +135,12 @@ export default function ProductDetailsClient({
 				currency: "NGN",
 				content_id: initialProduct._id,
 				content_name: initialProduct.name,
+			});
+			snapViewContent({
+				item_ids: [initialProduct._id],
+				item_name: initialProduct.name,
+				price,
+				currency: "NGN",
 			});
 		};
 
@@ -421,6 +428,15 @@ export default function ProductDetailsClient({
 											content_name: initialProduct.name,
 											quantity,
 										});
+										snapAddToCart({
+											item_ids: [initialProduct._id],
+											item_name: initialProduct.name,
+											price: product.onSale && product.salePrice
+												? product.salePrice * quantity
+												: product.price * quantity,
+											currency: "NGN",
+											number_items: quantity,
+										});
 
 										for (let i = 0; i < quantity; i++) {
 											addItem(
@@ -469,6 +485,15 @@ export default function ProductDetailsClient({
 											content_id: initialProduct._id,
 											content_name: initialProduct.name,
 											quantity,
+										});
+										snapAddToCart({
+											item_ids: [initialProduct._id],
+											item_name: initialProduct.name,
+											price: product.onSale && product.salePrice
+												? product.salePrice * quantity
+												: product.price * quantity,
+											currency: "NGN",
+											number_items: quantity,
 										});
 
 										for (let i = 0; i < quantity; i++) {

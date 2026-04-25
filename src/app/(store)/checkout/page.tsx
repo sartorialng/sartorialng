@@ -15,6 +15,7 @@ import { useUser } from "@clerk/nextjs";
 import { useEffect, useRef, useState } from "react";
 import ProcessingOverlay from "@/components/layout/ProcessingOverlay";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
+import { snapInitiateCheckout, snapPurchase } from "@/lib/snap-events";
 // import SalesTCModal from "@/components/modals/SalesTCModal";
 
 const CheckoutPage = () => {
@@ -255,6 +256,16 @@ const CheckoutPage = () => {
 						price: item.product.price ?? 0,
 					})),
 				});
+				snapPurchase({
+					transaction_id: result.order?.orderNumber ?? ref.reference,
+					item_ids: useBasketStore.getState().items.map((item) => item.product._id ?? ""),
+					price: total,
+					currency: "NGN",
+					number_items: useBasketStore.getState().items.reduce(
+						(sum, item) => sum + item.quantity,
+						0,
+					),
+				});
 				useBasketStore.getState().clearBasket();
 				router.push(
 					`/success?orderNumber=${result.order?.orderNumber}&reference=${ref.reference}`,
@@ -317,6 +328,16 @@ const CheckoutPage = () => {
 					price: item.product.price ?? 0,
 				})),
 			});
+			snapPurchase({
+				transaction_id: result.order?.orderNumber ?? details.id,
+				item_ids: useBasketStore.getState().items.map((item) => item.product._id ?? ""),
+				price: total,
+				currency: "USD",
+				number_items: useBasketStore.getState().items.reduce(
+					(sum, item) => sum + item.quantity,
+					0,
+				),
+			});
 			useBasketStore.getState().clearBasket();
 			// router.push(`/order-pending?reference=${details.id}`);
 			router.push(
@@ -374,6 +395,14 @@ const CheckoutPage = () => {
 				value: subtotal,
 				currency: "NGN",
 				url: window.location.href,
+			});
+			snapInitiateCheckout({
+				price: subtotal,
+				currency: "NGN",
+				number_items: useBasketStore.getState().items.reduce(
+					(sum, item) => sum + item.quantity,
+					0,
+				),
 			});
 		};
 
