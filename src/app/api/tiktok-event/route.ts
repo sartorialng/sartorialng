@@ -5,7 +5,7 @@ const ACCESS_TOKEN = "b5cd025bd7e70cde6806cf1770935a446670994e";
 
 export async function POST(req: NextRequest) {
 	const body = await req.json();
-	const { event_name, email, phone, url, value, currency, order_id, contents } = body;
+	const { event_name, email, phone, url, value, currency, order_id, contents, event_id } = body;
 
 	const payload = {
 		pixel_code: PIXEL_ID,
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 		events: [
 			{
 				event: event_name,
-				event_id: crypto.randomUUID(),
+				event_id: event_id ?? crypto.randomUUID(),
 				timestamp: Math.floor(Date.now() / 1000),
 
 				context: {

@@ -249,6 +249,7 @@ const CheckoutPage = () => {
 					email: formik.values.emailAddress,
 					contents: useBasketStore.getState().items.map((item) => ({
 						content_id: item.product._id ?? "",
+						content_type: "product" as const,
 						content_name: item.product.name ?? undefined,
 						quantity: item.quantity,
 						price: item.product.price ?? 0,
@@ -310,6 +311,7 @@ const CheckoutPage = () => {
 				email: formik.values.emailAddress,
 				contents: useBasketStore.getState().items.map((item) => ({
 					content_id: item.product._id ?? "",
+					content_type: "product" as const,
 					content_name: item.product.name ?? undefined,
 					quantity: item.quantity,
 					price: item.product.price ?? 0,

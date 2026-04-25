@@ -1,5 +1,6 @@
 type TikTokContent = {
 	content_id: string;
+	content_type: "product" | "product_group";
 	content_name?: string;
 	quantity?: number;
 	price?: number;
@@ -29,6 +30,7 @@ export async function trackTikTokEvent(params: {
 			? [
 					{
 						content_id: params.content_id,
+						content_type: "product",
 						content_name: params.content_name,
 						quantity: params.quantity ?? 1,
 						price: params.value,
@@ -36,18 +38,24 @@ export async function trackTikTokEvent(params: {
 				]
 			: undefined);
 
+	const event_id = crypto.randomUUID();
+
 	if (typeof window !== "undefined" && window.ttq) {
-		window.ttq.track(params.event_name, {
-			value: params.value,
-			currency: params.currency,
-			content_type: "product",
-			...(contents && { contents }),
-		});
+		window.ttq.track(
+			params.event_name,
+			{
+				value: params.value,
+				currency: params.currency,
+				content_type: "product",
+				...(contents && { contents }),
+			},
+			{ event_id },
+		);
 	}
 
 	await fetch("/api/tiktok-event", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ ...params, contents }),
+		body: JSON.stringify({ ...params, contents, event_id }),
 	});
 }
