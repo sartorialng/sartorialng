@@ -18,9 +18,6 @@ export async function generateMetadata({
 
 	if (!product) return { title: "Product Not Found" };
 
-	const price = product.onSale && product.salePrice
-		? product.salePrice
-		: product.price;
 	const imageUrl = product.images?.[0]?.asset?.url || "";
 	const category = product.categories?.[0]?.name ?? "Bags";
 
@@ -72,40 +69,6 @@ export default async function ProductPage({ params }: PageProps) {
 
 	if (!product) notFound();
 
-	const price = product.onSale && product.salePrice
-		? product.salePrice
-		: product.price;
-	const imageUrl = product.images?.[0]?.asset?.url || "";
-	const availability =
-		product.stock > 0 || product.onPreOrder || product.onPreSale
-			? "https://schema.org/InStock"
-			: "https://schema.org/OutOfStock";
-	const category = product.categories?.[0]?.name ?? "Bags";
-
-	const productSchema = {
-		"@context": "https://schema.org",
-		"@type": "Product",
-		name: product.name,
-		image: imageUrl,
-		description: `Shop the ${product.name} at Sartorial. Premium ${category.toLowerCase()} for women in Nigeria.`,
-		sku: product._id,
-		brand: {
-			"@type": "Brand",
-			name: "Sartorial",
-		},
-		offers: {
-			"@type": "Offer",
-			url: `${BASE_URL}/product/${slug}`,
-			priceCurrency: "NGN",
-			price: price,
-			availability,
-			seller: {
-				"@type": "Organization",
-				name: "Sartorial",
-			},
-		},
-	};
-
 	const breadcrumbSchema = {
 		"@context": "https://schema.org",
 		"@type": "BreadcrumbList",
@@ -133,10 +96,6 @@ export default async function ProductPage({ params }: PageProps) {
 
 	return (
 		<>
-			<script
-				type="application/ld+json"
-				dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
-			/>
 			<script
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
