@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 		title: "Sartorial – Premium Bags for Every Woman",
 		description:
 			"Shop premium bags and accessories for women on Sartorial. Quality styles delivered to your doorstep.",
-		url: "https://sartorial.ng",
+		url: "https://www.sartorial.ng",
 		siteName: "Sartorial",
 		images: [
 			{

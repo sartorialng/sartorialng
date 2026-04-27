@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://sartorial.ng
+Host: https://www.sartorial.ng
 
 # Sitemaps
-Sitemap: https://sartorial.ng/sitemap.xml
+Sitemap: https://www.sartorial.ng/sitemap.xml
