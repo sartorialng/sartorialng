@@ -103,7 +103,7 @@ export const SHIPPING_ZONES = [
 		locations: ["Ajah", "Badore", "Abraham Adesanya", "Lekki Gardens"],
 	},
 	{ area: "Island 4", cost: 8000, locations: ["Sangotedo"] },
-	{ area: "Inter-State", cost: 10000, locations: [] },
+	{ area: "Inter-State", cost: 8000, locations: [] },
 	{ area: "African Countries", cost: 125000, locations: [] },
 	{ area: "International", cost: 268000, locations: [] },
 ];
