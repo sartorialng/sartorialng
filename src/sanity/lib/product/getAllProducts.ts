@@ -36,7 +36,7 @@ export const getAllProducts = async () => {
 		{},
 		{
 			next: {
-				revalidate: 30,
+				revalidate: 10,
 			},
 		},
 	);

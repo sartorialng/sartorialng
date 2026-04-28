@@ -39,7 +39,7 @@ export const getAllOrders = async () => {
 		{},
 		{
 			next: {
-				revalidate: 30,
+				revalidate: 10,
 			},
 		},
 	);
