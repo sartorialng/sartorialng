@@ -71,7 +71,7 @@ const ShippingDetails = () => {
 		},
 		{
 			area: "Inter-State Deliveries",
-			cost: "₦10,000",
+			cost: "₦8,000",
 			time: "2 – 5 working days",
 			tracking: "Available",
 		},
