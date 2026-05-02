@@ -35,7 +35,15 @@ export const getOrderById = async (id: string) => {
     `;
 
 	try {
-		const order = await client.fetch(ORDER_BY_ID_QUERY, { _id: id });
+		const order = await client.fetch(
+			ORDER_BY_ID_QUERY,
+			{ _id: id },
+			{
+				next: {
+					revalidate: 300,
+				},
+			},
+		);
 		return order;
 	} catch (error) {
 		console.error("Error fetching order by ID:", error);

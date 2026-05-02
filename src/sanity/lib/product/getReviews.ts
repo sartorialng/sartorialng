@@ -16,7 +16,7 @@ export const getAllReviews = async () => {
 		{},
 		{
 			next: {
-				revalidate: 10,
+				revalidate: 60,
 			},
 		},
 	);

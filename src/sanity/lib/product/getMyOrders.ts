@@ -26,7 +26,7 @@ export const getMyOrders = async (userId: string) => {
 		{ userId },
 		{
 			next: {
-				revalidate: 10,
+				revalidate: 300,
 			},
 		},
 	);

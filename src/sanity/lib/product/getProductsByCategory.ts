@@ -73,7 +73,7 @@ export const getFilteredProducts = async ({
 			{},
 			{
 				next: {
-					revalidate: 10,
+					revalidate: 300,
 				},
 			},
 		);
