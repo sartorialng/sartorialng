@@ -76,7 +76,7 @@ export default function OrderPendingPage() {
 			}
 		};
 
-		intervalRef.current = setInterval(checkOrder, 2000);
+		intervalRef.current = setInterval(checkOrder, 5000);
 
 		return () => {
 			if (intervalRef.current) clearInterval(intervalRef.current);

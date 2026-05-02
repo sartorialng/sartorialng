@@ -152,7 +152,7 @@ export default function ProductDetailsClient({
 					fireEvent();
 					clearInterval(interval);
 				}
-			}, 100);
+			}, 500);
 
 			return () => clearInterval(interval);
 		}

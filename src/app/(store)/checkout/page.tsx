@@ -414,7 +414,7 @@ const CheckoutPage = () => {
 					fireEvent();
 					clearInterval(interval);
 				}
-			}, 100);
+			}, 500);
 			return () => clearInterval(interval);
 		}
 	}, []);
