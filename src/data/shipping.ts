@@ -13,6 +13,8 @@ export const SHIPPING_ZONES = [
 			"Anthony",
 			"Ilupeju",
 			"Surulere",
+			"Bariga",
+			"Shomolu",
 		],
 	},
 	{
@@ -56,6 +58,14 @@ export const SHIPPING_ZONES = [
 			"Iyana Ipaja",
 			"Ejigbo",
 			"Iju Ishaga",
+			"Ojodu Berger",
+			"Egbeda",
+			"Akowonjo",
+			"Idimu",
+			"Abule Egba",
+			"Dopemu",
+			"Meiran",
+			"Pen Cinema",
 		],
 	},
 	{
@@ -66,7 +76,14 @@ export const SHIPPING_ZONES = [
 	{
 		area: "Mainland 6",
 		cost: 5500,
-		locations: ["Magodo", "Omole", "Ogudu", "Ketu", "Ojota"],
+		locations: [
+			"Magodo",
+			"Omole",
+			"Ogudu",
+			"Ojota",
+			"Oworonshoki",
+			"Mile 12",
+		],
 	},
 	{
 		area: "Island 1",
@@ -75,6 +92,8 @@ export const SHIPPING_ZONES = [
 			"Obalende",
 			"Ikoyi",
 			"Victoria Island",
+			"Lagos Island",
+			"Marina",
 			"Oniru",
 			"Lekki Phase 1",
 			"Ikate",
@@ -90,6 +109,8 @@ export const SHIPPING_ZONES = [
 			"Jakande",
 			"Agungi",
 			"Ologolo",
+			"Lekki Phase 2",
+			"Igbo Efon",
 		],
 	},
 	{
@@ -102,7 +123,11 @@ export const SHIPPING_ZONES = [
 		cost: 8000,
 		locations: ["Ajah", "Badore", "Abraham Adesanya", "Lekki Gardens"],
 	},
-	{ area: "Island 4", cost: 8000, locations: ["Sangotedo"] },
+	{
+		area: "Island 4",
+		cost: 8000,
+		locations: ["Sangotedo", "Awoyaya", "Abijo", "Lakowe"],
+	},
 	{ area: "Inter-State", cost: 8000, locations: [] },
 	{ area: "African Countries", cost: 125000, locations: [] },
 	{ area: "International", cost: 268000, locations: [] },
@@ -222,6 +247,8 @@ export const AREAS = [
 	{ value: "Anthony", label: "Anthony" },
 	{ value: "Ilupeju", label: "Ilupeju" },
 	{ value: "Surulere", label: "Surulere" },
+	{ value: "Bariga", label: "Bariga" },
+	{ value: "Shomolu", label: "Shomolu" },
 
 	// Mainland 2
 	{ value: "Ago Palace", label: "Ago Palace" },
@@ -253,6 +280,14 @@ export const AREAS = [
 	{ value: "Iyana Ipaja", label: "Iyana Ipaja" },
 	{ value: "Ejigbo", label: "Ejigbo" },
 	{ value: "Iju Ishaga", label: "Iju Ishaga" },
+	{ value: "Ojodu Berger", label: "Ojodu Berger" },
+	{ value: "Egbeda", label: "Egbeda" },
+	{ value: "Akowonjo", label: "Akowonjo" },
+	{ value: "Idimu", label: "Idimu" },
+	{ value: "Abule Egba", label: "Abule Egba" },
+	{ value: "Dopemu", label: "Dopemu" },
+	{ value: "Meiran", label: "Meiran" },
+	{ value: "Pen Cinema", label: "Pen Cinema" },
 
 	// Mainland 5
 	{ value: "Akute", label: "Akute" },
@@ -265,11 +300,15 @@ export const AREAS = [
 	{ value: "Omole", label: "Omole" },
 	{ value: "Ogudu", label: "Ogudu" },
 	{ value: "Ojota", label: "Ojota" },
+	{ value: "Oworonshoki", label: "Oworonshoki" },
+	{ value: "Mile 12", label: "Mile 12" },
 
 	// Island 1
 	{ value: "Obalende", label: "Obalende" },
 	{ value: "Ikoyi", label: "Ikoyi" },
 	{ value: "Victoria Island", label: "Victoria Island" },
+	{ value: "Lagos Island", label: "Lagos Island" },
+	{ value: "Marina", label: "Marina" },
 	{ value: "Oniru", label: "Oniru" },
 	{ value: "Lekki Phase 1", label: "Lekki Phase 1" },
 	{ value: "Ikate", label: "Ikate" },
@@ -281,6 +320,8 @@ export const AREAS = [
 	{ value: "Jakande", label: "Jakande" },
 	{ value: "Agungi", label: "Agungi" },
 	{ value: "Ologolo", label: "Ologolo" },
+	{ value: "Lekki Phase 2", label: "Lekki Phase 2" },
+	{ value: "Igbo Efon", label: "Igbo Efon" },
 
 	// Chevron / VGC
 	{ value: "Chevron", label: "Chevron" },
@@ -296,6 +337,9 @@ export const AREAS = [
 
 	// Island 4
 	{ value: "Sangotedo", label: "Sangotedo" },
+	{ value: "Awoyaya", label: "Awoyaya" },
+	{ value: "Abijo", label: "Abijo" },
+	{ value: "Lakowe", label: "Lakowe" },
 ];
 
 export const AFRICAN_COUNTRIES = new Set([

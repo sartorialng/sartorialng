@@ -1,94 +1,47 @@
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
+import { SHIPPING_ZONES } from "@/data/shipping";
+
+const lagosZones = SHIPPING_ZONES.filter((z) => z.locations.length > 0);
+
+const formatCost = (cost: number) => `₦${cost.toLocaleString("en-NG")}`;
+
+const shippingTableData = [
+	...lagosZones.map((z) => ({
+		area: z.area,
+		cost: formatCost(z.cost),
+		time: "24 – 48 hours",
+		tracking: "Not available",
+	})),
+	{
+		area: "Inter-State Deliveries",
+		cost: formatCost(
+			SHIPPING_ZONES.find((z) => z.area === "Inter-State")?.cost ?? 8000,
+		),
+		time: "2 – 5 working days",
+		tracking: "Available",
+	},
+	{
+		area: "African Deliveries",
+		cost: formatCost(
+			SHIPPING_ZONES.find((z) => z.area === "African Countries")?.cost ??
+				125000,
+		),
+		time: "5 – 8 working days",
+		tracking: "Available",
+	},
+	{
+		area: "International (Europe, North America, Asia, etc.)",
+		cost: formatCost(
+			SHIPPING_ZONES.find((z) => z.area === "International")?.cost ??
+				268000,
+		),
+		time: "14 working days",
+		tracking: "Available",
+	},
+];
 
 const ShippingDetails = () => {
-	const shippingData = [
-		{
-			area: "Mainland 1",
-			cost: "₦4,500",
-			time: "24 – 48 hours",
-			tracking: "Not available",
-		},
-		{
-			area: "Mainland 2",
-			cost: "₦5,500",
-			time: "24 – 48 hours",
-			tracking: "Not available",
-		},
-		{
-			area: "Mainland 3",
-			cost: "₦7,000",
-			time: "24 – 48 hours",
-			tracking: "Not available",
-		},
-		{
-			area: "Mainland 4",
-			cost: "₦6,000",
-			time: "24 – 48 hours",
-			tracking: "Not available",
-		},
-		{
-			area: "Mainland 5",
-			cost: "₦8,000",
-			time: "24 – 48 hours",
-			tracking: "Not available",
-		},
-		{
-			area: "Mainland 6",
-			cost: "₦5,500",
-			time: "24 – 48 hours",
-			tracking: "Not available",
-		},
-		{
-			area: "Island 1",
-			cost: "₦6,000",
-			time: "24 – 48 hours",
-			tracking: "Not available",
-		},
-		{
-			area: "Island 2",
-			cost: "₦7,000",
-			time: "24 – 48 hours",
-			tracking: "Not available",
-		},
-		{
-			area: "Chevron/VGC area",
-			cost: "₦7,000",
-			time: "24 – 48 hours",
-			tracking: "Not available",
-		},
-		{
-			area: "Island 3",
-			cost: "₦8,000",
-			time: "24 – 48 hours",
-			tracking: "Not available",
-		},
-		{
-			area: "Island 4",
-			cost: "₦8,000",
-			time: "24 – 48 hours",
-			tracking: "Not available",
-		},
-		{
-			area: "Inter-State Deliveries",
-			cost: "₦8,000",
-			time: "2 – 5 working days",
-			tracking: "Available",
-		},
-		{
-			area: "African Deliveries",
-			cost: "₦125,000",
-			time: "5 – 8 working days",
-			tracking: "Available",
-		},
-		{
-			area: "International (Europe, North America, Asia, etc.)",
-			cost: "₦268,000",
-			time: "14 working days",
-			tracking: "Available",
-		},
-	];
-
 	return (
 		<div className="h-auto w-full bg-gray-50 flex flex-col">
 			<Header />
@@ -121,7 +74,7 @@ const ShippingDetails = () => {
 						</ul>
 					</div>
 
-					{/* Responsive Table Wrapper */}
+					{/* Shipping Table */}
 					<div className="overflow-x-auto border border-[#1B4332]/20 rounded-lg">
 						<table className="w-full text-left border-collapse bg-white/50">
 							<thead>
@@ -141,7 +94,7 @@ const ShippingDetails = () => {
 								</tr>
 							</thead>
 							<tbody>
-								{shippingData.map((item, index) => (
+								{shippingTableData.map((item, index) => (
 									<tr
 										key={index}
 										className="hover:bg-white/80 transition-colors"
@@ -177,54 +130,12 @@ const ShippingDetails = () => {
 								Area Included (Quick Reference)
 							</h2>
 							<ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm">
-								<li>
-									<strong>Mainland 1:</strong> Yaba, Gbagada,
-									Oshodi, Akoka, Unilag, Fadeyi, Mushin,
-									Anthony, Ilupeju, Surulere.
-								</li>
-								<li>
-									<strong>Mainland 2:</strong> Ago Palace,
-									Okota, Festac, Mile 2, Isolo, Ijesha, Ikeja,
-									Maryland.
-								</li>
-								<li>
-									<strong>Mainland 3:</strong> Apapa,
-									Ajegunle, Abule-Ado, Satellite Town, Trade
-									Fair, Iyana-Iba, LASU.
-								</li>
-								<li>
-									<strong>Mainland 4:</strong> Ikorodu,
-									Abulegba, Ogba, Ikotun, Agege, Ketu, Ipaja,
-									Iyana Ipaja, Ejigbo, Iju Ishaga.
-								</li>
-								<li>
-									<strong>Mainland 5:</strong> Akute, Arepo,
-									Badagry, Olowora.
-								</li>
-								<li>
-									<strong>Mainland 6:</strong> Magodo, Omole,
-									Ogudu, Ketu, Ojota.
-								</li>
-								<li>
-									<strong>Island 1:</strong> Obalende, Ikoyi,
-									Victoria Island, Oniru, Lekki Phase 1, Ikate
-									Elegushi, Ikate.
-								</li>
-								<li>
-									<strong>Island 2:</strong> Ilaje, Osapa
-									London, Elegushi, Jakande, Agungi, Ologolo.
-								</li>
-								<li>
-									<strong>Chevron / VGC Area:</strong>{" "}
-									Chevron, Conservation, Orchid VGC.
-								</li>
-								<li>
-									<strong>Island 3:</strong> Ajah, Badore,
-									Abraham Adesanya, Lekki Gardens.
-								</li>
-								<li>
-									<strong>Island 4:</strong> Sangotedo, etc.
-								</li>
+								{lagosZones.map((zone) => (
+									<li key={zone.area}>
+										<strong>{zone.area}:</strong>{" "}
+										{zone.locations.join(", ")}.
+									</li>
+								))}
 							</ul>
 						</section>
 
