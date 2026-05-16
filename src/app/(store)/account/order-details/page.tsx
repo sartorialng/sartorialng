@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -85,7 +85,7 @@ const SectionCard = ({
 	</div>
 );
 
-const OrderDetailPage = () => {
+const OrderDetailContent = () => {
 	const searchParams = useSearchParams();
 	const orderId = searchParams.get("orderId");
 	const router = useRouter();
@@ -578,5 +578,11 @@ const OrderDetailPage = () => {
 		</div>
 	);
 };
+
+const OrderDetailPage = () => (
+	<Suspense>
+		<OrderDetailContent />
+	</Suspense>
+);
 
 export default OrderDetailPage;
