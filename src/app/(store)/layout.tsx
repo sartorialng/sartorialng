@@ -61,7 +61,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<ClerkProvider dynamic>
+		<ClerkProvider>
 			<html lang="en" className="scroll-smooth">
 				<body className={`${inter.variable} antialiased`}>
 					<PayPalProvider>{children}</PayPalProvider>
