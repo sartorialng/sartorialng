@@ -579,10 +579,10 @@ const OrderDetailContent = () => {
 	);
 };
 
-const OrderDetailPage = () => (
-	<Suspense>
-		<OrderDetailContent />
-	</Suspense>
-);
-
-export default OrderDetailPage;
+export default function OrderDetailPage() {
+	return (
+		<Suspense>
+			<OrderDetailContent />
+		</Suspense>
+	);
+}

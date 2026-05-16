@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
-export default function OrderPendingPage() {
+function OrderPendingContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const reference = searchParams.get("reference");
@@ -107,5 +107,13 @@ export default function OrderPendingPage() {
 				)}
 			</div>
 		</div>
+	);
+}
+
+export default function OrderPendingPage() {
+	return (
+		<Suspense>
+			<OrderPendingContent />
+		</Suspense>
 	);
 }

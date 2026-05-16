@@ -5,7 +5,7 @@ import Header from "@/components/layout/Header";
 import ProductCard from "@/components/layout/ProductCard";
 import { useBasketStore } from "@/store/store";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { getAllProducts } from "@/sanity/lib/product/getAllProducts";
 import { toast } from "sonner";
 import ProductCardSkeleton from "@/components/layout/ProductCardSkeleton";
@@ -15,7 +15,7 @@ import { categories, colors, priceRanges } from "@/data";
 import { SortByDropdownMobile } from "@/components/layout/SortByDropdownMobile";
 import { SortByDropdown } from "@/components/layout/SortByDropdown";
 
-const Category = () => {
+const CategoryContent = () => {
 	const searchParams = useSearchParams();
 	const value = searchParams.get("value");
 	const router = useRouter();
@@ -222,4 +222,10 @@ const Category = () => {
 	);
 };
 
-export default Category;
+export default function Category() {
+	return (
+		<Suspense>
+			<CategoryContent />
+		</Suspense>
+	);
+}
