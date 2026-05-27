@@ -7,7 +7,7 @@ import ProductDetailsClient from "../ProductDetailsClient";
 
 const BASE_URL = "https://www.sartorial.ng";
 
-export const revalidate = 3600;
+// export const revalidate = 3600;
 
 export async function generateStaticParams() {
 	const slugs = await getAllProductSlugs();
@@ -106,7 +106,9 @@ export default async function ProductPage({ params }: PageProps) {
 		<>
 			<script
 				type="application/ld+json"
-				dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(breadcrumbSchema),
+				}}
 			/>
 			<ProductDetailsClient
 				initialProduct={product}
