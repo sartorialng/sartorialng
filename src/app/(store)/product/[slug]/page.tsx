@@ -2,17 +2,17 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProductBySlug } from "@/sanity/lib/product/getProductBySlug";
 import { getBestSellers } from "@/sanity/lib/product/getBestSellers";
-import { getAllProductSlugs } from "@/sanity/lib/product/getAllProductSlugs";
+// import { getAllProductSlugs } from "@/sanity/lib/product/getAllProductSlugs";
 import ProductDetailsClient from "../ProductDetailsClient";
 
 const BASE_URL = "https://www.sartorial.ng";
 
 // export const revalidate = 3600;
 
-export async function generateStaticParams() {
-	const slugs = await getAllProductSlugs();
-	return slugs.map((s) => ({ slug: s.slug }));
-}
+// export async function generateStaticParams() {
+// 	const slugs = await getAllProductSlugs();
+// 	return slugs.map((s) => ({ slug: s.slug }));
+// }
 
 interface PageProps {
 	params: Promise<{ slug: string }>;
