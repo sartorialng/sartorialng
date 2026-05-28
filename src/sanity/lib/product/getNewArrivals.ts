@@ -31,8 +31,7 @@ export const getNewArrivals = async () => {
 		{},
 		{
 			next: {
-				revalidate: 300,
-				// revalidate: 3600,
+				revalidate: 1800,
 			},
 		},
 	);

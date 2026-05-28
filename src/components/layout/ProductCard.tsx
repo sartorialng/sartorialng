@@ -33,9 +33,8 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 	const productName = product?.name ?? "Product";
 	const productPrice = product?.price ?? 0;
 	const salePrice = product?.salePrice ?? 0;
-	const productSlug =
-		product?.slug?.current ??
-		productName.toLowerCase().replace(/\s+/g, "-");
+
+	const productSlug = product?.slug;
 
 	const imageUrl = product?.images?.[0]?.asset
 		? urlFor(product.images[0])

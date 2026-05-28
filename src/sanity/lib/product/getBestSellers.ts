@@ -31,8 +31,7 @@ export const getBestSellers = async () => {
 		{},
 		{
 			next: {
-				revalidate: 300,
-				// revalidate: 3600,
+				revalidate: 1800,
 			},
 		},
 	);

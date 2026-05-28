@@ -31,7 +31,7 @@ export const getPreSale = async () => {
 		{},
 		{
 			next: {
-				revalidate: 3600,
+				revalidate: 1800,
 			},
 		},
 	);

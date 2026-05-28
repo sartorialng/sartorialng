@@ -6,9 +6,8 @@ export const getAllProductSlugs = async (): Promise<{ slug: string }[]> => {
 	return client.fetch(
 		query,
 		{},
-		{
-			next: { revalidate: 300 },
-			// { next: { revalidate: 3600 }
-		},
+		// {
+		// 	{ next: { revalidate: 3600 }
+		// },
 	);
 };
