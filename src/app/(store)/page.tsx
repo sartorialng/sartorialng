@@ -1,7 +1,7 @@
 import FloatingWhatsApp from "@/components/layout/FloatingWhatsapp";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
-// import SalesModal from "@/components/modals/SalesModal";
+import SalesModal from "@/components/modals/SalesModal";
 import BestSellers from "@/components/sections/BestSellers";
 import Hero from "@/components/sections/Hero";
 import NewArrivals from "@/components/sections/NewArrivals";
@@ -112,7 +112,7 @@ export default async function Home() {
 			<ReviewSlide reviews={reviews} babes={babes} />
 			<Footer />
 			<FloatingWhatsApp />
-			{/* <SalesModal /> */}
+			<SalesModal />
 		</main>
 	);
 }
