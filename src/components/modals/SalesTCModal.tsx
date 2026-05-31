@@ -17,10 +17,10 @@ const SalesTCModal = ({
 	return (
 		<Dialog open={isSalesModalOpen} onOpenChange={setIsSalesModalOpen}>
 			<DialogContent
-				className="w-[95%] sm:max-w-112.5 max-h-[85vh] p-0 border-none overflow-hidden bg-transparent shadow-none"
+				className="w-[80%] md:max-w-90 max-h-[85vh] p-0 border-none overflow-hidden bg-transparent shadow-none"
 				showCloseButton={false}
 			>
-				<DialogClose className="absolute cursor-pointer right-5 md:right-15 top-4 z-50 rounded-full opacity-80 transition-opacity hover:opacity-100 focus:outline-none">
+				<DialogClose className="absolute cursor-pointer right-5 md:right-8 top-4 z-50 rounded-full opacity-80 transition-opacity hover:opacity-100 focus:outline-none">
 					<X className="h-5 w-5 text-white drop-shadow-lg" />
 					<span className="sr-only">Close</span>
 				</DialogClose>
@@ -28,7 +28,7 @@ const SalesTCModal = ({
 				<Image
 					src={SalesTC}
 					alt="sales"
-					className="w-full h-auto max-h-[85vh] object-contain rounded-2xl"
+					className="w-full h-full max-h-[85vh] object-cover rounded-2xl"
 					priority
 				/>
 			</DialogContent>

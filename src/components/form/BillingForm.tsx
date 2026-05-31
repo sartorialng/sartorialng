@@ -7,7 +7,7 @@ import { AREAS, COUNTRIES, NIGERIA_STATES } from "@/data/shipping";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BillingFormValues } from "@/lib/types/types";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import PaymentMethodModal from "@/app/(store)/checkout/PaymentMethodModal";
 import { toast } from "sonner";
 import { useBasketStore } from "@/store/store";
@@ -18,7 +18,7 @@ interface BillingFormProps {
 	onPaystack: () => void;
 	onPayPal: (details: any) => void;
 	totalAmount: number;
-	// setIsSalesModalOpen: Dispatch<SetStateAction<boolean>>;
+	setIsSalesModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const labelStyle = "text-gray-400 font-normal text-sm";
@@ -30,7 +30,7 @@ const BillingForm = ({
 	onPaystack,
 	onPayPal,
 	totalAmount,
-	// setIsSalesModalOpen,
+	setIsSalesModalOpen,
 }: BillingFormProps) => {
 	const [showPaymentModal, setShowPaymentModal] = useState(false);
 	const [isValidating, setIsValidating] = useState(false);
@@ -418,7 +418,7 @@ const BillingForm = ({
 					</div>
 				)}
 
-				{/* <div className="bg-white rounded-lg p-4 md:p-5 shadow-sm border border-gray-100">
+				<div className="bg-white rounded-lg p-4 md:p-5 shadow-sm border border-gray-100">
 					<h3 className="text-red-600 font-bold text-lg mb-2">
 						Important Notice!
 					</h3>
@@ -430,8 +430,8 @@ const BillingForm = ({
 						international deliveries take 14 business days excluding
 						public holidays.
 					</p>
-				</div> */}
-				<div className="bg-white rounded-lg p-4 md:p-5 shadow-sm border border-gray-100">
+				</div>
+				{/* <div className="bg-white rounded-lg p-4 md:p-5 shadow-sm border border-gray-100">
 					<h3 className="text-red-600 font-bold text-lg mb-2">
 						Important Notice!
 					</h3>
@@ -442,7 +442,7 @@ const BillingForm = ({
 						international deliveries take 14 business days excluding
 						public holidays.
 					</p>
-				</div>
+				</div> */}
 
 				<div className="flex space-x-2">
 					<Checkbox
@@ -464,7 +464,7 @@ const BillingForm = ({
 					</label>
 				</div>
 
-				{/* <div className="">
+				<div className="">
 					<div className="flex space-x-2">
 						<Checkbox
 							id="hasReadTC"
@@ -493,7 +493,7 @@ const BillingForm = ({
 							{formik.errors.hasReadTC}
 						</p>
 					)}
-				</div> */}
+				</div>
 
 				<div className="mt-5 text-white space-y-2">
 					<Button

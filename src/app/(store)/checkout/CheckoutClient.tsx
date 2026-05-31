@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import ProcessingOverlay from "@/components/layout/ProcessingOverlay";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
 import { snapInitiateCheckout, snapPurchase } from "@/lib/snap-events";
-// import SalesTCModal from "@/components/modals/SalesTCModal";
+import SalesTCModal from "@/components/modals/SalesTCModal";
 
 const CheckoutClient = () => {
 	const isCreatingOrder = useRef(false);
@@ -23,7 +23,7 @@ const CheckoutClient = () => {
 	const { user } = useUser();
 	const subtotal = useBasketStore((s) => s.getTotalPrice());
 	const [isProcessing, setIsProcessing] = useState(false);
-	// const [isSalesModalOpen, setIsSalesModalOpen] = useState(false);
+	const [isSalesModalOpen, setIsSalesModalOpen] = useState(false);
 
 	const formik = useFormik({
 		initialValues: {
@@ -41,7 +41,7 @@ const CheckoutClient = () => {
 			saveInfo: false,
 			shipToDifferentAddress: false,
 			hasRegistered: false,
-			// hasReadTC: false,
+			hasReadTC: false,
 			receiverFirstName: "",
 			receiverLastName: "",
 			shippingAddress: "",
@@ -257,13 +257,14 @@ const CheckoutClient = () => {
 				});
 				snapPurchase({
 					transaction_id: result.order?.orderNumber ?? ref.reference,
-					item_ids: useBasketStore.getState().items.map((item) => item.product._id ?? ""),
+					item_ids: useBasketStore
+						.getState()
+						.items.map((item) => item.product._id ?? ""),
 					price: total,
 					currency: "NGN",
-					number_items: useBasketStore.getState().items.reduce(
-						(sum, item) => sum + item.quantity,
-						0,
-					),
+					number_items: useBasketStore
+						.getState()
+						.items.reduce((sum, item) => sum + item.quantity, 0),
 				});
 				useBasketStore.getState().clearBasket();
 				router.push(
@@ -327,13 +328,14 @@ const CheckoutClient = () => {
 			});
 			snapPurchase({
 				transaction_id: result.order?.orderNumber ?? details.id,
-				item_ids: useBasketStore.getState().items.map((item) => item.product._id ?? ""),
+				item_ids: useBasketStore
+					.getState()
+					.items.map((item) => item.product._id ?? ""),
 				price: total,
 				currency: "USD",
-				number_items: useBasketStore.getState().items.reduce(
-					(sum, item) => sum + item.quantity,
-					0,
-				),
+				number_items: useBasketStore
+					.getState()
+					.items.reduce((sum, item) => sum + item.quantity, 0),
 			});
 			useBasketStore.getState().clearBasket();
 			router.push(
@@ -394,10 +396,9 @@ const CheckoutClient = () => {
 			snapInitiateCheckout({
 				price: subtotal,
 				currency: "NGN",
-				number_items: useBasketStore.getState().items.reduce(
-					(sum, item) => sum + item.quantity,
-					0,
-				),
+				number_items: useBasketStore
+					.getState()
+					.items.reduce((sum, item) => sum + item.quantity, 0),
 			});
 		};
 
@@ -428,7 +429,7 @@ const CheckoutClient = () => {
 							onPaystack={handlePaystackPayment}
 							onPayPal={handlePayPalSuccess}
 							totalAmount={total}
-							// setIsSalesModalOpen={setIsSalesModalOpen}
+							setIsSalesModalOpen={setIsSalesModalOpen}
 						/>
 					</div>
 
@@ -447,10 +448,10 @@ const CheckoutClient = () => {
 			</main>
 			<Footer />
 			<ProcessingOverlay isVisible={isProcessing} />
-			{/* <SalesTCModal
+			<SalesTCModal
 				isSalesModalOpen={isSalesModalOpen}
 				setIsSalesModalOpen={setIsSalesModalOpen}
-			/> */}
+			/>
 		</div>
 	);
 };

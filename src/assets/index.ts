@@ -57,7 +57,7 @@ import SnapIcon from "./icons/SnapIcon";
 import PreSale from "./icons/pre-sale.svg";
 // import Sales from "./images/sales.svg";
 import Sales from "./images/sale-clearance.png";
-import SalesTC from "./images/sales-tc.svg";
+import SalesTC from "./images/sales-tc-new.png";
 import FastDelivery from "./icons/truck-speed.svg";
 
 export {
