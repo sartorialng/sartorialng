@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import ProcessingOverlay from "@/components/layout/ProcessingOverlay";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
 import { snapInitiateCheckout, snapPurchase } from "@/lib/snap-events";
-import SalesTCModal from "@/components/modals/SalesTCModal";
+// import SalesTCModal from "@/components/modals/SalesTCModal";
 
 const CheckoutClient = () => {
 	const isCreatingOrder = useRef(false);
@@ -23,7 +23,7 @@ const CheckoutClient = () => {
 	const { user } = useUser();
 	const subtotal = useBasketStore((s) => s.getTotalPrice());
 	const [isProcessing, setIsProcessing] = useState(false);
-	const [isSalesModalOpen, setIsSalesModalOpen] = useState(false);
+	// const [isSalesModalOpen, setIsSalesModalOpen] = useState(false);
 
 	const formik = useFormik({
 		initialValues: {
@@ -41,7 +41,7 @@ const CheckoutClient = () => {
 			saveInfo: false,
 			shipToDifferentAddress: false,
 			hasRegistered: false,
-			hasReadTC: false,
+			// hasReadTC: false,
 			receiverFirstName: "",
 			receiverLastName: "",
 			shippingAddress: "",
@@ -429,7 +429,7 @@ const CheckoutClient = () => {
 							onPaystack={handlePaystackPayment}
 							onPayPal={handlePayPalSuccess}
 							totalAmount={total}
-							setIsSalesModalOpen={setIsSalesModalOpen}
+							// setIsSalesModalOpen={setIsSalesModalOpen}
 						/>
 					</div>
 
@@ -448,10 +448,10 @@ const CheckoutClient = () => {
 			</main>
 			<Footer />
 			<ProcessingOverlay isVisible={isProcessing} />
-			<SalesTCModal
+			{/* <SalesTCModal
 				isSalesModalOpen={isSalesModalOpen}
 				setIsSalesModalOpen={setIsSalesModalOpen}
-			/>
+			/> */}
 		</div>
 	);
 };
