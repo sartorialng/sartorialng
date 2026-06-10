@@ -1,13 +1,15 @@
-import { AFRICAN_COUNTRIES, SHIPPING_ZONES } from "@/data/shipping";
+import { AFRICAN_COUNTRIES, INTERSTATE_DOORSTEP_COST, SHIPPING_ZONES } from "@/data/shipping";
 
 export function calculateShipping({
 	country,
 	state,
 	area,
+	deliveryType,
 }: {
 	country?: string;
 	state?: string;
 	area?: string;
+	deliveryType?: "pickup" | "doorstep";
 }) {
 	if (country && country !== "Nigeria") {
 		// African countries
@@ -27,6 +29,7 @@ export function calculateShipping({
 
 	// Nigeria but not Lagos → Inter-State
 	if (country === "Nigeria" && state && state !== "Lagos") {
+		if (deliveryType === "doorstep") return INTERSTATE_DOORSTEP_COST;
 		const interstate = SHIPPING_ZONES.find((z) => z.area === "Inter-State");
 		return interstate?.cost || 0;
 	}

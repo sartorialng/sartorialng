@@ -188,6 +188,17 @@ const orderType = defineType({
 			title: "Order Note",
 			type: "string",
 		}),
+		defineField({
+			name: "deliveryType",
+			title: "Delivery Type (Inter-State)",
+			type: "string",
+			options: {
+				list: [
+					{ title: "Pickup", value: "pickup" },
+					{ title: "Doorstep Delivery", value: "doorstep" },
+				],
+			},
+		}),
 	],
 	preview: {
 		select: {

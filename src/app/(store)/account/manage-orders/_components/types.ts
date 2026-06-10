@@ -38,6 +38,7 @@ export type Order = {
 	vat?: number;
 	subtotal?: number;
 	orderNote?: string;
+	deliveryType?: "pickup" | "doorstep";
 };
 
 export const STATUS_STYLES: Record<string, string> = {

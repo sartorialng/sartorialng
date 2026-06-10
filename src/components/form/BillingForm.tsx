@@ -188,6 +188,53 @@ const BillingForm = ({
 					/>
 				)}
 
+				{formik.values.country === "Nigeria" &&
+					formik.values.state &&
+					formik.values.state !== "Lagos" &&
+					!formik.values.shipToDifferentAddress && (
+						<div className="space-y-2">
+							<p className={labelStyle}>
+								Delivery Type*
+							</p>
+							<div className="flex flex-col sm:flex-row gap-3">
+								{[
+									{ value: "doorstep", label: "Doorstep Delivery", price: "₦9,250" },
+									{ value: "pickup", label: "Pick Up", price: "₦8,000" },
+								].map((option) => {
+									const selected = formik.values.interstateDeliveryType === option.value;
+									return (
+										<button
+											key={option.value}
+											type="button"
+											onClick={() => formik.setFieldValue("interstateDeliveryType", option.value)}
+											className={`flex items-center gap-3 flex-1 px-4 py-3 rounded-lg border-2 transition-all cursor-pointer text-left ${
+												selected
+													? "border-white bg-white/10"
+													: "border-white/30 bg-transparent hover:border-white/50"
+											}`}
+										>
+											<span className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+												selected ? "border-white" : "border-white/50"
+											}`}>
+												{selected && (
+													<span className="w-2.5 h-2.5 rounded-full bg-white" />
+												)}
+											</span>
+											<span className="flex flex-col">
+												<span className={`text-sm font-medium leading-tight ${selected ? "text-white" : "text-gray-300"}`}>
+													{option.label}
+												</span>
+												<span className={`text-xs mt-0.5 ${selected ? "text-gray-200" : "text-gray-400"}`}>
+													{option.price}
+												</span>
+											</span>
+										</button>
+									);
+								})}
+							</div>
+						</div>
+					)}
+
 				{formik.values.state === "Lagos" && (
 					<CustomInput
 						id="postalCode"
@@ -376,6 +423,52 @@ const BillingForm = ({
 								inputStyle={inputStyle}
 							/>
 						)}
+
+						{formik.values.shippingCountry === "Nigeria" &&
+							formik.values.shippingState &&
+							formik.values.shippingState !== "Lagos" && (
+								<div className="space-y-2">
+									<p className={labelStyle}>
+										Delivery Type*
+									</p>
+									<div className="flex flex-col sm:flex-row gap-3">
+										{[
+											{ value: "doorstep", label: "Doorstep Delivery", price: "₦9,250" },
+											{ value: "pickup", label: "Pick Up", price: "₦8,000" },
+										].map((option) => {
+											const selected = formik.values.interstateDeliveryType === option.value;
+											return (
+												<button
+													key={option.value}
+													type="button"
+													onClick={() => formik.setFieldValue("interstateDeliveryType", option.value)}
+													className={`flex items-center gap-3 flex-1 px-4 py-3 rounded-lg border-2 transition-all cursor-pointer text-left ${
+														selected
+															? "border-white bg-white/10"
+															: "border-white/30 bg-transparent hover:border-white/50"
+													}`}
+												>
+													<span className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+														selected ? "border-white" : "border-white/50"
+													}`}>
+														{selected && (
+															<span className="w-2.5 h-2.5 rounded-full bg-white" />
+														)}
+													</span>
+													<span className="flex flex-col">
+														<span className={`text-sm font-medium leading-tight ${selected ? "text-white" : "text-gray-300"}`}>
+															{option.label}
+														</span>
+														<span className={`text-xs mt-0.5 ${selected ? "text-gray-200" : "text-gray-400"}`}>
+															{option.price}
+														</span>
+													</span>
+												</button>
+											);
+										})}
+									</div>
+								</div>
+							)}
 
 						{formik.values.shippingState === "Lagos" && (
 							<CustomInput

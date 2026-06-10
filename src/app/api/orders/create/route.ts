@@ -331,6 +331,7 @@ export async function POST(req: Request) {
 			amountDiscount,
 			couponCode,
 			orderNote,
+			interstateDeliveryType,
 		} = body;
 
 		// Validate required fields
@@ -458,6 +459,7 @@ export async function POST(req: Request) {
 			orderNote: orderNote,
 			shippingAddress: shippingAddressData,
 			amountDiscount: amountDiscount || 0,
+			...(interstateDeliveryType && { deliveryType: interstateDeliveryType }),
 		};
 
 		// Add payment method specific fields

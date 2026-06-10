@@ -130,8 +130,11 @@ export const SHIPPING_ZONES = [
 	},
 	{ area: "Inter-State", cost: 8000, locations: [] },
 	{ area: "African Countries", cost: 125000, locations: [] },
-	{ area: "International", cost: 268000, locations: [] },
+	{ area: "International", cost: 115000, locations: [] },
 ];
+
+export const INTERSTATE_DOORSTEP_COST = 9250;
+export const INTERNATIONAL_HEAVY_COST = 198000;
 
 export const COUNTRIES = [
 	{ value: "Nigeria", label: "Nigeria" },

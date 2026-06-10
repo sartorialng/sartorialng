@@ -17,6 +17,7 @@ import {
 	Hash,
 	StickyNote,
 	User,
+	Truck,
 } from "lucide-react";
 import { getOrderById } from "@/sanity/lib/product/getOrderById";
 import { Order } from "../manage-orders/_components/types";
@@ -406,6 +407,17 @@ const OrderDetailContent = () => {
 									<p className="text-sm text-gray-400">
 										No address provided
 									</p>
+								)}
+								{order.deliveryType && (
+									<InfoRow
+										icon={Truck}
+										label="Delivery Type"
+										value={
+											order.deliveryType === "doorstep"
+												? "Doorstep Delivery"
+												: "Pick Up"
+										}
+									/>
 								)}
 							</div>
 						</SectionCard>

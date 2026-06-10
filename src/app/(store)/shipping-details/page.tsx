@@ -1,10 +1,13 @@
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
-import { SHIPPING_ZONES } from "@/data/shipping";
+import { INTERNATIONAL_HEAVY_COST, INTERSTATE_DOORSTEP_COST, SHIPPING_ZONES } from "@/data/shipping";
 
 const lagosZones = SHIPPING_ZONES.filter((z) => z.locations.length > 0);
 
 const formatCost = (cost: number) => `₦${cost.toLocaleString("en-NG")}`;
+
+const interstatePickup = SHIPPING_ZONES.find((z) => z.area === "Inter-State")?.cost ?? 8000;
+const internationalBase = SHIPPING_ZONES.find((z) => z.area === "International")?.cost ?? 115000;
 
 const shippingTableData = [
 	...lagosZones.map((z) => ({
@@ -15,9 +18,7 @@ const shippingTableData = [
 	})),
 	{
 		area: "Inter-State Deliveries",
-		cost: formatCost(
-			SHIPPING_ZONES.find((z) => z.area === "Inter-State")?.cost ?? 8000,
-		),
+		cost: `${formatCost(interstatePickup)} (Pickup)\n${formatCost(INTERSTATE_DOORSTEP_COST)} (Doorstep Delivery)`,
 		time: "2 – 5 working days",
 		tracking: "Available",
 	},
@@ -32,11 +33,8 @@ const shippingTableData = [
 	},
 	{
 		area: "International (Europe, North America, Asia, etc.)",
-		cost: formatCost(
-			SHIPPING_ZONES.find((z) => z.area === "International")?.cost ??
-				268000,
-		),
-		time: "14 working days",
+		cost: `DHL express 0-2kg ${formatCost(internationalBase)}\nDHL express 2-5kg ${formatCost(INTERNATIONAL_HEAVY_COST)}`,
+		time: "14 working days (excl. public holidays)",
 		tracking: "Available",
 	},
 ];
@@ -102,10 +100,10 @@ const ShippingDetails = () => {
 										<td className="p-4 border border-[#1B4332]/10 font-medium">
 											{item.area}
 										</td>
-										<td className="p-4 border border-[#1B4332]/10">
+										<td className="p-4 border border-[#1B4332]/10 whitespace-pre-line">
 											{item.cost}
 										</td>
-										<td className="p-4 border border-[#1B4332]/10">
+										<td className="p-4 border border-[#1B4332]/10 whitespace-pre-line">
 											{item.time}
 										</td>
 										<td className="p-4 border border-[#1B4332]/10 text-sm italic">
@@ -118,9 +116,9 @@ const ShippingDetails = () => {
 					</div>
 
 					<p className="mt-4 text-xs italic text-right">
-						*International shipping is calculated based on weight.
-						Estimated delivery for international excludes public
-						holidays.
+						*International shipping via DHL express is calculated
+						based on weight (0–2kg: ₦115,000 | 2–5kg: ₦198,000).
+						Estimated delivery excludes public holidays.
 					</p>
 
 					{/* Area Included (Quick Reference) */}

@@ -41,6 +41,7 @@ const CheckoutClient = () => {
 			saveInfo: false,
 			shipToDifferentAddress: false,
 			hasRegistered: false,
+			interstateDeliveryType: "pickup" as const,
 			// hasReadTC: false,
 			receiverFirstName: "",
 			receiverLastName: "",
@@ -68,6 +69,7 @@ const CheckoutClient = () => {
 		area: formik.values.shipToDifferentAddress
 			? formik.values.shippingArea
 			: formik.values.area,
+		deliveryType: formik.values.interstateDeliveryType,
 	});
 
 	const { country } = getShippingAddress();

@@ -22,6 +22,7 @@ export interface BillingFormValues {
 	saveInfo: boolean;
 	shipToDifferentAddress: boolean;
 	hasRegistered: boolean;
+	interstateDeliveryType: "pickup" | "doorstep";
 	// hasReadTC: boolean;
 	receiverFirstName: string;
 	receiverLastName: string;

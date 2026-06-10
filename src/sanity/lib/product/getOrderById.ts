@@ -30,7 +30,8 @@ export const getOrderById = async (id: string) => {
         shippingCost,
         vat,
         subtotal,
-        orderNote
+        orderNote,
+        deliveryType
       }
     `;
 
