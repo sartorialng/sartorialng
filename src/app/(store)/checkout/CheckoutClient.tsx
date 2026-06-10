@@ -8,6 +8,7 @@ import OrderSummary from "@/components/layout/OrderSummary";
 import BillingForm from "@/components/form/BillingForm";
 import { billingSchema } from "@/lib/validation-schemas";
 import { usePaystackCheckout } from "@/lib/paystack";
+import type { BillingFormValues } from "@/lib/types/types";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
@@ -25,7 +26,7 @@ const CheckoutClient = () => {
 	const [isProcessing, setIsProcessing] = useState(false);
 	// const [isSalesModalOpen, setIsSalesModalOpen] = useState(false);
 
-	const formik = useFormik({
+	const formik = useFormik<BillingFormValues>({
 		initialValues: {
 			firstName: "",
 			lastName: "",
@@ -41,7 +42,7 @@ const CheckoutClient = () => {
 			saveInfo: false,
 			shipToDifferentAddress: false,
 			hasRegistered: false,
-			interstateDeliveryType: "pickup" as const,
+			interstateDeliveryType: "pickup" as "pickup" | "doorstep",
 			// hasReadTC: false,
 			receiverFirstName: "",
 			receiverLastName: "",
