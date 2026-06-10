@@ -77,6 +77,7 @@ export default function ProductDetailsClient({
 
 	const isFavorite = isInWishlist(product?._id);
 	const isOutOfStock = product?.stock === 0;
+	const isComingSoon = product?.isComingSoon;
 	const priceInDollars = convertNGNtoUSD(product.price);
 	const salePriceInDollars = convertNGNtoUSD(product.salePrice);
 
@@ -216,7 +217,9 @@ export default function ProductDetailsClient({
 									className={`rounded-xl object-cover w-full h-full transition-all duration-300 ${
 										isOutOfStock
 											? "grayscale opacity-40"
-											: ""
+											: isComingSoon
+												? "opacity-80"
+												: ""
 									}`}
 									priority
 								/>
@@ -227,6 +230,17 @@ export default function ProductDetailsClient({
 										<div className="bg-black/80 text-white px-6 py-3 rounded-md shadow-xl transform -rotate-3 border border-white/20">
 											<p className="text-xl font-bold uppercase tracking-widest">
 												Out of Stock
+											</p>
+										</div>
+									</div>
+								)}
+
+								{/* Coming Soon Overlay */}
+								{isComingSoon && !isOutOfStock && (
+									<div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[1px]">
+										<div className="bg-sartorial-green text-white px-6 py-3 rounded-md shadow-xl transform -rotate-3 border border-white/20">
+											<p className="text-xl font-bold uppercase tracking-widest">
+												Coming Soon
 											</p>
 										</div>
 									</div>
@@ -313,7 +327,11 @@ export default function ProductDetailsClient({
 								<span className="font-semibold">
 									Availability:
 								</span>{" "}
-								{product.stock > 0 ? (
+								{isComingSoon ? (
+									<span className="text-sartorial-green font-medium">
+										Coming Soon
+									</span>
+								) : product.stock > 0 ? (
 									<span className="text-green-600">
 										{product.stock < 10
 											? `${product.stock} available`
@@ -366,8 +384,20 @@ export default function ProductDetailsClient({
 							</div>
 						)}
 
+						{/* Coming Soon notice */}
+						{isComingSoon && (
+							<div className="mt-5 bg-sartorial-green/10 border border-sartorial-green/30 rounded-sm px-4 py-3">
+								<p className="text-sartorial-green font-semibold text-sm uppercase tracking-wide">
+									Coming Soon
+								</p>
+								<p className="text-sartorial-green/70 text-xs mt-0.5">
+									This product is not yet available for purchase. Check back soon!
+								</p>
+							</div>
+						)}
+
 						{/* Quantity and Actions */}
-						<div className="mt-5 flex items-center gap-3">
+						<div className={`mt-5 flex items-center gap-3 ${isComingSoon ? "opacity-40 pointer-events-none select-none" : ""}`}>
 							{/* Quantity Selector */}
 							<div className="flex items-center">
 								<button

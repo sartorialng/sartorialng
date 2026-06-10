@@ -19,6 +19,7 @@ export const getNewArrivals = async () => {
       preSaleAvailability,
       onPreOrder,
       preOrderAvailability,
+      isComingSoon,
       images[]{ asset->{url}, alt },
       colors[]->{
         _id,

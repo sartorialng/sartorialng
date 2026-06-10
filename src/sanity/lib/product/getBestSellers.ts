@@ -2,7 +2,7 @@ import { client } from "../client";
 import { groq } from "next-sanity";
 
 export const getBestSellers = async () => {
-	const query = groq`
+  const query = groq`
     *[_type == "product" && isBestSeller == true] | order(_createdAt desc) {
       _id,
       name,
@@ -19,6 +19,7 @@ export const getBestSellers = async () => {
       preSaleAvailability,
       onPreOrder,
       preOrderAvailability,
+      isComingSoon,
       images[]{ asset->{url}, alt },
       colors[]->{
         _id,
@@ -26,13 +27,13 @@ export const getBestSellers = async () => {
       }
     }
   `;
-	return client.fetch(
-		query,
-		{},
-		{
-			next: {
-				revalidate: 1800,
-			},
-		},
-	);
+  return client.fetch(
+    query,
+    {},
+    {
+      next: {
+        revalidate: 1800,
+      },
+    },
+  );
 };

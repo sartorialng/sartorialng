@@ -156,6 +156,14 @@ const productType = defineType({
 			title: "Pre Order Available from",
 			type: "datetime",
 		}),
+		defineField({
+			name: "isComingSoon",
+			title: "Coming Soon",
+			type: "boolean",
+			initialValue: false,
+			description:
+				"Product is visible in all sections but cannot be purchased. A 'Coming Soon' overlay will appear on the image.",
+		}),
 	],
 	preview: {
 		select: {

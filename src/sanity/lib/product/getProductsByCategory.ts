@@ -41,6 +41,7 @@ export const getFilteredProducts = async ({
       preSaleAvailability,
 	  onPreOrder,
       preOrderAvailability,
+      isComingSoon,
       description,
       detailedDescription,
       isBestSeller,

@@ -41,6 +41,7 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 		: SartorialBag;
 	const imageAlt = product?.name ?? "product-name";
 	const isOutOfStock = product?.stock === 0;
+	const isComingSoon = product?.isComingSoon;
 	const onPreOrder = product?.onPreOrder;
 
 	const preOrderAvailability = product?.preOrderAvailability;
@@ -187,7 +188,9 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 								className={`object-cover rounded-sm transition-opacity ${
 									isOutOfStock
 										? "opacity-50 grayscale"
-										: "opacity-100"
+										: isComingSoon
+											? "opacity-75"
+											: "opacity-100"
 								}`}
 							/>
 
@@ -195,6 +198,14 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 								<div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-sm">
 									<span className="bg-red-600 text-white text-[10px] md:text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
 										Out of Stock
+									</span>
+								</div>
+							)}
+
+							{isComingSoon && !isOutOfStock && (
+								<div className="absolute inset-0 flex items-center justify-center rounded-sm bg-black/25">
+									<span className="bg-sartorial-green text-white text-[10px] md:text-sm font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
+										Coming Soon
 									</span>
 								</div>
 							)}
@@ -290,7 +301,16 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 					)}
 				</div>
 
-				{onPreOrder ? (
+				{isComingSoon ? (
+					<div className="flex justify-center mt-2 md:mt-4">
+						<Button
+							disabled
+							className="w-full text-[11px] md:text-base h-8 md:h-10 bg-sartorial-green/20 text-sartorial-green font-semibold rounded-sm cursor-not-allowed tracking-wide"
+						>
+							Coming Soon
+						</Button>
+					</div>
+				) : onPreOrder ? (
 					<div className="flex flex-row items-center justify-center mt-2 md:mt-4">
 						<Button
 							className="text-[11px] md:text-base h-8 md:h-10 bg-sartorial-green hover:bg-green-800 text-white font-medium rounded-sm cursor-pointer"

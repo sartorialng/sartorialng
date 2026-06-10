@@ -21,6 +21,7 @@ export const getProductBySlug = async (slug: string) => {
       preSaleAvailability,
       onPreOrder,
       preOrderAvailability,
+      isComingSoon,
       images[]{
         alt,
         asset->{url},
