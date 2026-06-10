@@ -813,6 +813,23 @@
           "type": "string"
         },
         "optional": true
+      },
+      "deliveryType": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "pickup"
+            },
+            {
+              "type": "string",
+              "value": "doorstep"
+            }
+          ]
+        },
+        "optional": true
       }
     }
   },
@@ -1398,6 +1415,13 @@
         "type": "objectAttribute",
         "value": {
           "type": "string"
+        },
+        "optional": true
+      },
+      "isComingSoon": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
         },
         "optional": true
       }
