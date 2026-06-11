@@ -54,7 +54,6 @@ const orderType = defineType({
 							title: "Product Bought",
 							type: "reference",
 							to: [{ type: "product" }],
-							options: { weak: true },
 						}),
 						defineField({
 							name: "productName",
