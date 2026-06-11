@@ -30,7 +30,10 @@ export const getAllOrders = async () => {
       shippingCost,
       vat,
       subtotal,
-      orderNote
+      orderNote,
+      deliveryType,
+      gigTrackingId,
+      gigPin
     }
   `;
 

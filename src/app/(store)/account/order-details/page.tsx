@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import {
 	ArrowLeft,
 	Printer,
 	MapPin,
@@ -18,10 +25,13 @@ import {
 	StickyNote,
 	User,
 	Truck,
+	Loader2,
 } from "lucide-react";
 import { getOrderById } from "@/sanity/lib/product/getOrderById";
 import { Order } from "../manage-orders/_components/types";
 import Image from "next/image";
+import { toast } from "sonner";
+import { useUser } from "@clerk/nextjs";
 
 const STATUS_STYLES: Record<string, string> = {
 	pending: "bg-amber-100 text-amber-800 border-amber-200",
@@ -86,13 +96,36 @@ const SectionCard = ({
 	</div>
 );
 
+const ADMIN_ID_PROD = "user_39wBf3PwG09fju12n0INXiq2yQ9";
+
+const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+	pending: ["paid", "cancelled"],
+	paid: ["shipped", "cancelled"],
+	shipped: ["delivered", "cancelled"],
+	delivered: [],
+	cancelled: [],
+};
+
+const STATUS_LABELS: Record<string, string> = {
+	pending: "Pending",
+	paid: "Paid",
+	shipped: "Shipped",
+	delivered: "Delivered",
+	cancelled: "Cancelled",
+};
+
 const OrderDetailContent = () => {
 	const searchParams = useSearchParams();
 	const orderId = searchParams.get("orderId");
 	const router = useRouter();
+	const { user } = useUser();
 	const [order, setOrder] = useState<Order | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [updatingStatus, setUpdatingStatus] = useState(false);
+	const [selectedStatus, setSelectedStatus] = useState<string>("");
 	const printRef = useRef<HTMLDivElement>(null);
+
+	const isAdmin = user?.id === ADMIN_ID_PROD;
 
 	useEffect(() => {
 		getOrderById(orderId || "").then((order: Order) => {
@@ -100,6 +133,27 @@ const OrderDetailContent = () => {
 			setLoading(false);
 		});
 	}, [orderId]);
+
+	const handleStatusUpdate = async () => {
+		if (!selectedStatus || !order) return;
+		setUpdatingStatus(true);
+		try {
+			const res = await fetch("/api/orders/update-status", {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ orderId: order._id, status: selectedStatus }),
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data.error || "Failed to update");
+			setOrder((prev) => prev ? { ...prev, status: selectedStatus } : prev);
+			setSelectedStatus("");
+			toast.success(`Order status updated to ${STATUS_LABELS[selectedStatus]}`);
+		} catch (err: any) {
+			toast.error(err.message || "Could not update status");
+		} finally {
+			setUpdatingStatus(false);
+		}
+	};
 
 	const handlePrint = () => {
 		if (!printRef.current) return;
@@ -360,6 +414,61 @@ const OrderDetailContent = () => {
 							</div>
 						</div>
 					</div>
+
+					{/* Status Update — admin only */}
+					{isAdmin && (
+						<div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 md:p-6">
+							<h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+								Update Order Status
+							</h2>
+							<div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+								<div className="flex items-center gap-2">
+									<span className="text-sm text-gray-500">Current:</span>
+									<Badge
+										variant="outline"
+										className={`text-sm font-semibold capitalize px-3 py-1 ${STATUS_STYLES[order.status] || "bg-gray-100 text-gray-700"}`}
+									>
+										{order.status}
+									</Badge>
+								</div>
+								{(ALLOWED_TRANSITIONS[order.status] ?? []).length > 0 ? (
+									<div className="flex items-center gap-3">
+										<Select
+											value={selectedStatus}
+											onValueChange={setSelectedStatus}
+										>
+											<SelectTrigger className="w-40 h-9 text-sm">
+												<SelectValue placeholder="Move to..." />
+											</SelectTrigger>
+											<SelectContent>
+												{(ALLOWED_TRANSITIONS[order.status] ?? []).map((s) => (
+													<SelectItem key={s} value={s} className="text-sm capitalize">
+														{STATUS_LABELS[s]}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										<Button
+											onClick={handleStatusUpdate}
+											disabled={!selectedStatus || updatingStatus}
+											className="bg-sartorial-green hover:bg-[#234a36] h-9 text-sm gap-2 cursor-pointer"
+										>
+											{updatingStatus ? (
+												<>
+													<Loader2 className="w-4 h-4 animate-spin" />
+													Updating...
+												</>
+											) : (
+												"Update Status"
+											)}
+										</Button>
+									</div>
+								) : (
+									<p className="text-sm text-gray-400 italic">No further status transitions available.</p>
+								)}
+							</div>
+						</div>
+					)}
 
 					<div className="grid md:grid-cols-2 gap-4">
 						{/* Customer */}

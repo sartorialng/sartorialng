@@ -54,6 +54,22 @@ const orderType = defineType({
 							title: "Product Bought",
 							type: "reference",
 							to: [{ type: "product" }],
+							options: { weak: true },
+						}),
+						defineField({
+							name: "productName",
+							title: "Product Name (Snapshot)",
+							type: "string",
+						}),
+						defineField({
+							name: "productPrice",
+							title: "Product Price (Snapshot)",
+							type: "number",
+						}),
+						defineField({
+							name: "productImage",
+							title: "Product Image (Snapshot)",
+							type: "image",
 						}),
 						defineField({
 							name: "quantity",
@@ -80,18 +96,19 @@ const orderType = defineType({
 					],
 					preview: {
 						select: {
-							product: "product.name",
+							productName: "productName",
+							refName: "product.name",
 							quantity: "quantity",
 							colorTitle: "selectedColor.colorTitle",
-							image: "product.image",
-							price: "product.price",
-							currency: "product.currency",
+							productImage: "productImage",
+							productPrice: "productPrice",
 						},
 						prepare(select) {
+							const name = select.productName || select.refName;
 							return {
-								title: `${select.product} x ${select.quantity}${select.colorTitle ? ` - ${select.colorTitle}` : ""}`,
-								subtitle: `${select.price * select.quantity}`,
-								media: select.image,
+								title: `${name} x ${select.quantity}${select.colorTitle ? ` - ${select.colorTitle}` : ""}`,
+								subtitle: select.productPrice ? `${select.productPrice * select.quantity}` : "",
+								media: select.productImage,
 							};
 						},
 					},
@@ -186,6 +203,16 @@ const orderType = defineType({
 		defineField({
 			name: "orderNote",
 			title: "Order Note",
+			type: "string",
+		}),
+		defineField({
+			name: "gigTrackingId",
+			title: "GIG Logistics Tracking ID",
+			type: "string",
+		}),
+		defineField({
+			name: "gigPin",
+			title: "GIG Logistics Tracking PIN",
 			type: "string",
 		}),
 		defineField({

@@ -8,7 +8,7 @@ import { SartorialBag } from "@/assets";
 import { urlFor } from "@/lib/imageUrl";
 import { useUser } from "@clerk/nextjs";
 import { getMyOrders } from "@/sanity/lib/product/getMyOrders";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle2, Circle, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type Order = {
@@ -16,7 +16,7 @@ type Order = {
 	currency: "NGN" | string;
 	orderDate: string;
 	orderNumber: string;
-	status: "paid" | "pending" | "failed" | "cancelled" | "delivered";
+	status: "paid" | "pending" | "shipped" | "failed" | "cancelled" | "delivered";
 	totalPrice: number;
 	products: OrderProduct[];
 };
@@ -38,16 +38,229 @@ type Product = {
 
 type ProductImage = {
 	alt: string;
-	asset: {
-		url: string;
-	};
+	asset: { url: string };
 };
+
+const STEPS = [
+	{ key: "placed", label: "Order Placed" },
+	{ key: "paid", label: "Payment Confirmed" },
+	{ key: "shipped", label: "Shipped" },
+	{ key: "delivered", label: "Delivered" },
+];
+
+const STEP_REACHED: Record<string, number> = {
+	pending: 0,
+	paid: 1,
+	shipped: 2,
+	delivered: 3,
+};
+
+const formatDate = (dateStr: string) =>
+	new Date(dateStr).toLocaleDateString("en-GB", {
+		day: "2-digit",
+		month: "short",
+		year: "numeric",
+	});
+
+const formatCurrency = (amount: number, currency: string) => {
+	const symbol = currency?.toUpperCase() === "USD" ? "$" : "₦";
+	return `${symbol}${amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+const OrderTracker = ({ status }: { status: Order["status"] }) => {
+	if (status === "cancelled") {
+		return (
+			<div className="flex items-center gap-2 mt-5 pt-5 border-t border-gray-100">
+				<XCircle className="w-4 h-4 text-red-500 shrink-0" />
+				<span className="text-sm font-medium text-red-600">This order has been cancelled.</span>
+			</div>
+		);
+	}
+
+	const reached = STEP_REACHED[status] ?? 0;
+
+	return (
+		<div className="mt-5 pt-5 border-t border-gray-100">
+			<p className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-4">
+				Order Progress
+			</p>
+
+			{/* Mobile: vertical timeline */}
+			<div className="flex flex-col md:hidden">
+				{STEPS.map((step, idx) => {
+					const isCompleted = idx <= reached;
+					const isCurrent = idx === reached;
+					return (
+						<div key={step.key} className="flex items-start gap-3">
+							<div className="flex flex-col items-center shrink-0">
+								<div
+									className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+										isCompleted
+											? "bg-[#2D5A43] border-[#2D5A43]"
+											: "bg-white border-gray-200"
+									}`}
+								>
+									{isCompleted ? (
+										<CheckCircle2 className="w-3.5 h-3.5 text-white" />
+									) : (
+										<Circle className="w-3.5 h-3.5 text-gray-300" />
+									)}
+								</div>
+								{idx < STEPS.length - 1 && (
+									<div
+										className={`w-0.5 h-5 my-1 transition-all duration-300 ${
+											idx < reached ? "bg-[#2D5A43]" : "bg-gray-200"
+										}`}
+									/>
+								)}
+							</div>
+							<span
+								className={`text-sm pt-1 leading-tight ${
+									isCurrent
+										? "text-[#2D5A43] font-semibold"
+										: isCompleted
+											? "text-gray-600"
+											: "text-gray-300"
+								}`}
+							>
+								{step.label}
+							</span>
+						</div>
+					);
+				})}
+			</div>
+
+			{/* Desktop: horizontal stepper */}
+			<div className="hidden md:flex items-center w-full">
+				{STEPS.map((step, idx) => {
+					const isCompleted = idx <= reached;
+					const isCurrent = idx === reached;
+
+					return (
+						<div key={step.key} className="flex items-center flex-1 last:flex-none">
+							<div className="flex flex-col items-center gap-1.5 shrink-0">
+								<div
+									className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+										isCompleted
+											? "bg-[#2D5A43] border-[#2D5A43]"
+											: "bg-white border-gray-200"
+									}`}
+								>
+									{isCompleted ? (
+										<CheckCircle2 className="w-4 h-4 text-white" />
+									) : (
+										<Circle className="w-4 h-4 text-gray-300" />
+									)}
+								</div>
+								<span
+									className={`text-[10px] font-medium text-center leading-tight max-w-[60px] ${
+										isCurrent
+											? "text-[#2D5A43] font-semibold"
+											: isCompleted
+												? "text-gray-600"
+												: "text-gray-300"
+									}`}
+								>
+									{step.label}
+								</span>
+							</div>
+							{idx < STEPS.length - 1 && (
+								<div
+									className={`flex-1 h-0.5 mx-1 mb-5 transition-all duration-300 ${
+										idx < reached ? "bg-[#2D5A43]" : "bg-gray-200"
+									}`}
+								/>
+							)}
+						</div>
+					);
+				})}
+			</div>
+		</div>
+	);
+};
+
+const OrderCard = ({ order }: { order: Order }) => (
+	<motion.div
+		initial={{ opacity: 0, y: 8 }}
+		animate={{ opacity: 1, y: 0 }}
+		className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 md:p-6"
+	>
+		{/* Order meta header */}
+		<div className="flex items-start justify-between gap-2 mb-5 pb-4 border-b border-gray-100">
+			<div className="min-w-0">
+				<p className="text-xs text-gray-400 uppercase tracking-wider font-medium">
+					Order
+				</p>
+				<p className="font-mono text-xs sm:text-sm text-gray-700 font-semibold mt-0.5 truncate max-w-[180px] sm:max-w-none">
+					{order.orderNumber}
+				</p>
+			</div>
+			<div className="text-xs sm:text-sm text-gray-500 shrink-0">
+				{formatDate(order.orderDate)}
+			</div>
+		</div>
+
+		{/* Products */}
+		<div className="space-y-4">
+			{order.products?.map((item, idx) => {
+				const imgSrc = item.product?.images?.[0]
+					? urlFor(item.product.images[0])
+					: SartorialBag;
+
+				return (
+					<div
+						key={idx}
+						className="flex items-center gap-4"
+					>
+						<div className="relative w-16 h-16 bg-gray-50 rounded-lg overflow-hidden shrink-0 border border-gray-100">
+							<Image
+								src={imgSrc}
+								alt={item.product?.name ?? "Product"}
+								fill
+								className="object-contain p-1.5"
+							/>
+						</div>
+						<div className="flex-1 min-w-0">
+							<p className="font-medium text-sm text-gray-900 truncate">
+								{item.product?.name}
+							</p>
+							{item.selectedColor?.colorTitle && (
+								<p className="text-xs text-gray-500 mt-0.5">
+									Colour: {item.selectedColor.colorTitle}
+								</p>
+							)}
+							<p className="text-xs text-gray-500">
+								Qty: {item.quantity}
+							</p>
+						</div>
+						<p className="font-semibold text-sm text-gray-800 shrink-0">
+							{formatCurrency(
+								(item.product?.price || 0) * item.quantity,
+								order.currency,
+							)}
+						</p>
+					</div>
+				);
+			})}
+		</div>
+
+		{/* Order total */}
+		<div className="mt-4 pt-3 border-t border-gray-100 flex justify-end">
+			<span className="text-sm font-bold text-[#2D5A43]">
+				Total: {formatCurrency(order.totalPrice, order.currency)}
+			</span>
+		</div>
+
+		{/* Tracking stepper */}
+		<OrderTracker status={order.status} />
+	</motion.div>
+);
 
 const MyOrders = () => {
 	const { user, isLoaded, isSignedIn } = useUser();
 	const router = useRouter();
 
-	const [orders, setOrders] = useState([]);
+	const [orders, setOrders] = useState<Order[]>([]);
 	const [fetchingData, setFetchingData] = useState(true);
 	const [activeTab, setActiveTab] = useState("ongoing");
 
@@ -83,35 +296,36 @@ const MyOrders = () => {
 		);
 	}
 
+	if (!isSignedIn) return null;
+
 	const tabs = [
-		{ id: "ongoing", label: "Ongoing Order" },
-		{ id: "delivered", label: "Delivered Order" },
+		{ id: "ongoing", label: "Ongoing Orders" },
+		{ id: "delivered", label: "Delivered Orders" },
 	];
 
-	const filteredOrders = orders.filter((order: Order) =>
+	const filteredOrders = orders.filter((order) =>
 		activeTab === "delivered"
 			? order.status === "delivered"
 			: order.status !== "delivered",
 	);
 
-	if (!isSignedIn) return null;
-
 	return (
 		<div className="min-h-screen flex flex-col bg-gray-50">
 			<Header />
-			<main className="grow w-full pt-32 md:pt-40 pb-20 px-6 md:px-20 lg:px-32">
-				<div className="bg-white max-w-6xl mx-auto p-3 md:p-10 rounded-sm">
-					<h1 className="text-2xl font-bold mb-8 text-gray-800">
+			<main className="grow w-full pt-28 md:pt-40 pb-20 px-4 sm:px-6 md:px-20 lg:px-32">
+				<div className="max-w-3xl mx-auto">
+					<h1 className="text-xl sm:text-2xl font-bold mb-6 md:mb-8 text-gray-800">
 						My Orders
 					</h1>
 
-					<div className="flex justify-center mb-8">
-						<div className="relative flex bg-[#E9F2EB] p-1.5 rounded-full">
+					{/* Tabs */}
+					<div className="flex justify-center mb-6 md:mb-8">
+						<div className="relative flex bg-[#E9F2EB] p-1.5 rounded-full w-full sm:w-auto">
 							{tabs.map((tab) => (
 								<button
 									key={tab.id}
 									onClick={() => setActiveTab(tab.id)}
-									className={`relative z-10 px-6 py-2.5 text-sm md:text-base font-medium transition-colors duration-300 ${
+									className={`relative z-10 flex-1 sm:flex-none px-4 sm:px-6 py-2.5 text-sm font-medium transition-colors duration-300 ${
 										activeTab === tab.id
 											? "text-white"
 											: "text-[#2D533E]"
@@ -135,119 +349,35 @@ const MyOrders = () => {
 					</div>
 
 					{fetchingData ? (
-						<div className="flex items-center justify-center">
-							<div className="animate-spin rounded-full h-16 w-16 border-b-2 border-sartorial-green mx-auto mb-4"></div>
+						<div className="flex items-center justify-center py-20">
+							<div className="animate-spin rounded-full h-16 w-16 border-b-2 border-sartorial-green" />
 						</div>
 					) : (
-						<div className="border border-gray-200 rounded-lg overflow-hidden">
-							<AnimatePresence mode="wait">
-								{filteredOrders.length > 0 ? (
-									<motion.div
-										key={activeTab}
-										initial={{ opacity: 0 }}
-										animate={{ opacity: 1 }}
-										exit={{ opacity: 0 }}
-									>
-										{filteredOrders.map((order: Order) =>
-											order.products?.map(
-												(item, pIndex) => (
-													<div
-														key={`${order._id}-${pIndex}`}
-														className="flex flex-col md:flex-row items-center justify-between p-3 md:p-8 gap-6 border-b border-gray-100 last:border-0"
-													>
-														<div className="flex flex-col md:flex-row items-center gap-6 flex-1 w-full">
-															<div className="relative w-24 h-24 bg-gray-50 rounded-md overflow-hidden shrink-0">
-																<Image
-																	src={
-																		item
-																			.product
-																			?.images?.[
-																			pIndex
-																		]
-																			? urlFor(
-																					item
-																						.product
-																						.images[
-																						pIndex
-																					],
-																				)
-																			: SartorialBag
-																	}
-																	alt={
-																		item
-																			.product
-																			?.name ??
-																		"Product"
-																	}
-																	fill
-																	className="object-contain p-2"
-																/>
-															</div>
-															<div className="text-[#2D533E]">
-																<h3 className="text-xl font-medium">
-																	{
-																		item
-																			.product
-																			.name
-																	}
-																</h3>
-																<p className="text-sm opacity-80">
-																	Color -{" "}
-																	{item
-																		.selectedColor
-																		?.colorTitle ||
-																		"N/A"}
-																</p>
-																<p className="text-sm opacity-80">
-																	Qty -{" "}
-																	{
-																		item.quantity
-																	}
-																	pcs
-																</p>
-																<span className="text-[10px] bg-gray-100 px-2 py-0.5 rounded text-gray-500 uppercase">
-																	ID:{" "}
-																	{
-																		order.orderNumber
-																	}
-																</span>
-															</div>
-														</div>
-
-														<div className="flex flex-col items-center md:items-end flex-1 w-full">
-															<p className="text-lg font-bold text-gray-800">
-																₦
-																{(
-																	item.product
-																		?.price ||
-																	0
-																).toLocaleString()}
-															</p>
-															<p className="text-gray-500 text-sm">
-																Status:{" "}
-																<span className="capitalize font-semibold">
-																	{
-																		order.status
-																	}
-																</span>
-															</p>
-														</div>
-													</div>
-												),
-											),
-										)}
-									</motion.div>
-								) : (
-									<motion.div
-										initial={{ opacity: 0 }}
-										animate={{ opacity: 1 }}
-										className="p-20 text-center text-gray-400"
-									>
-										No {activeTab} orders found.
-									</motion.div>
-								)}
-							</AnimatePresence>
-						</div>
+						<AnimatePresence mode="wait">
+							{filteredOrders.length > 0 ? (
+								<motion.div
+									key={activeTab}
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									exit={{ opacity: 0 }}
+									className="space-y-5"
+								>
+									{filteredOrders.map((order) => (
+										<OrderCard key={order._id} order={order} />
+									))}
+								</motion.div>
+							) : (
+								<motion.div
+									key={`${activeTab}-empty`}
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									exit={{ opacity: 0 }}
+									className="py-20 text-center text-gray-400"
+								>
+									No {activeTab === "delivered" ? "delivered" : "ongoing"} orders found.
+								</motion.div>
+							)}
+						</AnimatePresence>
 					)}
 				</div>
 			</main>

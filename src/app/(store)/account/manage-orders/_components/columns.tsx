@@ -1,13 +1,178 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Eye } from "lucide-react";
+import { ArrowUpDown, Eye, Loader2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { useState } from "react";
 
 import { Order, STATUS_STYLES, formatDate, formatCurrency } from "./types";
 import Link from "next/link";
+
+const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+	pending: ["paid", "cancelled"],
+	paid: ["shipped", "cancelled"],
+	shipped: ["delivered", "cancelled"],
+	delivered: [],
+	cancelled: [],
+};
+
+const STATUS_LABELS: Record<string, string> = {
+	pending: "Pending",
+	paid: "Paid",
+	shipped: "Shipped",
+	delivered: "Delivered",
+	cancelled: "Cancelled",
+};
+
+const StatusCell = ({ order }: { order: Order }) => {
+	const [currentStatus, setCurrentStatus] = useState(order.status);
+	const [loading, setLoading] = useState(false);
+	const [showGigModal, setShowGigModal] = useState(false);
+	const [gigTrackingId, setGigTrackingId] = useState("");
+	const [gigPin, setGigPin] = useState("");
+
+	const nextStatuses = ALLOWED_TRANSITIONS[currentStatus] ?? [];
+	const isInterstate = !!order.deliveryType;
+
+	const submitUpdate = async (newStatus: string, trackingId?: string, pin?: string) => {
+		setLoading(true);
+		try {
+			const res = await fetch("/api/orders/update-status", {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					orderId: order._id,
+					status: newStatus,
+					...(trackingId && { gigTrackingId: trackingId }),
+					...(pin && { gigPin: pin }),
+				}),
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data.error || "Failed to update");
+			setCurrentStatus(newStatus);
+			toast.success(`Order marked as ${STATUS_LABELS[newStatus]}`);
+		} catch (err: any) {
+			toast.error(err.message || "Could not update status");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleChange = (newStatus: string) => {
+		if (newStatus === "shipped" && isInterstate) {
+			setShowGigModal(true);
+		} else {
+			submitUpdate(newStatus);
+		}
+	};
+
+	const handleGigConfirm = () => {
+		setShowGigModal(false);
+		submitUpdate("shipped", gigTrackingId.trim() || undefined, gigPin.trim() || undefined);
+		setGigTrackingId("");
+		setGigPin("");
+	};
+
+	return (
+		<>
+			<div className="flex items-center gap-2">
+				<Badge
+					variant="outline"
+					className={`text-xs font-medium capitalize shrink-0 ${STATUS_STYLES[currentStatus] ?? "bg-gray-100 text-gray-700"}`}
+				>
+					{currentStatus}
+				</Badge>
+				{nextStatuses.length > 0 && (
+					<div className="relative">
+						{loading ? (
+							<Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+						) : (
+							<Select onValueChange={handleChange}>
+								<SelectTrigger className="h-7 text-xs px-2 w-28 border-dashed">
+									<SelectValue placeholder="Update" />
+								</SelectTrigger>
+								<SelectContent>
+									{nextStatuses.map((s) => (
+										<SelectItem key={s} value={s} className="text-xs">
+											{STATUS_LABELS[s]}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						)}
+					</div>
+				)}
+			</div>
+
+			<Dialog open={showGigModal} onOpenChange={setShowGigModal}>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle>GIG Logistics Tracking Details</DialogTitle>
+						<p className="text-sm text-gray-500 mt-1">
+							Enter the tracking information from GIG Logistics for{" "}
+							<span className="font-semibold text-gray-700">{order.orderNumber}</span>.
+							This will be included in the shipping email to the customer.
+						</p>
+					</DialogHeader>
+					<div className="space-y-4 py-2">
+						<div className="space-y-1.5">
+							<Label htmlFor="gig-tracking-id">Tracking ID</Label>
+							<Input
+								id="gig-tracking-id"
+								placeholder="e.g. 1346109645"
+								value={gigTrackingId}
+								onChange={(e) => setGigTrackingId(e.target.value)}
+							/>
+						</div>
+						<div className="space-y-1.5">
+							<Label htmlFor="gig-pin">Tracking PIN</Label>
+							<Input
+								id="gig-pin"
+								placeholder="e.g. DNCTPGCP"
+								value={gigPin}
+								onChange={(e) => setGigPin(e.target.value)}
+							/>
+						</div>
+					</div>
+					<DialogFooter className="gap-2">
+						<Button
+							variant="outline"
+							onClick={() => setShowGigModal(false)}
+						>
+							Cancel
+						</Button>
+						<Button
+							onClick={handleGigConfirm}
+							disabled={loading}
+							className="bg-[#2c5b42] hover:bg-[#1b4332] text-white"
+						>
+							{loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Mark as Shipped"}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		</>
+	);
+};
 
 const ActionsCell = ({ order }: { order: Order }) => {
 	return (
@@ -94,17 +259,7 @@ export const columns: ColumnDef<Order>[] = [
 	{
 		accessorKey: "status",
 		header: "Status",
-		cell: ({ row }) => {
-			const status: string = row.getValue("status");
-			return (
-				<Badge
-					variant="outline"
-					className={`text-xs font-medium capitalize ${STATUS_STYLES[status] ?? "bg-gray-100 text-gray-700"}`}
-				>
-					{status}
-				</Badge>
-			);
-		},
+		cell: ({ row }) => <StatusCell order={row.original} />,
 		filterFn: (row, _columnId, filterValue) => {
 			if (filterValue === "all") return true;
 			return row.getValue("status") === filterValue;

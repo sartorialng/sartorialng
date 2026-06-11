@@ -39,6 +39,8 @@ export type Order = {
 	subtotal?: number;
 	orderNote?: string;
 	deliveryType?: "pickup" | "doorstep";
+	gigTrackingId?: string;
+	gigPin?: string;
 };
 
 export const STATUS_STYLES: Record<string, string> = {

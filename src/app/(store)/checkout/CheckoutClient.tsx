@@ -169,6 +169,14 @@ const CheckoutClient = () => {
 						quantity: item.quantity,
 						name: item.product.name,
 						price: item.product.price,
+						image:
+							(item.selectedColor &&
+								item.product.images?.find(
+									(img: any) =>
+										img.color?._ref ===
+										item.selectedColor?._id,
+								)) ||
+							item.product.images?.[0],
 						selectedColor: item.selectedColor
 							? {
 									colorId: item.selectedColor._id,

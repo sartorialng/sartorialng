@@ -31,7 +31,9 @@ export const getOrderById = async (id: string) => {
         vat,
         subtotal,
         orderNote,
-        deliveryType
+        deliveryType,
+        gigTrackingId,
+        gigPin
       }
     `;
 

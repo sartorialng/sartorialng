@@ -411,8 +411,20 @@ export async function POST(req: Request) {
 					_type: "reference",
 					_ref: item._id,
 				},
+				productName: item.name,
+				productPrice: item.price,
 				quantity: item.quantity,
 			};
+
+			if (item.image?.asset?._ref) {
+				productData.productImage = {
+					_type: "image",
+					asset: {
+						_type: "reference",
+						_ref: item.image.asset._ref,
+					},
+				};
+			}
 
 			if (item.selectedColor) {
 				productData.selectedColor = {
@@ -459,7 +471,12 @@ export async function POST(req: Request) {
 			orderNote: orderNote,
 			shippingAddress: shippingAddressData,
 			amountDiscount: amountDiscount || 0,
-			...(interstateDeliveryType && { deliveryType: interstateDeliveryType }),
+			...(() => {
+				const effectiveState = shipToDifferentAddress ? shippingState : state;
+				const effectiveCountry = shipToDifferentAddress ? shippingCountry : country;
+				const isInterstate = effectiveCountry === "Nigeria" && effectiveState !== "Lagos";
+				return isInterstate && interstateDeliveryType ? { deliveryType: interstateDeliveryType } : {};
+			})(),
 		};
 
 		// Add payment method specific fields
