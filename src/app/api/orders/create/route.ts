@@ -332,6 +332,8 @@ export async function POST(req: Request) {
 			couponCode,
 			orderNote,
 			interstateDeliveryType,
+			gigPark,
+			shippingGigPark,
 		} = body;
 
 		// Validate required fields
@@ -475,7 +477,12 @@ export async function POST(req: Request) {
 				const effectiveState = shipToDifferentAddress ? shippingState : state;
 				const effectiveCountry = shipToDifferentAddress ? shippingCountry : country;
 				const isInterstate = effectiveCountry === "Nigeria" && effectiveState !== "Lagos";
-				return isInterstate && interstateDeliveryType ? { deliveryType: interstateDeliveryType } : {};
+				if (!isInterstate || !interstateDeliveryType) return {};
+				const effectiveGigPark = shipToDifferentAddress ? shippingGigPark : gigPark;
+				return {
+					deliveryType: interstateDeliveryType,
+					...(interstateDeliveryType === "pickup" && effectiveGigPark ? { gigPark: effectiveGigPark } : {}),
+				};
 			})(),
 		};
 
@@ -713,6 +720,12 @@ export async function POST(req: Request) {
 									<br/>
 									📞 ${deliveryAddress.phone}${deliveryAddress.secondaryPhone ? ` / ${deliveryAddress.secondaryPhone}` : ""}
 								</p>
+								${(() => {
+									const effectiveGigPark = shipToDifferentAddress ? shippingGigPark : gigPark;
+									return interstateDeliveryType === "pickup" && effectiveGigPark
+										? `<p style="font-size: 14px; color: #555; line-height: 1.8; margin: 12px 0 0 0;"><strong style="color: #2c5b42;">GIG Pick-Up Park:</strong> ${effectiveGigPark}</p>`
+										: "";
+								})()}
 							</div>
 
 							<!-- CTA -->

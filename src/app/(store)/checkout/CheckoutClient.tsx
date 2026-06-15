@@ -43,6 +43,8 @@ const CheckoutClient = () => {
 			shipToDifferentAddress: false,
 			hasRegistered: false,
 			interstateDeliveryType: "pickup" as "pickup" | "doorstep",
+			gigPark: "",
+			shippingGigPark: "",
 			// hasReadTC: false,
 			receiverFirstName: "",
 			receiverLastName: "",

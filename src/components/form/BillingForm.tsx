@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import CustomInput from "@/components/form/CustomInput";
 import CustomSelect from "@/components/form/CustomSelect";
 import { AREAS, COUNTRIES, NIGERIA_STATES } from "@/data/shipping";
+import { GIG_PARKS } from "@/data/gig-parks";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BillingFormValues } from "@/lib/types/types";
@@ -167,6 +168,7 @@ const BillingForm = ({
 						onChange={(e) => {
 							formik.handleChange(e);
 							formik.setFieldValue("area", "");
+							formik.setFieldValue("gigPark", "");
 						}}
 						labelStyle={labelStyle}
 						inputStyle={inputStyle}
@@ -206,7 +208,13 @@ const BillingForm = ({
 										<button
 											key={option.value}
 											type="button"
-											onClick={() => formik.setFieldValue("interstateDeliveryType", option.value)}
+											onClick={() => {
+												formik.setFieldValue("interstateDeliveryType", option.value);
+												if (option.value !== "pickup") {
+													formik.setFieldValue("gigPark", "");
+													formik.setFieldValue("shippingGigPark", "");
+												}
+											}}
 											className={`flex items-center gap-3 flex-1 px-4 py-3 rounded-lg border-2 transition-all cursor-pointer text-left ${
 												selected
 													? "border-white bg-white/10"
@@ -233,6 +241,25 @@ const BillingForm = ({
 								})}
 							</div>
 						</div>
+					)}
+
+				{formik.values.country === "Nigeria" &&
+					formik.values.state &&
+					formik.values.state !== "Lagos" &&
+					!formik.values.shipToDifferentAddress &&
+					formik.values.interstateDeliveryType === "pickup" && (
+						<CustomSelect
+							name="gigPark"
+							label="Closest GIG Park to You*"
+							placeholder="Select nearest GIG park"
+							items={GIG_PARKS[formik.values.state] || []}
+							value={formik.values.gigPark}
+							touched={formik.touched.gigPark}
+							error={formik.errors.gigPark}
+							onChange={formik.handleChange}
+							labelStyle={labelStyle}
+							inputStyle={inputStyle}
+						/>
 					)}
 
 				{formik.values.state === "Lagos" && (
@@ -403,6 +430,7 @@ const BillingForm = ({
 								onChange={(e) => {
 									formik.handleChange(e);
 									formik.setFieldValue("area", "");
+									formik.setFieldValue("shippingGigPark", "");
 								}}
 								labelStyle={labelStyle}
 								inputStyle={inputStyle}
@@ -441,7 +469,13 @@ const BillingForm = ({
 												<button
 													key={option.value}
 													type="button"
-													onClick={() => formik.setFieldValue("interstateDeliveryType", option.value)}
+													onClick={() => {
+														formik.setFieldValue("interstateDeliveryType", option.value);
+														if (option.value !== "pickup") {
+															formik.setFieldValue("gigPark", "");
+															formik.setFieldValue("shippingGigPark", "");
+														}
+													}}
 													className={`flex items-center gap-3 flex-1 px-4 py-3 rounded-lg border-2 transition-all cursor-pointer text-left ${
 														selected
 															? "border-white bg-white/10"
@@ -468,6 +502,24 @@ const BillingForm = ({
 										})}
 									</div>
 								</div>
+							)}
+
+						{formik.values.shippingCountry === "Nigeria" &&
+							formik.values.shippingState &&
+							formik.values.shippingState !== "Lagos" &&
+							formik.values.interstateDeliveryType === "pickup" && (
+								<CustomSelect
+									name="shippingGigPark"
+									label="Closest GIG Park to Receiver*"
+									placeholder="Select nearest GIG park"
+									items={GIG_PARKS[formik.values.shippingState] || []}
+									value={formik.values.shippingGigPark}
+									touched={formik.touched.shippingGigPark}
+									error={formik.errors.shippingGigPark}
+									onChange={formik.handleChange}
+									labelStyle={labelStyle}
+									inputStyle={inputStyle}
+								/>
 							)}
 
 						{formik.values.shippingState === "Lagos" && (

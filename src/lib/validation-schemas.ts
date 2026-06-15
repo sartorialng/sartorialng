@@ -42,6 +42,22 @@ export const billingSchema = yup.object().shape({
 	// 	.boolean()
 	// 	.oneOf([true], "Please read the Discount Sales Terms and Conditions")
 	// 	.required("Please read the Discount Sales Terms and Conditions"),
+	gigPark: yup
+		.string()
+		.when(["country", "state", "interstateDeliveryType", "shipToDifferentAddress"], {
+			is: (country: string, state: string, deliveryType: string, shipToDifferentAddress: boolean) =>
+				country === "Nigeria" && !!state && state !== "Lagos" && deliveryType === "pickup" && !shipToDifferentAddress,
+			then: (schema) => schema.required("Please select your closest GIG park"),
+			otherwise: (schema) => schema.notRequired(),
+		}),
+	shippingGigPark: yup
+		.string()
+		.when(["shipToDifferentAddress", "shippingCountry", "shippingState", "interstateDeliveryType"], {
+			is: (shipToDifferentAddress: boolean, shippingCountry: string, shippingState: string, deliveryType: string) =>
+				shipToDifferentAddress === true && shippingCountry === "Nigeria" && !!shippingState && shippingState !== "Lagos" && deliveryType === "pickup",
+			then: (schema) => schema.required("Please select the closest GIG park to the receiver"),
+			otherwise: (schema) => schema.notRequired(),
+		}),
 	receiverFirstName: yup.string().when("shipToDifferentAddress", {
 		is: true,
 		then: (schema) => schema.required("Receiver's first name is required"),

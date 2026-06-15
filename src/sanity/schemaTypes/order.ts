@@ -225,6 +225,12 @@ const orderType = defineType({
 				],
 			},
 		}),
+		defineField({
+			name: "gigPark",
+			title: "GIG Pick-Up Park",
+			type: "string",
+			description: "The GIG Logistics park the customer selected for pick-up (interstate pickup orders only)",
+		}),
 	],
 	preview: {
 		select: {

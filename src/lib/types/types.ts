@@ -23,6 +23,8 @@ export interface BillingFormValues {
 	shipToDifferentAddress: boolean;
 	hasRegistered: boolean;
 	interstateDeliveryType: "pickup" | "doorstep";
+	gigPark: string;
+	shippingGigPark: string;
 	// hasReadTC: boolean;
 	receiverFirstName: string;
 	receiverLastName: string;
