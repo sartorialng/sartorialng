@@ -41,6 +41,7 @@ export type Order = {
 	deliveryType?: "pickup" | "doorstep";
 	gigTrackingId?: string;
 	gigPin?: string;
+	gigPark?: string;
 };
 
 export const STATUS_STYLES: Record<string, string> = {

@@ -528,6 +528,13 @@ const OrderDetailContent = () => {
 										}
 									/>
 								)}
+								{order.gigPark && (
+									<InfoRow
+										icon={MapPin}
+										label="GIG Pick-Up Park"
+										value={order.gigPark}
+									/>
+								)}
 							</div>
 						</SectionCard>
 					</div>

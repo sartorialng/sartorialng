@@ -33,7 +33,8 @@ export const getOrderById = async (id: string) => {
         orderNote,
         deliveryType,
         gigTrackingId,
-        gigPin
+        gigPin,
+        gigPark
       }
     `;
 

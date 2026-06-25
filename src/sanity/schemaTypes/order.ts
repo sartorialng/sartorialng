@@ -106,7 +106,9 @@ const orderType = defineType({
 							const name = select.productName || select.refName;
 							return {
 								title: `${name} x ${select.quantity}${select.colorTitle ? ` - ${select.colorTitle}` : ""}`,
-								subtitle: select.productPrice ? `${select.productPrice * select.quantity}` : "",
+								subtitle: select.productPrice
+									? `${select.productPrice * select.quantity}`
+									: "",
 								media: select.productImage,
 							};
 						},
@@ -229,7 +231,8 @@ const orderType = defineType({
 			name: "gigPark",
 			title: "GIG Pick-Up Park",
 			type: "string",
-			description: "The GIG Logistics park the customer selected for pick-up (interstate pickup orders only)",
+			description:
+				"The GIG Logistics park the customer selected for pick-up (interstate pickup orders only)",
 		}),
 	],
 	preview: {
