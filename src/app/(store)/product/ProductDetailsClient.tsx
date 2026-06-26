@@ -315,6 +315,11 @@ export default function ProductDetailsClient({
 								</p>
 							)}
 
+							<p className="text-sm font-medium text-sartorial-green/80">
+								🌍 We ship worldwide — delivery to your country
+								calculated at checkout.
+							</p>
+
 							{/* Description */}
 							<div className="text-gray-700 text-sm leading-relaxed">
 								{product.description && (
@@ -573,10 +578,12 @@ export default function ProductDetailsClient({
 								<BusIcon2 />
 								<div className="flex flex-col gap-1">
 									<p className="text-xl font-semibold">
-										Fast Delivery
+										Fast Delivery, Worldwide
 									</p>
 									<p className="text-sm">
-										Shipping fee according to your location.{" "}
+										Nationwide within Nigeria and international
+										delivery via DHL. Shipping fee according to
+										your location.{" "}
 										<Link
 											href="/shipping-details"
 											className="cursor-pointer underline"
@@ -632,8 +639,9 @@ export default function ProductDetailsClient({
 					{generalTab === "shipping" && (
 						<div className="text-sm text-gray-700">
 							<p>
-								We offer fast nationwide delivery within 2–5
-								business days.
+								We offer fast nationwide delivery within Nigeria
+								(2–5 business days) and international shipping via
+								DHL to customers worldwide.
 							</p>
 							<p className="mt-2">
 								Shipping cost is calculated at checkout based on

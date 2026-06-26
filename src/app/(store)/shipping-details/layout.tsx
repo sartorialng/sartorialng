@@ -3,12 +3,12 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
 	title: "Shipping Information | Sartorial",
 	description:
-		"Learn about Sartorial's shipping policy. Fast and reliable delivery of premium bags across Nigeria.",
+		"Learn about Sartorial's shipping policy. Fast and reliable delivery of premium bags within Nigeria and worldwide via DHL.",
 	alternates: { canonical: "/shipping-details" },
 	openGraph: {
 		title: "Shipping Information – Sartorial",
 		description:
-			"Everything you need to know about shipping and delivery at Sartorial Nigeria.",
+			"Everything you need to know about Sartorial's local and international shipping and delivery.",
 		url: "https://www.sartorial.ng/shipping-details",
 	},
 };

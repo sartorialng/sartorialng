@@ -1,9 +1,8 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: "Buy Premium Bags Online in Nigeria | Sartorial",
-	description:
-		"Sartorial is an online fashion store in Nigeria offering premium bags and accessories for women. Shop stylish handbags and more today.",
+	title: "Sartorial Studio",
+	robots: { index: false, follow: false },
 };
 
 export default function RootLayout({

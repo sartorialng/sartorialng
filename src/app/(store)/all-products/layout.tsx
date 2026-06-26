@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: "Shop All Bags | Sartorial – Premium Women's Bags in Nigeria",
+	title: "Shop All Bags | Sartorial – Premium Women's Bags",
 	description:
-		"Browse all premium bags and accessories at Sartorial. Shop mini bags, small bags, medium bags, and large bags for women in Nigeria.",
+		"Browse all premium bags and accessories at Sartorial. Shop mini bags, small bags, medium bags, and large bags for women, with worldwide shipping.",
 	alternates: { canonical: "/all-products" },
 	openGraph: {
-		title: "Shop All Bags – Sartorial Nigeria",
+		title: "Shop All Bags – Sartorial",
 		description:
-			"Browse our full collection of premium bags and accessories for women. Fast delivery across Nigeria.",
+			"Browse our full collection of premium bags and accessories for women, with worldwide shipping.",
 		url: "https://www.sartorial.ng/all-products",
 	},
 };

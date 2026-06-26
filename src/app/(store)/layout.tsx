@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 	metadataBase: new URL("https://www.sartorial.ng"),
 	title: "Sartorial – Premium Bags for Every Woman",
 	description:
-		"Shop premium bags and accessories for women on Sartorial. Quality styles delivered to your doorstep.",
+		"Shop premium bags and accessories for women on Sartorial. Quality styles delivered to your doorstep, with worldwide shipping.",
 	keywords: [
 		"fashion store",
 		"fashion bags",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 	openGraph: {
 		title: "Sartorial – Premium Bags for Every Woman",
 		description:
-			"Shop premium bags and accessories for women on Sartorial. Quality styles delivered to your doorstep.",
+			"Shop premium bags and accessories for women on Sartorial. Quality styles delivered to your doorstep, with worldwide shipping.",
 		url: "https://www.sartorial.ng",
 		siteName: "Sartorial",
 		images: [

@@ -17,14 +17,15 @@ import { getSartorialBabes } from "@/sanity/lib/product/getSartorialBabes";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: "Buy Premium Bags Online in Nigeria | Sartorial",
+	title: "Buy Premium Bags Online | Sartorial – Worldwide Shipping",
 	description:
-		"Sartorial is an online fashion store in Nigeria offering premium bags and accessories for women. Shop stylish handbags and more today.",
+		"Sartorial is a premium online fashion store for women's bags and accessories, serving customers across five continents. Shop stylish handbags with worldwide delivery.",
 	keywords: [
-		"fashion store",
-		"fashion bags",
-		"online store",
+		"premium bags online",
+		"women's handbags",
+		"designer bags",
 		"buy bags online",
+		"luxury bags worldwide",
 		"women fashion",
 		"Sartorial",
 		"sartorial.ng",
@@ -61,11 +62,13 @@ export default async function Home() {
 		name: "Sartorial",
 		url: "https://www.sartorial.ng",
 		logo: "https://res.cloudinary.com/dkoi9zeli/image/upload/v1770800367/sartorial_zn5q28.svg",
-		description: "Premium bags and accessories for women in Nigeria.",
+		description:
+			"Premium bags and accessories for women, shipped worldwide from Nigeria.",
 		address: {
 			"@type": "PostalAddress",
 			addressCountry: "NG",
 		},
+		areaServed: "Worldwide",
 		sameAs: [
 			"https://www.instagram.com/thesartorialstore",
 			"https://www.tiktok.com/@thesartorialstore",

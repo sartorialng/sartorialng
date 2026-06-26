@@ -30,13 +30,14 @@ export async function generateMetadata({
 	const category = product.categories?.[0]?.name ?? "Bags";
 
 	return {
-		title: `${product.name} | Buy Online in Nigeria – Sartorial`,
-		description: `Shop the ${product.name} at Sartorial. Premium ${category.toLowerCase()} for women in Nigeria. Fast delivery nationwide.`,
+		title: `${product.name} | Buy Online – Sartorial`,
+		description: `Shop the ${product.name} at Sartorial. Premium ${category.toLowerCase()} for women, with worldwide shipping.`,
 		keywords: [
 			product.name,
 			category,
-			"buy bags online Nigeria",
-			"women bags Nigeria",
+			"buy bags online",
+			"premium women's bags",
+			"worldwide shipping",
 			"Sartorial",
 		],
 		alternates: {
@@ -44,7 +45,7 @@ export async function generateMetadata({
 		},
 		openGraph: {
 			title: `${product.name} – Sartorial`,
-			description: `Shop the ${product.name}. Premium ${category.toLowerCase()} for women in Nigeria.`,
+			description: `Shop the ${product.name}. Premium ${category.toLowerCase()} for women, shipped worldwide.`,
 			url: `${BASE_URL}/product/${slug}`,
 			type: "website",
 			images: imageUrl
@@ -61,7 +62,7 @@ export async function generateMetadata({
 		twitter: {
 			card: "summary_large_image",
 			title: `${product.name} – Sartorial`,
-			description: `Shop the ${product.name} at Sartorial Nigeria.`,
+			description: `Shop the ${product.name} at Sartorial, with worldwide shipping.`,
 			images: imageUrl ? [imageUrl] : [],
 		},
 	};
@@ -76,6 +77,44 @@ export default async function ProductPage({ params }: PageProps) {
 	]);
 
 	if (!product) notFound();
+
+	const offerPrice = product.onSale ? product.salePrice : product.price;
+	const productImages = (product.images ?? [])
+		.map((image: { asset?: { url?: string } }) => image?.asset?.url)
+		.filter(Boolean);
+
+	const productSchema = {
+		"@context": "https://schema.org",
+		"@type": "Product",
+		name: product.name,
+		image: productImages,
+		sku: product._id,
+		brand: {
+			"@type": "Brand",
+			name: "Sartorial",
+		},
+		offers: {
+			"@type": "Offer",
+			url: `${BASE_URL}/product/${slug}`,
+			priceCurrency: "NGN",
+			price: offerPrice,
+			availability:
+				product.stock > 0
+					? "https://schema.org/InStock"
+					: "https://schema.org/OutOfStock",
+			seller: {
+				"@type": "Organization",
+				name: "Sartorial",
+			},
+			shippingDetails: {
+				"@type": "OfferShippingDetails",
+				shippingDestination: {
+					"@type": "DefinedRegion",
+					name: "Worldwide",
+				},
+			},
+		},
+	};
 
 	const breadcrumbSchema = {
 		"@context": "https://schema.org",
@@ -104,6 +143,12 @@ export default async function ProductPage({ params }: PageProps) {
 
 	return (
 		<>
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(productSchema),
+				}}
+			/>
 			<script
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{
