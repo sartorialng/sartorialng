@@ -143,6 +143,17 @@ const faqList: FAQProps[] = [
 		),
 	},
 	{
+		id: 12,
+		question: "Do you ship internationally?",
+		answer: (
+			<>
+				Yes. Sartorial ships worldwide. We deliver across Africa and
+				internationally via <strong>DHL</strong>, with shipping costs
+				calculated at checkout based on your destination.
+			</>
+		),
+	},
+	{
 		id: 2,
 		question: "How long does delivery take?",
 		answer: (
