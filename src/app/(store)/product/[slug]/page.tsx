@@ -7,6 +7,22 @@ import ProductDetailsClient from "../ProductDetailsClient";
 
 const BASE_URL = "https://www.sartorial.ng";
 
+const SHIPPING_COUNTRY_CODES = {
+	domestic: ["NG"],
+	africa: ["GH", "KE", "ZA", "UG", "TZ", "RW", "SN", "CI", "CM", "EG", "MA", "TN", "DZ"],
+	international: [
+		"US", "CA", "GB", "IE", "FR", "DE", "NL", "BE", "IT", "ES", "PT", "SE",
+		"NO", "CH", "AT", "DK", "FI", "AE", "SA", "QA", "KW", "IN", "PK", "BD",
+		"LK", "CN", "JP", "KR", "AU", "NZ", "BR", "AR", "MX", "CO", "IL", "TR",
+	],
+};
+
+const ALL_SHIPPING_COUNTRY_CODES = [
+	...SHIPPING_COUNTRY_CODES.domestic,
+	...SHIPPING_COUNTRY_CODES.africa,
+	...SHIPPING_COUNTRY_CODES.international,
+];
+
 // export const revalidate = 3600;
 
 // export async function generateStaticParams() {
@@ -79,14 +95,69 @@ export default async function ProductPage({ params }: PageProps) {
 	if (!product) notFound();
 
 	const offerPrice = product.onSale ? product.salePrice : product.price;
+	const category = product.categories?.[0]?.name ?? "Bags";
 	const productImages = (product.images ?? [])
 		.map((image: { asset?: { url?: string } }) => image?.asset?.url)
 		.filter(Boolean);
+
+	const productDescription =
+		product.detailedDescription?.trim() ||
+		`Shop the ${product.name} at Sartorial. Premium ${category.toLowerCase()} for women, with worldwide shipping.`;
+
+	const shippingDetails = [
+		{
+			"@type": "OfferShippingDetails",
+			shippingRate: {
+				"@type": "MonetaryAmount",
+				currency: "NGN",
+				minValue: 4500,
+				maxValue: 9250,
+			},
+			shippingDestination: {
+				"@type": "DefinedRegion",
+				addressCountry: SHIPPING_COUNTRY_CODES.domestic,
+			},
+		},
+		{
+			"@type": "OfferShippingDetails",
+			shippingRate: {
+				"@type": "MonetaryAmount",
+				currency: "NGN",
+				value: 125000,
+			},
+			shippingDestination: {
+				"@type": "DefinedRegion",
+				addressCountry: SHIPPING_COUNTRY_CODES.africa,
+			},
+		},
+		{
+			"@type": "OfferShippingDetails",
+			shippingRate: {
+				"@type": "MonetaryAmount",
+				currency: "NGN",
+				value: 115000,
+			},
+			shippingDestination: {
+				"@type": "DefinedRegion",
+				addressCountry: SHIPPING_COUNTRY_CODES.international,
+			},
+		},
+	];
+
+	const returnPolicy = {
+		"@type": "MerchantReturnPolicy",
+		applicableCountry: ALL_SHIPPING_COUNTRY_CODES,
+		returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+		merchantReturnDays: 2,
+		returnMethod: "https://schema.org/ReturnByMail",
+		returnFees: "https://schema.org/ReturnFeesCustomerResponsibility",
+	};
 
 	const productSchema = {
 		"@context": "https://schema.org",
 		"@type": "Product",
 		name: product.name,
+		description: productDescription,
 		image: productImages,
 		sku: product._id,
 		brand: {
@@ -106,13 +177,8 @@ export default async function ProductPage({ params }: PageProps) {
 				"@type": "Organization",
 				name: "Sartorial",
 			},
-			shippingDetails: {
-				"@type": "OfferShippingDetails",
-				shippingDestination: {
-					"@type": "DefinedRegion",
-					name: "Worldwide",
-				},
-			},
+			shippingDetails,
+			hasMerchantReturnPolicy: returnPolicy,
 		},
 	};
 
