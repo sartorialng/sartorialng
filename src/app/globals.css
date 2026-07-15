@@ -138,3 +138,12 @@
 	background: rgba(255, 255, 255, 0.2);
 	border-radius: 10px;
 }
+
+.no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
+}

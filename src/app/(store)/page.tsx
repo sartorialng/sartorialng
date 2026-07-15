@@ -70,7 +70,7 @@ export default async function Home() {
 		},
 		areaServed: "Worldwide",
 		sameAs: [
-			"https://www.instagram.com/thesartorialstore",
+			"https://www.instagram.com/sartorialhq",
 			"https://www.tiktok.com/@thesartorialstore",
 		],
 	};

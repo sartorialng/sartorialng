@@ -8,6 +8,7 @@ import { Suspense } from "react";
 import FacebookPixel from "@/components/pixel/FacebookPixel";
 import SnapPixel from "@/components/pixel/SnapPixel";
 import TikTokPixel from "@/components/pixel/TikTokPixel";
+import InstagramNoticeModal from "@/components/modals/InstagramNoticeModal";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -65,6 +66,7 @@ export default function RootLayout({
 			<html lang="en" className="scroll-smooth">
 				<body className={`${inter.variable} antialiased`}>
 					<PayPalProvider>{children}</PayPalProvider>
+					<InstagramNoticeModal />
 					<Toaster position="top-right" richColors />
 					<Suspense fallback={null}>
 						<FacebookPixel />

@@ -1,5 +1,4 @@
 import {
-	FacebookIcon,
 	IgIcon,
 	LocationIcon,
 	MailIcon,
@@ -73,17 +72,7 @@ const Footer = () => {
 
 					<div className="mt-3 text-white flex flex-col gap-4">
 						<Link
-							href={
-								"https://www.facebook.com/share/1H5cbvv1zc/?mibextid=wwXIfr"
-							}
-							target="_blank"
-							className="hover:opacity-80 transition-opacity flex items-center gap-3"
-						>
-							<FacebookIcon />
-							<p>Facebook</p>
-						</Link>
-						<Link
-							href={"https://www.instagram.com/sartorialstore"}
+							href={"https://www.instagram.com/sartorialhq"}
 							target="_blank"
 							className="hover:opacity-80 transition-opacity flex items-center gap-3"
 						>

@@ -1,7 +1,6 @@
 "use client";
 import {
 	BrandLogo,
-	FacebookIcon,
 	IgIcon,
 	SearchIcon,
 	SnapIcon,
@@ -64,7 +63,7 @@ const Header = () => {
 
 						<div className="absolute right-0 flex items-center gap-3">
 							<Link
-								href="https://www.instagram.com/sartorialstore"
+								href="https://www.instagram.com/sartorialhq"
 								target="_blank"
 								className="hover:opacity-80 transition-opacity"
 							>
@@ -76,13 +75,6 @@ const Header = () => {
 								className="hover:opacity-80 transition-opacity"
 							>
 								<SnapIcon />
-							</Link>
-							<Link
-								href="https://www.facebook.com/share/1H5cbvv1zc/?mibextid=wwXIfr"
-								target="_blank"
-								className="hover:opacity-80 transition-opacity"
-							>
-								<FacebookIcon />
 							</Link>
 							<Link
 								href="https://www.tiktok.com/@thesartorialstore"
