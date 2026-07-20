@@ -122,6 +122,7 @@ export type Order = {
   products?: Array<{
     product?: ProductReference;
     quantity?: number;
+    isFreeGift?: boolean;
     selectedColor?: {
       colorId?: string;
       colorTitle?: string;
@@ -222,6 +223,7 @@ export type Product = {
   detailedDescription?: string;
   onSale?: boolean;
   onCombo?: boolean;
+  freeGift?: ProductReference;
   discountValue?: number;
   price?: number;
   salePrice?: number;

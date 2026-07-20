@@ -414,8 +414,9 @@ export async function POST(req: Request) {
 					_ref: item._id,
 				},
 				productName: item.name,
-				productPrice: item.price,
+				productPrice: item.isFreeGift ? 0 : item.price,
 				quantity: item.quantity,
+				isFreeGift: item.isFreeGift === true,
 			};
 
 			if (item.image?.asset?._ref) {
@@ -600,13 +601,14 @@ export async function POST(req: Request) {
 				<tr>
 					<td style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; color: #333;">
 						${item.name}
+						${item.isFreeGift ? `<span style="display: block; font-size: 12px; color: #2d5a43; font-weight: 600; margin-top: 2px;">🎁 Free gift</span>` : ""}
 						${item.selectedColor?.colorTitle ? `<span style="display: block; font-size: 12px; color: #888; margin-top: 2px;">Colour: ${item.selectedColor.colorTitle}</span>` : ""}
 					</td>
 					<td style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; color: #555; text-align: center;">
 						${item.quantity}
 					</td>
 					<td style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; color: #333; text-align: right;">
-						${formatPrice(item.price * item.quantity)}
+						${item.isFreeGift ? "FREE" : formatPrice(item.price * item.quantity)}
 					</td>
 				</tr>
 			`,

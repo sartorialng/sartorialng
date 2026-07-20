@@ -2,10 +2,11 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useBasketStore } from "@/store/store";
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { SartorialBag } from "@/assets";
 import { urlFor } from "@/lib/imageUrl";
 import { convertNGNtoUSD } from "@/lib/currency";
+import { getFreeGiftLines } from "@/lib/freeGift";
 
 interface OrderSummaryProps {
 	shipping: number;
@@ -38,6 +39,11 @@ const OrderSummary = ({
 
 	const groupedItems = useBasketStore((s) => s.getGroupedItems());
 	const subtotal = useBasketStore((s) => s.getTotalPrice());
+
+	const giftLines = useMemo(
+		() => getFreeGiftLines(groupedItems),
+		[groupedItems],
+	);
 
 	if (!mounted)
 		return (
@@ -96,6 +102,41 @@ const OrderSummary = ({
 										maximumFractionDigits: 2,
 									})}`}
 								</p>
+							</div>
+						</div>
+					);
+				})}
+
+				{giftLines.map((line) => {
+					const imageUrl = line.product?.images?.[0]?.asset
+						? urlFor(line.product.images[0])
+						: SartorialBag;
+
+					return (
+						<div
+							key={`gift-${line.product._id}`}
+							className="flex items-center justify-between"
+						>
+							<div className="flex items-center gap-3">
+								<Image
+									src={imageUrl}
+									alt={line.product.name ?? "free gift"}
+									width={40}
+									height={40}
+									className="rounded-md object-cover"
+								/>
+								<div className="flex flex-col">
+									<p className="text-sm md:text-base font-medium">
+										{line.product.name}
+									</p>
+									<p className="text-xs text-green-700 font-semibold">
+										Free gift × {line.quantity}
+									</p>
+								</div>
+							</div>
+
+							<div className="text-right text-sm font-semibold text-green-700">
+								FREE
 							</div>
 						</div>
 					);

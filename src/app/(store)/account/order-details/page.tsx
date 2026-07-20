@@ -28,6 +28,12 @@ import {
 	Loader2,
 } from "lucide-react";
 import { getOrderById } from "@/sanity/lib/product/getOrderById";
+import {
+	getOrderLineName,
+	getOrderLineTotal,
+	getOrderLineUnitPrice,
+	isFreeGiftLine,
+} from "@/lib/orderLine";
 import { Order } from "../manage-orders/_components/types";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -300,11 +306,11 @@ const OrderDetailContent = () => {
 			?.map(
 				(p) => `
           <tr>
-            <td>${p.product?.name || "—"}</td>
+            <td>${getOrderLineName(p)}${isFreeGiftLine(p) ? " (Free gift)" : ""}</td>
             <td>${p.selectedColor?.colorTitle || "—"}</td>
             <td class="text-right">${p.quantity}</td>
-            <td class="text-right">${formatCurrency(p.product?.price, order.currency)}</td>
-            <td class="text-right">${formatCurrency((p.product?.price || 0) * p.quantity, order.currency)}</td>
+            <td class="text-right">${isFreeGiftLine(p) ? "FREE" : formatCurrency(getOrderLineUnitPrice(p), order.currency)}</td>
+            <td class="text-right">${isFreeGiftLine(p) ? "FREE" : formatCurrency(getOrderLineTotal(p), order.currency)}</td>
           </tr>
         `,
 			)
@@ -590,8 +596,13 @@ const OrderDetailContent = () => {
 										)}
 										<div className="flex-1 min-w-0">
 											<p className="font-medium text-sm text-gray-900 truncate">
-												{item.product?.name}
+												{getOrderLineName(item)}
 											</p>
+											{isFreeGiftLine(item) && (
+												<p className="text-xs font-semibold text-sartorial-green">
+													🎁 Free gift
+												</p>
+											)}
 											{item.selectedColor?.colorTitle && (
 												<p className="text-xs text-gray-500">
 													Color:{" "}
@@ -603,18 +614,23 @@ const OrderDetailContent = () => {
 											)}
 											<p className="text-xs text-gray-500">
 												Qty: {item.quantity} ×{" "}
-												{formatCurrency(
-													item.product?.price,
-													order.currency,
-												)}
+												{isFreeGiftLine(item)
+													? "FREE"
+													: formatCurrency(
+															getOrderLineUnitPrice(
+																item,
+															),
+															order.currency,
+														)}
 											</p>
 										</div>
 										<p className="font-semibold text-sm text-gray-900 shrink-0">
-											{formatCurrency(
-												(item.product?.price || 0) *
-													item.quantity,
-												order.currency,
-											)}
+											{isFreeGiftLine(item)
+												? "FREE"
+												: formatCurrency(
+														getOrderLineTotal(item),
+														order.currency,
+													)}
 										</p>
 									</div>
 								);

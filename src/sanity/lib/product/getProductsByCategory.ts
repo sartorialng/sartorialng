@@ -36,6 +36,13 @@ export const getFilteredProducts = async ({
       stock,
 	  onSale,
 	  onCombo,
+      freeGift->{
+        _id,
+        name,
+        "slug": slug.current,
+        price,
+        images[]{ asset->{url}, alt }
+      },
       discountValue,
 	  onPreSale,
       preSaleAvailability,

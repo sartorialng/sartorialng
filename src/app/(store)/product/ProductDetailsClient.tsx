@@ -20,6 +20,7 @@ import { convertNGNtoUSD } from "@/lib/currency";
 import Link from "next/link";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
 import { snapViewContent, snapAddToCart } from "@/lib/snap-events";
+import { getFreeGift } from "@/lib/freeGift";
 
 export type Color = {
 	_id: string;
@@ -78,6 +79,7 @@ export default function ProductDetailsClient({
 	const isFavorite = isInWishlist(product?._id);
 	const isOutOfStock = product?.stock === 0;
 	const isComingSoon = product?.isComingSoon;
+	const freeGift = getFreeGift(product);
 	const priceInDollars = convertNGNtoUSD(product.price);
 	const salePriceInDollars = convertNGNtoUSD(product.salePrice);
 
@@ -319,6 +321,21 @@ export default function ProductDetailsClient({
 								🌍 We ship worldwide — delivery to your country
 								calculated at checkout.
 							</p>
+
+							{freeGift?.name && (
+								<div className="flex items-start gap-3 rounded-lg border border-sartorial-green/30 bg-sartorial-green/5 p-3">
+									<span className="text-lg leading-none">🎁</span>
+									<p className="text-sm text-sartorial-green">
+										<span className="font-semibold">
+											Free gift included:
+										</span>{" "}
+										every {product.name} comes with a
+										complimentary {freeGift.name}.
+										It&apos;s added to your cart
+										automatically.
+									</p>
+								</div>
+							)}
 
 							{/* Description */}
 							<div className="text-gray-700 text-sm leading-relaxed">

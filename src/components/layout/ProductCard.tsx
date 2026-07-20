@@ -14,6 +14,7 @@ import { convertNGNtoUSD } from "@/lib/currency";
 import PreOrderNoticeModal from "../modals/PreOrderNoticeModal";
 import PreSaleNoticeModal from "../modals/PreSaleNoticeModal";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
+import { getFreeGift } from "@/lib/freeGift";
 
 interface ProductCardProps {
 	product: Product;
@@ -42,6 +43,7 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 	const imageAlt = product?.name ?? "product-name";
 	const isOutOfStock = product?.stock === 0;
 	const isComingSoon = product?.isComingSoon;
+	const freeGift = getFreeGift(product);
 	const onPreOrder = product?.onPreOrder;
 
 	const preOrderAvailability = product?.preOrderAvailability;
@@ -123,6 +125,11 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 									<span className="text-[10px] font-semibold whitespace-nowrap">
 										Free Shipping
 									</span>
+									{freeGift?.name && (
+										<span className="text-[10px] font-semibold whitespace-nowrap">
+											🎁 Free {freeGift.name}
+										</span>
+									)}
 								</div>
 								<div className="shrink-0 ">
 									<Image

@@ -16,6 +16,8 @@ import { useRouter } from "next/navigation";
 import { urlFor } from "@/lib/imageUrl";
 import { convertNGNtoUSD } from "@/lib/currency";
 import Link from "next/link";
+import { useMemo } from "react";
+import { getFreeGiftLines } from "@/lib/freeGift";
 
 const Cart = () => {
 	const router = useRouter();
@@ -24,10 +26,14 @@ const Cart = () => {
 	const removeItem = useBasketStore((s) => s.removeItem);
 	const subtotal = useBasketStore((s) => s.getTotalPrice());
 
-	const totalItems = groupedItems.reduce(
-		(total, item) => total + item.quantity,
-		0,
+	const giftLines = useMemo(
+		() => getFreeGiftLines(groupedItems),
+		[groupedItems],
 	);
+
+	const totalItems =
+		groupedItems.reduce((total, item) => total + item.quantity, 0) +
+		giftLines.reduce((total, line) => total + line.quantity, 0);
 
 	return (
 		<Dialog>
@@ -146,6 +152,41 @@ const Cart = () => {
 									})}`}
 								</p>
 							</div>
+						</div>
+					))}
+
+					{giftLines.map((line) => (
+						<div
+							key={`gift-${line.product._id}`}
+							className="flex items-center justify-between gap-6 py-6 border-b border-white/20"
+						>
+							<div className="flex items-center gap-4">
+								<Image
+									src={
+										line.product?.images?.[0]?.asset
+											? urlFor(line.product.images[0])
+											: SartorialBag
+									}
+									alt={line.product.name ?? "free gift"}
+									width={50}
+									height={50}
+									className="rounded-lg object-cover"
+								/>
+
+								<div>
+									<p className="text-sm md:text-base font-medium">
+										{line.product.name}
+									</p>
+									<span className="mt-1 inline-block rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
+										Free gift
+									</span>
+									<p className="text-xs text-white/70 mt-2">
+										Qty: {line.quantity}
+									</p>
+								</div>
+							</div>
+
+							<p className="font-semibold">Free</p>
 						</div>
 					))}
 				</div>

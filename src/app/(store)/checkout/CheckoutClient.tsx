@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import ProcessingOverlay from "@/components/layout/ProcessingOverlay";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
 import { snapInitiateCheckout, snapPurchase } from "@/lib/snap-events";
+import { getFreeGiftLines } from "@/lib/freeGift";
 // import SalesTCModal from "@/components/modals/SalesTCModal";
 
 const CheckoutClient = () => {
@@ -166,26 +167,42 @@ const CheckoutClient = () => {
 					clerkUserName:
 						user?.fullName ||
 						`${formik.values.firstName} ${formik.values.lastName}`,
-					items: useBasketStore.getState().items.map((item) => ({
-						_id: item.product._id,
-						quantity: item.quantity,
-						name: item.product.name,
-						price: item.product.price,
-						image:
-							(item.selectedColor &&
-								item.product.images?.find(
-									(img: any) =>
-										img.color?._ref ===
-										item.selectedColor?._id,
-								)) ||
-							item.product.images?.[0],
-						selectedColor: item.selectedColor
-							? {
-									colorId: item.selectedColor._id,
-									colorTitle: item.selectedColor.title,
-								}
-							: undefined,
-					})),
+					items: [
+						...useBasketStore.getState().items.map((item) => ({
+							_id: item.product._id,
+							quantity: item.quantity,
+							name: item.product.name,
+							price: item.product.onSale
+								? (item.product.salePrice ?? 0)
+								: (item.product.price ?? 0),
+							image:
+								(item.selectedColor &&
+									item.product.images?.find(
+										(img: any) =>
+											img.color?._ref ===
+											item.selectedColor?._id,
+									)) ||
+								item.product.images?.[0],
+							selectedColor: item.selectedColor
+								? {
+										colorId: item.selectedColor._id,
+										colorTitle: item.selectedColor.title,
+									}
+								: undefined,
+							isFreeGift: false,
+						})),
+						...getFreeGiftLines(
+							useBasketStore.getState().items,
+						).map((line) => ({
+							_id: line.product._id,
+							quantity: line.quantity,
+							name: line.product.name,
+							price: 0,
+							image: line.product.images?.[0],
+							selectedColor: undefined,
+							isFreeGift: true,
+						})),
+					],
 					paymentReference,
 					paymentMethod,
 					total,
@@ -230,18 +247,31 @@ const CheckoutClient = () => {
 			total,
 			paymentMethod: "paystack",
 		},
-		items: useBasketStore.getState().items.map((item) => ({
-			_id: item.product._id,
-			quantity: item.quantity,
-			name: item.product.name,
-			price: item.product.price,
-			selectedColor: item.selectedColor
-				? {
-						colorId: item.selectedColor._id,
-						colorTitle: item.selectedColor.title,
-					}
-				: undefined,
-		})),
+		items: [
+			...useBasketStore.getState().items.map((item) => ({
+				_id: item.product._id,
+				quantity: item.quantity,
+				name: item.product.name,
+				price: item.product.onSale
+					? (item.product.salePrice ?? 0)
+					: (item.product.price ?? 0),
+				selectedColor: item.selectedColor
+					? {
+							colorId: item.selectedColor._id,
+							colorTitle: item.selectedColor.title,
+						}
+					: undefined,
+				isFreeGift: false,
+			})),
+			...getFreeGiftLines(useBasketStore.getState().items).map((line) => ({
+				_id: line.product._id,
+				quantity: line.quantity,
+				name: line.product.name,
+				price: 0,
+				selectedColor: undefined,
+				isFreeGift: true,
+			})),
+		],
 		onSuccess: async (ref) => {
 			setIsProcessing(true);
 			try {

@@ -13,9 +13,10 @@ import { Instagram, XCircle } from "lucide-react";
 import Link from "next/link";
 
 const STORAGE_KEY = "sartorial_ig_notice_followed";
+const LAST_SHOWN_KEY = "sartorial_ig_notice_last_shown";
 const NEW_IG_HANDLE = "@sartorialhq";
 const NEW_IG_URL = "https://www.instagram.com/sartorialhq";
-const REOPEN_INTERVAL = 60 * 1000;
+const REOPEN_INTERVAL = 5 * 60 * 1000;
 
 const InstagramNoticeModal = () => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -25,18 +26,36 @@ const InstagramNoticeModal = () => {
 		return window.localStorage.getItem(STORAGE_KEY) === "true";
 	}, []);
 
+	const getLastShown = useCallback(() => {
+		if (typeof window === "undefined") return 0;
+		const stored = Number(window.localStorage.getItem(LAST_SHOWN_KEY));
+		return Number.isFinite(stored) ? stored : 0;
+	}, []);
+
+	const markShown = useCallback(() => {
+		if (typeof window === "undefined") return;
+		window.localStorage.setItem(LAST_SHOWN_KEY, String(Date.now()));
+	}, []);
+
 	useEffect(() => {
-		if (hasFollowed()) return;
+		if (isOpen || hasFollowed()) return;
 
-		setIsOpen(true);
+		const elapsed = Date.now() - getLastShown();
+		const delay = Math.max(0, REOPEN_INTERVAL - elapsed);
 
-		const interval = setInterval(() => {
+		const timer = setTimeout(() => {
 			if (hasFollowed()) return;
+			markShown();
 			setIsOpen(true);
-		}, REOPEN_INTERVAL);
+		}, delay);
 
-		return () => clearInterval(interval);
-	}, [hasFollowed]);
+		return () => clearTimeout(timer);
+	}, [isOpen, hasFollowed, getLastShown, markShown]);
+
+	const handleOpenChange = (open: boolean) => {
+		if (!open) markShown();
+		setIsOpen(open);
+	};
 
 	const handleFollowClick = () => {
 		if (typeof window !== "undefined") {
@@ -46,7 +65,7 @@ const InstagramNoticeModal = () => {
 	};
 
 	return (
-		<Dialog open={isOpen} onOpenChange={setIsOpen}>
+		<Dialog open={isOpen} onOpenChange={handleOpenChange}>
 			<DialogContent
 				className="no-scrollbar w-[95%] sm:max-w-105 max-h-[90vh] overflow-y-auto rounded-3xl p-6 sm:p-8"
 				showCloseButton={false}

@@ -20,6 +20,9 @@ export const getAllOrders = async () => {
       products[]{
         quantity,
         selectedColor,
+        productName,
+        productPrice,
+        isFreeGift,
         product->{
           name,
           price,

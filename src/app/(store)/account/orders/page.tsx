@@ -8,6 +8,11 @@ import { SartorialBag } from "@/assets";
 import { urlFor } from "@/lib/imageUrl";
 import { useUser } from "@clerk/nextjs";
 import { getMyOrders } from "@/sanity/lib/product/getMyOrders";
+import {
+	getOrderLineName,
+	getOrderLineTotal,
+	isFreeGiftLine,
+} from "@/lib/orderLine";
 import { Loader2, CheckCircle2, Circle, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -222,8 +227,13 @@ const OrderCard = ({ order }: { order: Order }) => (
 						</div>
 						<div className="flex-1 min-w-0">
 							<p className="font-medium text-sm text-gray-900 truncate">
-								{item.product?.name}
+								{getOrderLineName(item)}
 							</p>
+							{isFreeGiftLine(item) && (
+								<p className="text-xs font-semibold text-sartorial-green mt-0.5">
+									🎁 Free gift
+								</p>
+							)}
 							{item.selectedColor?.colorTitle && (
 								<p className="text-xs text-gray-500 mt-0.5">
 									Colour: {item.selectedColor.colorTitle}
@@ -234,10 +244,12 @@ const OrderCard = ({ order }: { order: Order }) => (
 							</p>
 						</div>
 						<p className="font-semibold text-sm text-gray-800 shrink-0">
-							{formatCurrency(
-								(item.product?.price || 0) * item.quantity,
-								order.currency,
-							)}
+							{isFreeGiftLine(item)
+								? "FREE"
+								: formatCurrency(
+										getOrderLineTotal(item),
+										order.currency,
+									)}
 						</p>
 					</div>
 				);

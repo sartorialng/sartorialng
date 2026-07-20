@@ -80,6 +80,14 @@ const productType = defineType({
 			description: "Toggle this to activate the combo",
 		}),
 		defineField({
+			name: "freeGift",
+			title: "Free Gift",
+			type: "reference",
+			to: [{ type: "product" }],
+			description:
+				"Optional. Pick a product to give away free with every unit of this item. It is added to the cart at ₦0 and cannot be removed on its own.",
+		}),
+		defineField({
 			name: "discountValue",
 			title: "Discount Value",
 			type: "number",

@@ -20,6 +20,9 @@ export const getOrderById = async (id: string) => {
         products[]{
           quantity,
           selectedColor,
+          productName,
+          productPrice,
+          isFreeGift,
           product->{
             name,
             price,

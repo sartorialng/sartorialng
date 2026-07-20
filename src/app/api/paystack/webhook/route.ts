@@ -58,6 +58,7 @@ export async function POST(req: Request) {
 						_ref: item._id,
 					},
 					quantity: item.quantity,
+					isFreeGift: item.isFreeGift === true,
 				};
 
 				// Add selected color if present

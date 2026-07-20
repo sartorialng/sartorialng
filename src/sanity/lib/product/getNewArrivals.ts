@@ -9,6 +9,13 @@ export const getNewArrivals = async () => {
       "slug": slug.current,
       onSale,
       onCombo,
+      freeGift->{
+        _id,
+        name,
+        "slug": slug.current,
+        price,
+        images[]{ asset->{url}, alt }
+      },
       discountValue,
       price,
       salePrice,

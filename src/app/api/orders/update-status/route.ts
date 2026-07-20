@@ -41,6 +41,7 @@ export async function PATCH(req: Request) {
 					quantity,
 					productName,
 					productPrice,
+					isFreeGift,
 					selectedColor{ colorTitle }
 				}
 			}`,
@@ -121,13 +122,14 @@ async function sendStatusEmail({
 		<tr>
 			<td style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; color: #333;">
 				${item.productName || "Product"}
+				${item.isFreeGift ? `<span style="display: block; font-size: 12px; color: #2d5a43; font-weight: 600; margin-top: 2px;">🎁 Free gift</span>` : ""}
 				${item.selectedColor?.colorTitle ? `<span style="display: block; font-size: 12px; color: #888; margin-top: 2px;">Colour: ${item.selectedColor.colorTitle}</span>` : ""}
 			</td>
 			<td style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; color: #555; text-align: center;">
 				${item.quantity}
 			</td>
 			<td style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; color: #333; text-align: right;">
-				${item.productPrice ? formatPrice(item.productPrice * item.quantity) : "—"}
+				${item.isFreeGift ? "FREE" : item.productPrice ? formatPrice(item.productPrice * item.quantity) : "—"}
 			</td>
 		</tr>
 	`,

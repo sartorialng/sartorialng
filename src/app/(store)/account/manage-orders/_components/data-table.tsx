@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 
 import { Order, formatDate } from "./types";
+import { getOrderLineName, isFreeGiftLine } from "@/lib/orderLine";
 
 interface DataTableProps {
 	columns: ColumnDef<Order>[];
@@ -160,7 +161,7 @@ export function DataTable({ columns, data }: DataTableProps) {
 					o.products
 						?.map(
 							(p) =>
-								`${p.product?.name} x${p.quantity}${p.selectedColor?.colorTitle ? ` (${p.selectedColor.colorTitle})` : ""}`,
+								`${getOrderLineName(p)} x${p.quantity}${p.selectedColor?.colorTitle ? ` (${p.selectedColor.colorTitle})` : ""}${isFreeGiftLine(p) ? " [FREE GIFT]" : ""}`,
 						)
 						.join("; ") ?? "",
 			};

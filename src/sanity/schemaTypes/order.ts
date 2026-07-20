@@ -76,6 +76,14 @@ const orderType = defineType({
 							type: "number",
 						}),
 						defineField({
+							name: "isFreeGift",
+							title: "Free Gift",
+							type: "boolean",
+							initialValue: false,
+							description:
+								"This item was included free with a combo purchase. Pack it, but it was not paid for.",
+						}),
+						defineField({
 							name: "selectedColor",
 							title: "Selected Color",
 							type: "object",
@@ -101,14 +109,17 @@ const orderType = defineType({
 							colorTitle: "selectedColor.colorTitle",
 							productImage: "productImage",
 							productPrice: "productPrice",
+							isFreeGift: "isFreeGift",
 						},
 						prepare(select) {
 							const name = select.productName || select.refName;
 							return {
-								title: `${name} x ${select.quantity}${select.colorTitle ? ` - ${select.colorTitle}` : ""}`,
-								subtitle: select.productPrice
-									? `${select.productPrice * select.quantity}`
-									: "",
+								title: `${name} x ${select.quantity}${select.colorTitle ? ` - ${select.colorTitle}` : ""}${select.isFreeGift ? " 🎁 FREE GIFT" : ""}`,
+								subtitle: select.isFreeGift
+									? "Free gift — include in package"
+									: select.productPrice
+										? `${select.productPrice * select.quantity}`
+										: "",
 								media: select.productImage,
 							};
 						},
