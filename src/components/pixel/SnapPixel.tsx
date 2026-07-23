@@ -20,24 +20,36 @@ export default function SnapPixel() {
 	const searchParams = useSearchParams();
 	const { user, isSignedIn } = useUser();
 	const isMounted = useRef(false);
+	const didInitWithIdentity = useRef(false);
+
+	// Depend on primitives, not Clerk's user object: its reference is not
+	// guaranteed stable across renders, and an unstable dep here would re-run
+	// these effects (and re-init the pixel) on every render.
+	const clerkUserId = user?.id;
+	const clerkEmail = user?.primaryEmailAddress?.emailAddress;
+	const clerkPhone = user?.primaryPhoneNumber?.phoneNumber;
+	const clerkFirstName = user?.firstName;
+	const clerkLastName = user?.lastName;
+	const clerkCreatedAt = user?.createdAt
+		? new Date(user.createdAt).getTime()
+		: undefined;
 
 	// A signed-in shopper is the strongest identity signal we get for free.
 	useEffect(() => {
-		if (!isSignedIn || !user) return;
+		if (!isSignedIn || !clerkUserId) return;
 		setSnapUser({
-			email: user.primaryEmailAddress?.emailAddress,
-			phone: user.primaryPhoneNumber?.phoneNumber,
-			firstName: user.firstName,
-			lastName: user.lastName,
+			email: clerkEmail,
+			phone: clerkPhone,
+			firstName: clerkFirstName,
+			lastName: clerkLastName,
 		});
 
 		// Clerk's modal gives no "just registered" callback, so treat a freshly
 		// created account as a sign-up and guard against re-firing on later visits.
-		if (!user.createdAt) return;
-		const accountAgeMs = Date.now() - new Date(user.createdAt).getTime();
-		if (accountAgeMs > 5 * 60 * 1000) return;
+		if (!clerkCreatedAt) return;
+		if (Date.now() - clerkCreatedAt > 5 * 60 * 1000) return;
 
-		const firedKey = `snap_signup_fired_${user.id}`;
+		const firedKey = `snap_signup_fired_${clerkUserId}`;
 		try {
 			if (window.localStorage.getItem(firedKey)) return;
 			window.localStorage.setItem(firedKey, "1");
@@ -45,12 +57,21 @@ export default function SnapPixel() {
 			return;
 		}
 		snapSignUp({ sign_up_method: "clerk" });
-	}, [isSignedIn, user]);
+	}, [
+		isSignedIn,
+		clerkUserId,
+		clerkEmail,
+		clerkPhone,
+		clerkFirstName,
+		clerkLastName,
+		clerkCreatedAt,
+	]);
 
 	// The inline init below runs before Clerk hydrates and before localStorage is
-	// read, so re-init once identity is known. Snap treats init as idempotent and
-	// applies the newest user parameters to subsequent events.
+	// read, so re-init once identity becomes known. Every track call also carries
+	// the params directly, so this is belt-and-braces — fire it once, not per route.
 	useEffect(() => {
+		if (didInitWithIdentity.current) return;
 		if (typeof window.snaptr !== "function") return;
 		const userParams = getSnapUserParams();
 		if (Object.keys(userParams).length === 0) return;
@@ -61,7 +82,8 @@ export default function SnapPixel() {
 			...(uuid_c1 ? { uuid_c1 } : {}),
 			...userParams,
 		});
-	}, [isSignedIn, user, pathname]);
+		didInitWithIdentity.current = true;
+	}, [isSignedIn, clerkUserId, pathname]);
 
 	useEffect(() => {
 		if (!isMounted.current) {
@@ -97,7 +119,10 @@ export default function SnapPixel() {
                 var userParams = {};
                 try {
                     var stored = window.localStorage.getItem('snap_user_params');
-                    if (stored) userParams = JSON.parse(stored) || {};
+                    var parsed = stored ? JSON.parse(stored) : null;
+                    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                        userParams = parsed;
+                    }
                 } catch (e) {}
 
                 if (uuid_c1) userParams.uuid_c1 = uuid_c1;
