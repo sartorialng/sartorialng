@@ -1,3 +1,5 @@
+import { getSnapUserParams } from "./snap-user";
+
 declare global {
 	interface Window {
 		snaptr: (...args: unknown[]) => void;
@@ -14,6 +16,7 @@ function fireSnap(event: string, params?: Record<string, unknown>) {
 	if (typeof window === "undefined" || typeof window.snaptr !== "function") return;
 	window.snaptr("track", event, {
 		uuid_c1: getSnapUuid(),
+		...getSnapUserParams(),
 		...params,
 	});
 }
@@ -57,6 +60,12 @@ export function snapInitiateCheckout(params: {
 		price: params.price,
 		currency: params.currency ?? "NGN",
 		number_items: params.number_items,
+	});
+}
+
+export function snapSignUp(params?: { sign_up_method?: string }) {
+	fireSnap("SIGN_UP", {
+		sign_up_method: params?.sign_up_method,
 	});
 }
 

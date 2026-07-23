@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import ProcessingOverlay from "@/components/layout/ProcessingOverlay";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
 import { snapInitiateCheckout, snapPurchase } from "@/lib/snap-events";
+import { setSnapUser } from "@/lib/snap-user";
 import { getFreeGiftLines } from "@/lib/freeGift";
 // import SalesTCModal from "@/components/modals/SalesTCModal";
 
@@ -89,6 +90,31 @@ const CheckoutClient = () => {
 		formik.values.emailAddress ||
 		user?.emailAddresses?.[0]?.emailAddress ||
 		"";
+
+	// Feed the billing details into Snap's advanced matching as they are typed, so
+	// START_CHECKOUT (and any later add-to-cart on this browser) carries identity —
+	// not just the PURCHASE at the end.
+	useEffect(() => {
+		setSnapUser({
+			email: userEmail,
+			phone: formik.values.phoneNo,
+			firstName: formik.values.firstName,
+			lastName: formik.values.lastName,
+			city: formik.values.area,
+			state: formik.values.state,
+			postalCode: formik.values.postalCode,
+			country: formik.values.country,
+		});
+	}, [
+		userEmail,
+		formik.values.phoneNo,
+		formik.values.firstName,
+		formik.values.lastName,
+		formik.values.area,
+		formik.values.state,
+		formik.values.postalCode,
+		formik.values.country,
+	]);
 
 	const handleApplyCoupon = async () => {
 		setCouponStatus("loading");

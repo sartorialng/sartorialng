@@ -3,6 +3,9 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import Script from "next/script";
+import { useUser } from "@clerk/nextjs";
+import { getSnapUserParams, setSnapUser } from "@/lib/snap-user";
+import { snapSignUp } from "@/lib/snap-events";
 
 const SNAP_PIXEL_ID = "31bfe258-9f77-46a0-b0d0-c1a3f9fdd715";
 
@@ -15,7 +18,50 @@ declare global {
 export default function SnapPixel() {
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
+	const { user, isSignedIn } = useUser();
 	const isMounted = useRef(false);
+
+	// A signed-in shopper is the strongest identity signal we get for free.
+	useEffect(() => {
+		if (!isSignedIn || !user) return;
+		setSnapUser({
+			email: user.primaryEmailAddress?.emailAddress,
+			phone: user.primaryPhoneNumber?.phoneNumber,
+			firstName: user.firstName,
+			lastName: user.lastName,
+		});
+
+		// Clerk's modal gives no "just registered" callback, so treat a freshly
+		// created account as a sign-up and guard against re-firing on later visits.
+		if (!user.createdAt) return;
+		const accountAgeMs = Date.now() - new Date(user.createdAt).getTime();
+		if (accountAgeMs > 5 * 60 * 1000) return;
+
+		const firedKey = `snap_signup_fired_${user.id}`;
+		try {
+			if (window.localStorage.getItem(firedKey)) return;
+			window.localStorage.setItem(firedKey, "1");
+		} catch {
+			return;
+		}
+		snapSignUp({ sign_up_method: "clerk" });
+	}, [isSignedIn, user]);
+
+	// The inline init below runs before Clerk hydrates and before localStorage is
+	// read, so re-init once identity is known. Snap treats init as idempotent and
+	// applies the newest user parameters to subsequent events.
+	useEffect(() => {
+		if (typeof window.snaptr !== "function") return;
+		const userParams = getSnapUserParams();
+		if (Object.keys(userParams).length === 0) return;
+
+		const scidMatch = document.cookie.match(/_scid=([^;]+)/);
+		const uuid_c1 = scidMatch ? decodeURIComponent(scidMatch[1]) : undefined;
+		window.snaptr("init", SNAP_PIXEL_ID, {
+			...(uuid_c1 ? { uuid_c1 } : {}),
+			...userParams,
+		});
+	}, [isSignedIn, user, pathname]);
 
 	useEffect(() => {
 		if (!isMounted.current) {
@@ -26,7 +72,10 @@ export default function SnapPixel() {
 		if (typeof window.snaptr === "function") {
 			const scidMatch = document.cookie.match(/_scid=([^;]+)/);
 			const uuid_c1 = scidMatch ? decodeURIComponent(scidMatch[1]) : undefined;
-			window.snaptr("track", "PAGE_VIEW", uuid_c1 ? { uuid_c1 } : {});
+			window.snaptr("track", "PAGE_VIEW", {
+				...(uuid_c1 ? { uuid_c1 } : {}),
+				...getSnapUserParams(),
+			});
 		}
 	}, [pathname, searchParams]);
 
@@ -42,8 +91,18 @@ export default function SnapPixel() {
 
                 var scidMatch = document.cookie.match(/_scid=([^;]+)/);
                 var uuid_c1 = scidMatch ? decodeURIComponent(scidMatch[1]) : undefined;
-                snaptr('init', '${SNAP_PIXEL_ID}', uuid_c1 ? { uuid_c1: uuid_c1 } : {});
-                snaptr('track', 'PAGE_VIEW');
+
+                // Returning shopper: replay the identity captured on an earlier visit
+                // so even the first PAGE_VIEW of this session is matchable.
+                var userParams = {};
+                try {
+                    var stored = window.localStorage.getItem('snap_user_params');
+                    if (stored) userParams = JSON.parse(stored) || {};
+                } catch (e) {}
+
+                if (uuid_c1) userParams.uuid_c1 = uuid_c1;
+                snaptr('init', '${SNAP_PIXEL_ID}', userParams);
+                snaptr('track', 'PAGE_VIEW', userParams);
             `}
 		</Script>
 	);
