@@ -1,6 +1,10 @@
-import { adminClient } from "../../../../sanity/lib/sanity.admin";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import { fulfillOrder } from "@/lib/orders/fulfillOrder";
+import {
+	orderInputFromPaystackTransaction,
+	verifyPaystackTransaction,
+} from "@/lib/orders/paystackTransaction";
 
 export async function POST(req: Request) {
 	try {
@@ -23,102 +27,48 @@ export async function POST(req: Request) {
 
 		const event = JSON.parse(body);
 
-		if (event.event === "charge.success") {
-			const { reference, metadata, customer, amount, paid_at } =
-				event.data;
+		if (event.event !== "charge.success") {
+			return NextResponse.json({ message: "Event received" });
+		}
 
-			const existingOrder = await adminClient.fetch(
-				`*[_type == "order" && paystackReference == $ref][0]`,
-				{ ref: reference },
-			);
+		let transaction = event.data;
 
-			if (existingOrder) {
-				return NextResponse.json({
-					message: "Order already processed",
-				});
-			}
-
-			const { formData, items } = metadata;
-
-			if (!formData || !items) {
-				console.error("Missing formData or items in metadata");
-				console.error("Metadata:", metadata);
-				return NextResponse.json(
-					{ error: "Missing required metadata" },
-					{ status: 400 },
+		// The webhook payload can arrive with metadata trimmed. Re-reading the
+		// transaction from Paystack gives us the authoritative copy.
+		if (!transaction?.metadata?.order && !transaction?.metadata?.formData) {
+			try {
+				transaction = await verifyPaystackTransaction(
+					event.data.reference,
 				);
+			} catch (error) {
+				console.error("Webhook re-verification failed:", error);
 			}
+		}
 
-			// Map items to Sanity format with color information
-			const sanityProducts = items.map((item: any, index: number) => {
-				const productData: any = {
-					_key: `${item._id}-${Date.now()}-${index}`,
-					product: {
-						_type: "reference",
-						_ref: item._id,
-					},
-					quantity: item.quantity,
-					isFreeGift: item.isFreeGift === true,
-				};
+		const orderInput = orderInputFromPaystackTransaction(transaction);
 
-				// Add selected color if present
-				if (item.selectedColor) {
-					productData.selectedColor = {
-						colorId: item.selectedColor.colorId,
-						colorTitle: item.selectedColor.colorTitle,
-					};
-				}
-
-				return productData;
-			});
-
-			const shipping = {
-				address: formData.shipToDifferentAddress
-					? formData.shippingAddress
-					: formData.address,
-				city: formData.shipToDifferentAddress
-					? formData.shippingArea
-					: formData.area,
-				state: formData.shipToDifferentAddress
-					? formData.shippingState
-					: formData.state,
-				country: formData.shipToDifferentAddress
-					? formData.shippingCountry
-					: formData.country,
-				postalCode: formData.shipToDifferentAddress
-					? formData.shippingPostalCode
-					: formData.postalCode,
-				phone: formData.shipToDifferentAddress
-					? formData.shippingPhoneNo
-					: formData.phoneNo,
-			};
-
-			const orderData = {
-				_type: "order",
-				orderNumber: `ORD-${Date.now()}`,
-				paystackReference: reference,
-				paystackCustomerId:
-					customer.customer_code || String(customer.id),
-				customerName: formData.clerkUserName,
-				email: customer.email,
-				clerkUserId: formData.clerkUserId || null,
-				products: sanityProducts,
-				totalPrice: amount / 100,
-				currency: "NGN",
-				status: "paid",
-				orderDate: paid_at || new Date().toISOString(),
-				shippingAddress: shipping,
-			};
-
-			const newOrder = await adminClient.create(orderData);
-
+		if (!orderInput) {
+			console.error(
+				"Webhook could not rebuild order for reference:",
+				event.data.reference,
+			);
+			console.error("Metadata:", JSON.stringify(transaction?.metadata));
+			// 200 so Paystack stops retrying something that will never succeed;
+			// the reference is logged above for manual reconciliation.
 			return NextResponse.json({
-				message: "Order created successfully",
-				orderNumber: newOrder.orderNumber,
+				message: "Unable to rebuild order from metadata",
+				reference: event.data.reference,
 			});
 		}
 
-		return NextResponse.json({ message: "Event received" });
+		const result = await fulfillOrder(orderInput);
+
+		return NextResponse.json({
+			message: result.alreadyFulfilled
+				? "Order already processed"
+				: "Order created successfully",
+			orderNumber: result.order.orderNumber,
+		});
 	} catch (error) {
 		console.error("Webhook error:", error);
 		console.error(

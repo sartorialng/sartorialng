@@ -16,10 +16,14 @@ const Confetti = dynamic(() => import("react-confetti"), {
 const SuccessContent = () => {
 	const { isSignedIn } = useUser();
 	const searchParams = useSearchParams();
-	const orderNumber = searchParams.get("orderNumber");
+	const initialOrderNumber = searchParams.get("orderNumber");
 	const reference = searchParams.get("reference");
 	const clearBasket = useBasketStore((state) => state.clearBasket);
 
+	const [orderNumber, setOrderNumber] = useState(initialOrderNumber);
+	const [isConfirming, setIsConfirming] = useState(
+		Boolean(reference) && !initialOrderNumber,
+	);
 	const [showConfetti, setShowConfetti] = useState(true);
 	const [windowDimensions, setWindowDimensions] = useState({
 		width: 0,
@@ -45,6 +49,45 @@ const SuccessContent = () => {
 			clearBasket();
 		}
 	}, [orderNumber, clearBasket]);
+
+	// Last line of defence: the customer paid but arrived without an order
+	// number, so ask the server to confirm the reference with Paystack and
+	// fulfil it. Idempotent, so it's harmless if the webhook already did.
+	useEffect(() => {
+		if (!reference || initialOrderNumber) return;
+
+		let cancelled = false;
+
+		const confirm = async () => {
+			for (let attempt = 0; attempt < 6 && !cancelled; attempt++) {
+				try {
+					const res = await fetch("/api/paystack/verify", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ reference }),
+					});
+					const data = await res.json();
+
+					if (!cancelled && data?.order?.orderNumber) {
+						setOrderNumber(data.order.orderNumber);
+						setIsConfirming(false);
+						return;
+					}
+				} catch {
+					// Retry below.
+				}
+				await new Promise((resolve) => setTimeout(resolve, 4000));
+			}
+
+			if (!cancelled) setIsConfirming(false);
+		};
+
+		confirm();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [reference, initialOrderNumber]);
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
@@ -88,6 +131,19 @@ const SuccessContent = () => {
 						</p>
 
 						<div className="space-y-2 text-sm sm:text-base">
+							{!orderNumber && isConfirming && (
+								<p className="text-gray-600 text-center">
+									Confirming your order…
+								</p>
+							)}
+							{!orderNumber && !isConfirming && (
+								<p className="text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-3 text-center">
+									Your payment went through. We&apos;re still
+									finalising your order — you&apos;ll get a
+									confirmation email shortly. Keep the payment
+									reference below in case you need to contact us.
+								</p>
+							)}
 							{orderNumber && (
 								<p className="text-gray-600 flex justify-between">
 									<span>Order Number:</span>

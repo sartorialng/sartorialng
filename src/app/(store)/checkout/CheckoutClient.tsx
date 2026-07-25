@@ -7,7 +7,11 @@ import { useBasketStore } from "@/store/store";
 import OrderSummary from "@/components/layout/OrderSummary";
 import BillingForm from "@/components/form/BillingForm";
 import { billingSchema } from "@/lib/validation-schemas";
-import { usePaystackCheckout } from "@/lib/paystack";
+import {
+	generatePaystackReference,
+	usePaystackCheckout,
+	type PaystackOrderMetadata,
+} from "@/lib/paystack";
 import type { BillingFormValues } from "@/lib/types/types";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -26,6 +30,11 @@ const CheckoutClient = () => {
 	const { user } = useUser();
 	const subtotal = useBasketStore((s) => s.getTotalPrice());
 	const [isProcessing, setIsProcessing] = useState(false);
+	// One reference per payment attempt. Regenerated when a customer closes the
+	// popup and retries, since Paystack rejects a reference it has already seen.
+	const [paystackReference, setPaystackReference] = useState(
+		generatePaystackReference,
+	);
 	// const [isSalesModalOpen, setIsSalesModalOpen] = useState(false);
 
 	const formik = useFormik<BillingFormValues>({
@@ -169,6 +178,74 @@ const CheckoutClient = () => {
 
 	const total = baseAmount - discount + vat;
 
+	const imageAssetRef = (image: unknown) =>
+		(image as { asset?: { _ref?: string } } | undefined)?.asset?._ref ?? null;
+
+	/** Single source of truth for the line items, shared by the order payload
+	 * and the Paystack metadata so both paths describe the same cart. */
+	const buildOrderLines = () => {
+		const basketItems = useBasketStore.getState().items;
+
+		return [
+			...basketItems.map((item) => {
+				const image =
+					(item.selectedColor &&
+						item.product.images?.find(
+							(img: any) =>
+								img.color?._ref === item.selectedColor?._id,
+						)) ||
+					item.product.images?.[0];
+
+				return {
+					_id: item.product._id,
+					name: item.product.name ?? "",
+					price: item.product.onSale
+						? (item.product.salePrice ?? 0)
+						: (item.product.price ?? 0),
+					quantity: item.quantity,
+					isFreeGift: false,
+					imageRef: imageAssetRef(image),
+					selectedColor: item.selectedColor
+						? {
+								colorId: item.selectedColor._id,
+								colorTitle: item.selectedColor.title ?? "",
+							}
+						: null,
+				};
+			}),
+			...getFreeGiftLines(basketItems).map((line) => ({
+				_id: line.product._id,
+				name: line.product.name ?? "",
+				price: 0,
+				quantity: line.quantity,
+				isFreeGift: true,
+				imageRef: imageAssetRef(line.product.images?.[0]),
+				selectedColor: null,
+			})),
+		];
+	};
+
+	const resolvedShippingAddress = () => {
+		const alt = formik.values.shipToDifferentAddress;
+		return {
+			address: alt
+				? formik.values.shippingAddress
+				: formik.values.address,
+			city: alt ? formik.values.shippingArea : formik.values.area,
+			state: alt ? formik.values.shippingState : formik.values.state,
+			country: alt
+				? formik.values.shippingCountry
+				: formik.values.country,
+			postalCode: alt
+				? formik.values.shippingPostalCode
+				: formik.values.postalCode,
+			phone: alt ? formik.values.shippingPhoneNo : formik.values.phoneNo,
+			secondaryPhone: alt
+				? formik.values.shippingSecondaryPhoneNo
+				: formik.values.secondaryPhoneNo,
+		};
+	};
+
 	const createOrderInDatabase = async (
 		paymentReference: string,
 		paymentMethod: string,
@@ -193,42 +270,7 @@ const CheckoutClient = () => {
 					clerkUserName:
 						user?.fullName ||
 						`${formik.values.firstName} ${formik.values.lastName}`,
-					items: [
-						...useBasketStore.getState().items.map((item) => ({
-							_id: item.product._id,
-							quantity: item.quantity,
-							name: item.product.name,
-							price: item.product.onSale
-								? (item.product.salePrice ?? 0)
-								: (item.product.price ?? 0),
-							image:
-								(item.selectedColor &&
-									item.product.images?.find(
-										(img: any) =>
-											img.color?._ref ===
-											item.selectedColor?._id,
-									)) ||
-								item.product.images?.[0],
-							selectedColor: item.selectedColor
-								? {
-										colorId: item.selectedColor._id,
-										colorTitle: item.selectedColor.title,
-									}
-								: undefined,
-							isFreeGift: false,
-						})),
-						...getFreeGiftLines(
-							useBasketStore.getState().items,
-						).map((line) => ({
-							_id: line.product._id,
-							quantity: line.quantity,
-							name: line.product.name,
-							price: 0,
-							image: line.product.images?.[0],
-							selectedColor: undefined,
-							isFreeGift: true,
-						})),
-					],
+					items: buildOrderLines(),
 					paymentReference,
 					paymentMethod,
 					total,
@@ -252,115 +294,132 @@ const CheckoutClient = () => {
 			console.error("Error creating order:", error);
 			throw error;
 		} finally {
-			setTimeout(() => {
-				isCreatingOrder.current = false;
-			}, 5000);
+			isCreatingOrder.current = false;
 		}
+	};
+
+	/**
+	 * The customer's money is already gone by the time this runs, so it gets
+	 * three chances: the rich payload from this form, then a server-side
+	 * re-verify that rebuilds the order from Paystack's own copy of the
+	 * metadata, then polling in case the webhook got there first. All three are
+	 * idempotent server-side, so overlapping attempts can't double-charge or
+	 * double-email.
+	 */
+	const confirmOrder = async (reference: string, paymentMethod: string) => {
+		try {
+			const data = await createOrderInDatabase(reference, paymentMethod);
+			if (data?.order?.orderNumber) return data;
+		} catch (error) {
+			console.error("Primary order creation failed:", error);
+		}
+
+		try {
+			const res = await fetch("/api/paystack/verify", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ reference }),
+			});
+			const data = await res.json();
+			if (data.status === "success") return data;
+		} catch (error) {
+			console.error("Server-side verification failed:", error);
+		}
+
+		for (let attempt = 0; attempt < 5; attempt++) {
+			await new Promise((resolve) => setTimeout(resolve, 3000));
+			try {
+				const res = await fetch(
+					`/api/orders/check-order?reference=${encodeURIComponent(reference)}`,
+				);
+				const data = await res.json();
+				if (data.status === "success") return data;
+			} catch {
+				// Keep polling — the webhook may still be in flight.
+			}
+		}
+
+		return null;
+	};
+
+	const paystackMetadata: PaystackOrderMetadata = {
+		email: formik.values.emailAddress,
+		customerName:
+			user?.fullName ||
+			`${formik.values.firstName} ${formik.values.lastName}`,
+		firstName: formik.values.firstName,
+		clerkUserId: user?.id || null,
+		subtotal,
+		shipping,
+		vat,
+		total,
+		amountDiscount: discount,
+		couponCode: couponStatus === "success" ? couponCode : null,
+		orderNote: formik.values.orderNote || null,
+		shippingAddress: resolvedShippingAddress(),
+		interstateDeliveryType: formik.values.interstateDeliveryType || null,
+		gigPark: formik.values.shipToDifferentAddress
+			? formik.values.shippingGigPark
+			: formik.values.gigPark,
+		items: buildOrderLines(),
 	};
 
 	const handlePaystackPayment = usePaystackCheckout({
 		email: formik.values.emailAddress,
 		amount: total,
-		formData: {
-			...formik.values,
-			clerkUserId: user?.id || null,
-			clerkUserName:
-				user?.fullName ||
-				`${formik.values.firstName} ${formik.values.lastName}`,
-			shippingCost: shipping,
-			subtotal,
-			shippingAddress: getShippingAddress(),
-			total,
-			paymentMethod: "paystack",
-		},
-		items: [
-			...useBasketStore.getState().items.map((item) => ({
-				_id: item.product._id,
-				quantity: item.quantity,
-				name: item.product.name,
-				price: item.product.onSale
-					? (item.product.salePrice ?? 0)
-					: (item.product.price ?? 0),
-				selectedColor: item.selectedColor
-					? {
-							colorId: item.selectedColor._id,
-							colorTitle: item.selectedColor.title,
-						}
-					: undefined,
-				isFreeGift: false,
-			})),
-			...getFreeGiftLines(useBasketStore.getState().items).map((line) => ({
-				_id: line.product._id,
-				quantity: line.quantity,
-				name: line.product.name,
-				price: 0,
-				selectedColor: undefined,
-				isFreeGift: true,
-			})),
-		],
+		reference: paystackReference,
+		order: paystackMetadata,
 		onSuccess: async (ref) => {
 			setIsProcessing(true);
-			try {
-				if (formik.values.hasRegistered) {
-					await createAccount();
-				}
+			const reference = ref?.reference || paystackReference;
 
-				const result = await createOrderInDatabase(
-					ref.reference,
-					"paystack",
-				);
-				trackTikTokEvent({
-					event_name: "Purchase",
-					value: total,
-					currency: "NGN",
-					url: window.location.href,
-					order_id: result.order?.orderNumber,
-					email: formik.values.emailAddress,
-					contents: useBasketStore.getState().items.map((item) => ({
-						content_id: item.product._id ?? "",
-						content_type: "product" as const,
-						content_name: item.product.name ?? undefined,
-						quantity: item.quantity,
-						price: item.product.price ?? 0,
-					})),
-				});
-				snapPurchase({
-					transaction_id: result.order?.orderNumber ?? ref.reference,
-					item_ids: useBasketStore
-						.getState()
-						.items.map((item) => item.product._id ?? ""),
-					price: total,
-					currency: "NGN",
-					number_items: useBasketStore
-						.getState()
-						.items.reduce((sum, item) => sum + item.quantity, 0),
-				});
-				useBasketStore.getState().clearBasket();
-				router.push(
-					`/success?orderNumber=${result.order?.orderNumber}&reference=${ref.reference}`,
-				);
-			} catch (error: any) {
-				setIsProcessing(false);
-				if (error.message?.includes("Insufficient stock")) {
-					toast.error(error.message, {
-						duration: 6000,
-						description: "Please update your cart and try again.",
-					});
-				} else if (error.message?.includes("not found")) {
-					toast.error(
-						"Some items in your cart are no longer available",
-						{ duration: 5000 },
-					);
-				} else {
-					toast.error(
-						"Payment received but order creation failed. Contact support with reference: " +
-							ref.reference,
-						{ duration: 8000 },
-					);
-				}
+			if (formik.values.hasRegistered) {
+				await createAccount();
 			}
+
+			const basketItems = useBasketStore.getState().items;
+			const result = await confirmOrder(reference, "paystack");
+			const orderNumber = result?.order?.orderNumber;
+
+			trackTikTokEvent({
+				event_name: "Purchase",
+				value: total,
+				currency: "NGN",
+				url: window.location.href,
+				order_id: orderNumber,
+				email: formik.values.emailAddress,
+				contents: basketItems.map((item) => ({
+					content_id: item.product._id ?? "",
+					content_type: "product" as const,
+					content_name: item.product.name ?? undefined,
+					quantity: item.quantity,
+					price: item.product.price ?? 0,
+				})),
+			});
+			snapPurchase({
+				transaction_id: orderNumber ?? reference,
+				item_ids: basketItems.map((item) => item.product._id ?? ""),
+				price: total,
+				currency: "NGN",
+				number_items: basketItems.reduce(
+					(sum, item) => sum + item.quantity,
+					0,
+				),
+			});
+
+			useBasketStore.getState().clearBasket();
+
+			// Payment succeeded either way — never send the customer away with
+			// an error. The success page keeps trying if we have no number yet.
+			router.push(
+				`/success?${new URLSearchParams({
+					...(orderNumber ? { orderNumber } : {}),
+					reference,
+				}).toString()}`,
+			);
 		},
 		onClose: () => {
+			setPaystackReference(generatePaystackReference());
 			toast.info("Payment cancelled");
 		},
 	});
