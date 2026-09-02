@@ -51,7 +51,7 @@ const ReviewSlide = ({ reviews, babes }: ReviewSlideProps) => {
 	}, [api]);
 
 	return (
-		<div className="w-full px-4 md:px-20 py-16 bg-white overflow-hidden">
+		<div className="w-full px-4 md:px-20 py-16 bg-white overflow-hidden md:pb-20">
 			{/* --- SECTION 1: REVIEWS CAROUSEL --- */}
 			<div className="relative mb-20 md:mb-32">
 				<div className="flex flex-col items-center mb-20">
@@ -60,10 +60,7 @@ const ReviewSlide = ({ reviews, babes }: ReviewSlideProps) => {
 					</h2>
 				</div>
 
-				<Carousel
-					opts={{ align: "start", loop: true }}
-					className="w-full"
-				>
+				<Carousel opts={{ align: "start", loop: true }} className="w-full">
 					<div className="absolute -top-16 left-0 right-0 flex justify-between items-end gap-2">
 						<div className="bg-sartorial-green text-white px-4 py-3 rounded-md text-sm font-medium">
 							All from verified purchases
@@ -77,15 +74,10 @@ const ReviewSlide = ({ reviews, babes }: ReviewSlideProps) => {
 					<CarouselContent className="-ml-4">
 						<CarouselItem className="pl-4 basis-[85%] sm:basis-1/2 md:basis-1/4">
 							<div className="bg-sartorial-green text-white p-8 rounded-2xl h-70 flex flex-col justify-center items-center text-center">
-								<div className="text-6xl font-black mb-2">
-									4.8
-								</div>
+								<div className="text-6xl font-black mb-2">4.8</div>
 								<div className="flex mb-4">
 									{[...Array(5)].map((_, i) => (
-										<Star
-											key={i}
-											className="w-5 h-5 fill-white text-white"
-										/>
+										<Star key={i} className="w-5 h-5 fill-white text-white" />
 									))}
 								</div>
 								<p className="text-sm font-light uppercase tracking-widest">
@@ -102,14 +94,12 @@ const ReviewSlide = ({ reviews, babes }: ReviewSlideProps) => {
 								<div className="bg-sartorial-lightGreen p-8 rounded-2xl h-70 flex flex-col justify-between border border-transparent hover:border-sartorial-green transition-colors">
 									<div>
 										<div className="flex mb-4 gap-0.5">
-											{[...Array(review.rating)].map(
-												(_, i) => (
-													<Star
-														key={i}
-														className="w-3.5 h-3.5 fill-sartorial-green text-sartorial-green"
-													/>
-												),
-											)}
+											{[...Array(review.rating)].map((_, i) => (
+												<Star
+													key={i}
+													className="w-3.5 h-3.5 fill-sartorial-green text-sartorial-green"
+												/>
+											))}
 										</div>
 										<p className="text-sm italic leading-relaxed text-sartorial-green line-clamp-4">
 											&quot;{review.comment}&quot;

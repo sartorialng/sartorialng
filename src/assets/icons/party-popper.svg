@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" fill="none" role="img" aria-label="Party popper">
+	<defs>
+		<clipPath id="pp-cone">
+			<path d="M14 118 L46 34 L96 74 Z" />
+		</clipPath>
+	</defs>
+
+	<!-- Cone body with diagonal bands, clipped to the cone silhouette -->
+	<g clip-path="url(#pp-cone)">
+		<path d="M14 118 L46 34 L96 74 Z" fill="#FFC93C" />
+		<polygon points="22,97 26.8,84.4 46.8,100.4 34.5,107" fill="#EF4B7E" />
+		<polygon points="31.6,71.8 36.4,59.2 71.4,87.2 59.1,93.8" fill="#3E7BFA" />
+		<polygon points="41.2,46.6 46,34 96,74 83.7,80.6" fill="#EF4B7E" />
+	</g>
+
+	<!-- Cone mouth -->
+	<ellipse cx="71" cy="54" rx="32" ry="9" transform="rotate(38.66 71 54)" fill="#B02A5B" />
+	<ellipse cx="71" cy="54" rx="26" ry="5.5" transform="rotate(38.66 71 54)" fill="#7E1D3F" />
+
+	<!-- Streamers bursting from the mouth -->
+	<path d="M68 48 C 86 26 98 24 110 10" stroke="#3E7BFA" stroke-width="5" stroke-linecap="round" />
+	<path d="M76 56 C 96 50 108 56 121 44" stroke="#FFC93C" stroke-width="5" stroke-linecap="round" />
+	<path d="M62 42 C 70 20 82 10 88 4" stroke="#EF4B7E" stroke-width="5" stroke-linecap="round" />
+	<path d="M82 66 C 100 70 110 80 116 88" stroke="#2FBF71" stroke-width="5" stroke-linecap="round" />
+
+	<!-- Confetti -->
+	<circle cx="106" cy="30" r="4.5" fill="#EF4B7E" />
+	<circle cx="120" cy="20" r="3.5" fill="#3E7BFA" />
+	<circle cx="92" cy="18" r="3.5" fill="#FFC93C" />
+	<circle cx="118" cy="66" r="4" fill="#9B5DE5" />
+	<circle cx="100" cy="96" r="3.5" fill="#FFC93C" />
+	<rect x="66" y="10" width="8" height="8" rx="1.5" transform="rotate(28 70 14)" fill="#2FBF71" />
+	<rect x="104" y="48" width="8" height="8" rx="1.5" transform="rotate(-22 108 52)" fill="#EF4B7E" />
+	<rect x="80" y="82" width="7" height="7" rx="1.5" transform="rotate(42 83.5 85.5)" fill="#3E7BFA" />
+	<rect x="52" y="24" width="7" height="7" rx="1.5" transform="rotate(-35 55.5 27.5)" fill="#9B5DE5" />
+</svg>

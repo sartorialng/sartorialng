@@ -13,7 +13,7 @@ import Link from "next/link";
 
 const Footer = () => {
 	return (
-		<div className="w-full mt-10 px-10 md:px-20 pt-10 pb-5 bg-sartorial-green">
+		<div className="w-full px-10 md:px-20 pt-10 pb-5 bg-sartorial-green">
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-5 md:gap-20">
 				<div className="">
 					<Image
@@ -48,9 +48,7 @@ const Footer = () => {
 					<div className="mt-3 text-white flex flex-col gap-4">
 						<Link href={"/contact-us"}>Contact Us</Link>
 						<Link href={"/shipping-details"}>Shipping details</Link>
-						<Link href={"/refund-and-returns"}>
-							Refund & Returns
-						</Link>
+						<Link href={"/refund-and-returns"}>Refund & Returns</Link>
 					</div>
 				</div>
 				<div className="mt-4 md:mt-8 text-white">
@@ -59,12 +57,8 @@ const Footer = () => {
 					<div className="mt-3 text-white flex flex-col gap-4">
 						<Link href={"/about-us"}>About Us</Link>
 						<Link href={"/faqs"}>FAQs</Link>
-						<Link href={"/terms-and-condition"}>
-							Terms & Conditions
-						</Link>
-						<Link href={"/privacy-policy"}>
-							Privacy Policy
-						</Link>{" "}
+						<Link href={"/terms-and-condition"}>Terms & Conditions</Link>
+						<Link href={"/privacy-policy"}>Privacy Policy</Link>{" "}
 					</div>
 				</div>
 				<div className="mt-4 md:mt-8 text-white">
@@ -108,9 +102,7 @@ const Footer = () => {
 			</div>
 			<div className="mt-10 text-white flex flex-col gap-4 items-center">
 				<span className="bg-gray-500 h-0.5 w-full"></span>
-				<p className="text-sm">
-					© 2026 Sartorial. All rights reserved.
-				</p>
+				<p className="text-sm">© 2026 Sartorial. All rights reserved.</p>
 			</div>
 		</div>
 	);

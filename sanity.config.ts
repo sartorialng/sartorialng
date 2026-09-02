@@ -12,6 +12,7 @@ import {structureTool} from 'sanity/structure'
 import {apiVersion, dataset, projectId} from './src/sanity/env'
 import {schema} from './src/sanity/schemaTypes'
 import {structure} from './src/sanity/structure'
+import {ApproveCreatorAction, RejectCreatorAction} from './src/sanity/actions/creatorActions'
 
 export default defineConfig({
   basePath: '/studio',
@@ -25,4 +26,10 @@ export default defineConfig({
     // https://www.sanity.io/docs/the-vision-plugin
     visionTool({defaultApiVersion: apiVersion}),
   ],
+  document: {
+    actions: (prev, context) =>
+      context.schemaType === 'creatorApplication'
+        ? [ApproveCreatorAction, RejectCreatorAction, ...prev]
+        : prev,
+  },
 })

@@ -122,6 +122,15 @@ export const joinSartorialSchema = yup.object().shape({
 	phoneNo: yup.string().required("Phone number is required"),
 });
 
+export const joinCreatorSchema = yup.object().shape({
+	emailAddress: yup
+		.string()
+		.email("Invalid email address")
+		.required("Email is required"),
+	instagramHandle: yup.string().trim(),
+	tiktokHandle: yup.string().trim(),
+});
+
 export const contactUsSchema = yup.object().shape({
 	fullName: yup.string().required("Full name is required"),
 	emailAddress: yup

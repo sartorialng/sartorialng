@@ -8,6 +8,7 @@ import reviewType from "./review";
 import sartorialBabesType from "./sartorial-babes";
 import customerType from "./customer";
 import couponType from "./coupon";
+import creatorApplicationType from "./creator-application";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
 	types: [
@@ -20,5 +21,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
 		sartorialBabesType,
 		customerType,
 		couponType,
+		creatorApplicationType,
 	],
 };
