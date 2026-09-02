@@ -23,6 +23,7 @@ import {
 	useClerk,
 } from "@clerk/nextjs";
 import MobileHeaderLinks from "./MobileHeaderLinks";
+import CategoryDropdown from "./CategoryDropdown";
 import Image from "next/image";
 
 const Cart = dynamic(() => import("./Cart"), { ssr: false });
@@ -109,22 +110,26 @@ const Header = () => {
 					</div>
 					<div className="hidden md:flex items-center gap-20">
 						<div className="flex items-center gap-7">
-							{headerLinks.map(({ href, label }) => (
-								<Link
-									key={href}
-									href={href}
-									className={cn(
-										"relative font-semibold text-sartorial-green transition-colors duration-300",
-										"after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full",
-										"after:origin-left after:scale-x-0 after:bg-sartorial-green after:transition-transform after:duration-300",
-										"hover:text-sartorial-green hover:after:scale-x-100",
-										pathname === href &&
-											"after:scale-x-100",
-									)}
-								>
-									{label}
-								</Link>
-							))}
+							{headerLinks.map((link) =>
+								link.kind === "categoryDropdown" ? (
+									<CategoryDropdown key="category" />
+								) : (
+									<Link
+										key={link.href}
+										href={link.href}
+										className={cn(
+											"relative font-semibold text-sartorial-green transition-colors duration-300",
+											"after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full",
+											"after:origin-left after:scale-x-0 after:bg-sartorial-green after:transition-transform after:duration-300",
+											"hover:text-sartorial-green hover:after:scale-x-100",
+											pathname === link.href &&
+												"after:scale-x-100",
+										)}
+									>
+										{link.label}
+									</Link>
+								),
+							)}
 						</div>
 					</div>
 				</div>

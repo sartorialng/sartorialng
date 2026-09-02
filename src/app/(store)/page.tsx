@@ -14,6 +14,7 @@ import { getNewArrivals } from "@/sanity/lib/product/getNewArrivals";
 import { getPreSale } from "@/sanity/lib/product/getPreSales";
 import { getAllReviews } from "@/sanity/lib/product/getReviews";
 import { getSartorialBabes } from "@/sanity/lib/product/getSartorialBabes";
+import { getStorefrontCategories } from "@/sanity/lib/product/getCategories";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -47,13 +48,14 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-	const [bestSellers, newArrivals, reviews, babes, presale] =
+	const [bestSellers, newArrivals, reviews, babes, presale, categories] =
 		await Promise.all([
 			getBestSellers(),
 			getNewArrivals(),
 			getAllReviews(),
 			getSartorialBabes(),
 			getPreSale(),
+			getStorefrontCategories(),
 		]);
 
 	const organizationSchema = {
@@ -111,7 +113,7 @@ export default async function Home() {
 			<BestSellers products={bestSellers} />
 			<NewArrivals products={newArrivals} />
 			<PreSale products={presale} />
-			<ShopByCategory />
+			<ShopByCategory categories={categories} />
 			<ReviewSlide reviews={reviews} babes={babes} />
 			<Footer />
 			<FloatingWhatsApp />

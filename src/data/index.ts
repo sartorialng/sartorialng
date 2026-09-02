@@ -1,10 +1,16 @@
-export const headerLinks = [
-	{ href: "/", label: "Home" },
-	{ href: "/#new-arrivals", label: "New Arrivals" },
-	{ href: "/#best-sellers", label: "Best Sellers" },
-	{ href: "/all-products", label: "All Products" },
-	{ href: "/about-us", label: "About Us" },
-	{ href: "/#pre-sale", label: "Pre-Sale" },
+export type HeaderLink =
+	| { kind: "link"; href: string; label: string }
+	| { kind: "categoryDropdown"; label: string };
+
+// "All Products" now lives inside the Category dropdown rather than as its
+// own top-level link.
+export const headerLinks: HeaderLink[] = [
+	{ kind: "link", href: "/", label: "Home" },
+	{ kind: "link", href: "/#new-arrivals", label: "New Arrivals" },
+	{ kind: "link", href: "/#best-sellers", label: "Best Sellers" },
+	{ kind: "link", href: "/about-us", label: "About Us" },
+	{ kind: "categoryDropdown", label: "Category" },
+	{ kind: "link", href: "/#pre-sale", label: "Pre-Sale" },
 ];
 
 export const sortOptions = [

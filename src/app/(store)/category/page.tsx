@@ -14,6 +14,7 @@ import { convertNGNtoUSD } from "@/lib/currency";
 import { categories, colors, priceRanges } from "@/data";
 import { SortByDropdownMobile } from "@/components/layout/SortByDropdownMobile";
 import { SortByDropdown } from "@/components/layout/SortByDropdown";
+import { getAllCategories } from "@/sanity/lib/product/getCategories";
 
 const CategoryContent = () => {
 	const searchParams = useSearchParams();
@@ -29,6 +30,8 @@ const CategoryContent = () => {
 
 	const [products, setProducts] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [categoryOptions, setCategoryOptions] =
+		useState<string[]>(categories);
 
 	const handleCategoryChange = (category: string) => {
 		setSelectedCategories((prev) =>
@@ -75,6 +78,19 @@ const CategoryContent = () => {
 		};
 
 		fetchProducts();
+	}, []);
+
+	// The filter list comes from Sanity so newly added categories show up as
+	// options; the static list in @/data is the fallback if the fetch fails.
+	useEffect(() => {
+		const fetchCategories = async () => {
+			const allCategories = await getAllCategories();
+			if (allCategories.length > 0) {
+				setCategoryOptions(allCategories.map((c) => c.title));
+			}
+		};
+
+		fetchCategories();
 	}, []);
 
 	useEffect(() => {
@@ -154,7 +170,7 @@ const CategoryContent = () => {
 			<div className="flex flex-col md:flex-row w-full px-6 md:px-10 pt-5 md:pt-10 pb-20 md:py-20 gap-5 md:gap-8 md:items-start">
 				<div className="flex justify-between items-center">
 					<FilterSidebar
-						categories={categories}
+						categories={categoryOptions}
 						priceRanges={priceRanges}
 						colors={colors}
 						selectedCategories={selectedCategories}

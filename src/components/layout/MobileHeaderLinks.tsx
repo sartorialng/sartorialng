@@ -8,7 +8,13 @@ import {
 } from "@/components/ui/sheet";
 import { headerLinks } from "@/data";
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
+import {
+	categoryHref,
+	hasAllProductsCategory,
+	menuLabelFor,
+	useStorefrontCategories,
+} from "@/hooks/useStorefrontCategories";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -60,29 +66,37 @@ const MobileHeaderLinks = () => {
 
 					<nav className="py-6 px-4">
 						<div className="flex flex-col space-y-1">
-							{headerLinks.map(({ href, label }) => (
-								<Link
-									key={href}
-									href={href}
-									onClick={() => setIsOpen(false)}
-									className={cn(
-										"group relative px-4 py-3 rounded-lg font-semibold text-base",
-										"transition-all duration-200",
-										"hover:bg-sartorial-green/5",
-										pathname === href
-											? "bg-sartorial-green/10 text-sartorial-green"
-											: "text-gray-700 hover:text-sartorial-green",
-									)}
-								>
-									<span className="relative z-10">
-										{label}
-									</span>
+							{headerLinks.map((link) =>
+								link.kind === "categoryDropdown" ? (
+									<MobileCategoryLinks
+										key="category"
+										label={link.label}
+										onNavigate={() => setIsOpen(false)}
+									/>
+								) : (
+									<Link
+										key={link.href}
+										href={link.href}
+										onClick={() => setIsOpen(false)}
+										className={cn(
+											"group relative px-4 py-3 rounded-lg font-semibold text-base",
+											"transition-all duration-200",
+											"hover:bg-sartorial-green/5",
+											pathname === link.href
+												? "bg-sartorial-green/10 text-sartorial-green"
+												: "text-gray-700 hover:text-sartorial-green",
+										)}
+									>
+										<span className="relative z-10">
+											{link.label}
+										</span>
 
-									{pathname === href && (
-										<div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-sartorial-green rounded-r-full" />
-									)}
-								</Link>
-							))}
+										{pathname === link.href && (
+											<div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-sartorial-green rounded-r-full" />
+										)}
+									</Link>
+								),
+							)}
 						</div>
 					</nav>
 
@@ -93,6 +107,80 @@ const MobileHeaderLinks = () => {
 					</div>
 				</SheetContent>
 			</Sheet>
+		</div>
+	);
+};
+
+const MobileCategoryLinks = ({
+	label,
+	onNavigate,
+}: {
+	label: string;
+	onNavigate: () => void;
+}) => {
+	const categories = useStorefrontCategories();
+	const [isExpanded, setIsExpanded] = useState(false);
+
+	if (categories.length === 0) return null;
+
+	return (
+		<div>
+			<button
+				type="button"
+				onClick={() => setIsExpanded((prev) => !prev)}
+				aria-expanded={isExpanded}
+				className={cn(
+					"w-full flex items-center justify-between px-4 py-3 rounded-lg font-semibold text-base",
+					"transition-all duration-200 cursor-pointer",
+					"text-gray-700 hover:bg-sartorial-green/5 hover:text-sartorial-green",
+				)}
+			>
+				{label}
+				<ChevronDown
+					className={cn(
+						"h-4 w-4 transition-transform duration-200",
+						isExpanded && "rotate-180",
+					)}
+				/>
+			</button>
+
+			{isExpanded && (
+				<div className="mt-1 ml-4 flex flex-col border-l border-gray-200 pl-3">
+					{categories.map((category) =>
+						category.comingSoon ? (
+							<div
+								key={category._id}
+								aria-disabled="true"
+								className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-gray-400"
+							>
+								{menuLabelFor(category)}
+								<span className="text-[10px] uppercase tracking-wide">
+									Soon
+								</span>
+							</div>
+						) : (
+							<Link
+								key={category._id}
+								href={categoryHref(category)}
+								onClick={onNavigate}
+								className="px-4 py-2.5 text-sm font-medium text-gray-700 rounded-lg transition-colors hover:bg-sartorial-green/5 hover:text-sartorial-green"
+							>
+								{menuLabelFor(category)}
+							</Link>
+						),
+					)}
+
+					{!hasAllProductsCategory(categories) && (
+						<Link
+							href="/all-products"
+							onClick={onNavigate}
+							className="px-4 py-2.5 text-sm font-medium text-gray-700 rounded-lg transition-colors hover:bg-sartorial-green/5 hover:text-sartorial-green"
+						>
+							All Products
+						</Link>
+					)}
+				</div>
+			)}
 		</div>
 	);
 };

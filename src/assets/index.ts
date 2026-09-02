@@ -13,6 +13,9 @@ import Cat1 from "./images/cat1.png";
 import Cat2 from "./images/cat2.png";
 import Cat3 from "./images/cat3.png";
 import Cat4 from "./images/cat4.png";
+// Placeholder for the "All Products" tile in Shop by Category -- swap for the
+// designed artwork once it is exported.
+import AllProductsTile from "./images/cat4.png";
 import SartorialBabe from "./images/sartorial-babe.svg";
 import SartorialFooterIcon from "./icons/sartorial-footer-logo.svg";
 import PhoneIcon from "./icons/PhoneIcon";
@@ -78,6 +81,7 @@ export {
 	Cat2,
 	Cat3,
 	Cat4,
+	AllProductsTile,
 	SartorialBabe,
 	SartorialFooterIcon,
 	PhoneIcon,
