@@ -1,5 +1,6 @@
 import { adminClient } from "@/sanity/lib/sanity.admin";
 import { sendOrderConfirmationEmail } from "./orderEmail";
+import { sendSnapPurchaseEvent } from "../snap-capi";
 import type { FulfillResult, OrderInput } from "./types";
 
 /**
@@ -43,6 +44,31 @@ const claimConfirmationEmail = async (docId: string) => {
 		return true;
 	} catch {
 		// Lost the race — another path is sending it.
+		return false;
+	}
+};
+
+/**
+ * Same optimistic-lock idea as the confirmation email: whichever fulfilment path
+ * gets here first sends the Snap purchase, so a webhook retry or a race with the
+ * browser callback can't report the same conversion twice.
+ */
+const claimSnapPurchaseEvent = async (docId: string) => {
+	const doc = await adminClient.fetch<{
+		_rev: string;
+		snapCapiSentAt?: string;
+	} | null>(`*[_id == $id][0]{_rev, snapCapiSentAt}`, { id: docId });
+
+	if (!doc || doc.snapCapiSentAt) return false;
+
+	try {
+		await adminClient
+			.patch(docId)
+			.ifRevisionId(doc._rev)
+			.set({ snapCapiSentAt: new Date().toISOString() })
+			.commit();
+		return true;
+	} catch {
 		return false;
 	}
 };
@@ -258,6 +284,24 @@ export const fulfillOrder = async (
 				`*[_id == $id][0].orderNumber`,
 				{ id: docId },
 			)) ?? doc.orderNumber);
+
+	if (await claimSnapPurchaseEvent(docId)) {
+		try {
+			await sendSnapPurchaseEvent(input, orderNumber);
+		} catch (snapError) {
+			// Release the claim so a later path (or a webhook retry) can re-send.
+			await adminClient
+				.patch(docId)
+				.unset(["snapCapiSentAt"])
+				.commit()
+				.catch(() => {});
+			console.error(
+				"⚠️ Snap Conversions API purchase failed for order:",
+				orderNumber,
+				snapError,
+			);
+		}
+	}
 
 	if (await claimConfirmationEmail(docId)) {
 		try {

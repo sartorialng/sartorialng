@@ -43,6 +43,10 @@ export interface OrderInput {
 	gigPark?: string | null;
 	/** Falls back to now. The webhook passes Paystack's `paid_at`. */
 	orderDate?: string | null;
+	/** Snap _scid cookie + UA, captured in the browser at checkout so the
+	 *  server-side Conversions API event can still match the shopper. */
+	snapScid?: string | null;
+	snapUserAgent?: string | null;
 }
 
 export interface FulfillResult {

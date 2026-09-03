@@ -31,6 +31,10 @@ export interface PaystackOrderMetadata {
 	};
 	interstateDeliveryType?: string | null;
 	gigPark?: string | null;
+	/** Snap _scid cookie + UA, so the server can match the Conversions API
+	 *  purchase back to the shopper even when the browser never returns. */
+	snapScid?: string | null;
+	snapUserAgent?: string | null;
 	items: Array<{
 		_id: string;
 		name: string;

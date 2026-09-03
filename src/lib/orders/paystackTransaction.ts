@@ -99,6 +99,8 @@ export const orderInputFromPaystackTransaction = (
 			interstateDeliveryType: order.interstateDeliveryType || null,
 			gigPark: order.gigPark || null,
 			orderDate: tx.paid_at || null,
+			snapScid: order.snapScid || null,
+			snapUserAgent: order.snapUserAgent || null,
 		};
 	}
 

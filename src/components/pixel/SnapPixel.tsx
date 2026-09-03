@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import Script from "next/script";
 import { useUser } from "@clerk/nextjs";
 import { getSnapUserParams, setSnapUser } from "@/lib/snap-user";
-import { snapSignUp } from "@/lib/snap-events";
+import { snapSignUp, snapDedupId } from "@/lib/snap-events";
 
 const SNAP_PIXEL_ID = "31bfe258-9f77-46a0-b0d0-c1a3f9fdd715";
 
@@ -20,7 +20,6 @@ export default function SnapPixel() {
 	const searchParams = useSearchParams();
 	const { user, isSignedIn } = useUser();
 	const isMounted = useRef(false);
-	const didInitWithIdentity = useRef(false);
 
 	// Depend on primitives, not Clerk's user object: its reference is not
 	// guaranteed stable across renders, and an unstable dep here would re-run
@@ -67,24 +66,10 @@ export default function SnapPixel() {
 		clerkCreatedAt,
 	]);
 
-	// The inline init below runs before Clerk hydrates and before localStorage is
-	// read, so re-init once identity becomes known. Every track call also carries
-	// the params directly, so this is belt-and-braces — fire it once, not per route.
-	useEffect(() => {
-		if (didInitWithIdentity.current) return;
-		if (typeof window.snaptr !== "function") return;
-		const userParams = getSnapUserParams();
-		if (Object.keys(userParams).length === 0) return;
-
-		const scidMatch = document.cookie.match(/_scid=([^;]+)/);
-		const uuid_c1 = scidMatch ? decodeURIComponent(scidMatch[1]) : undefined;
-		window.snaptr("init", SNAP_PIXEL_ID, {
-			...(uuid_c1 ? { uuid_c1 } : {}),
-			...userParams,
-		});
-		didInitWithIdentity.current = true;
-	}, [isSignedIn, clerkUserId, pathname]);
-
+	// The pixel is init'd exactly once, in the inline script below. Re-initialising
+	// with the same id registers a second pixel instance on the page (Snap flags it
+	// as "Multiple Pixels on same page" and double-counts). Identity does not need a
+	// re-init: every track call spreads getSnapUserParams() and so carries it anyway.
 	useEffect(() => {
 		if (!isMounted.current) {
 			isMounted.current = true;
@@ -96,6 +81,7 @@ export default function SnapPixel() {
 			const uuid_c1 = scidMatch ? decodeURIComponent(scidMatch[1]) : undefined;
 			window.snaptr("track", "PAGE_VIEW", {
 				...(uuid_c1 ? { uuid_c1 } : {}),
+				client_dedup_id: snapDedupId(),
 				...getSnapUserParams(),
 			});
 		}
@@ -127,7 +113,11 @@ export default function SnapPixel() {
 
                 if (uuid_c1) userParams.uuid_c1 = uuid_c1;
                 snaptr('init', '${SNAP_PIXEL_ID}', userParams);
-                snaptr('track', 'PAGE_VIEW', userParams);
+
+                var dedupId = (self.crypto && self.crypto.randomUUID)
+                    ? self.crypto.randomUUID()
+                    : (Date.now() + '-' + Math.random().toString(36).slice(2));
+                snaptr('track', 'PAGE_VIEW', Object.assign({ client_dedup_id: dedupId }, userParams));
             `}
 		</Script>
 	);

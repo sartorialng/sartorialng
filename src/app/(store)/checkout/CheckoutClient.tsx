@@ -361,6 +361,17 @@ const CheckoutClient = () => {
 		gigPark: formik.values.shipToDifferentAddress
 			? formik.values.shippingGigPark
 			: formik.values.gigPark,
+		// Carried to the server so the Snap Conversions API purchase can still be
+		// matched to this shopper — the webhook cannot read their cookies.
+		snapScid:
+			typeof document !== "undefined"
+				? (() => {
+						const m = document.cookie.match(/_scid=([^;]+)/);
+						return m ? decodeURIComponent(m[1]) : null;
+					})()
+				: null,
+		snapUserAgent:
+			typeof navigator !== "undefined" ? navigator.userAgent : null,
 		items: buildOrderLines(),
 	};
 
@@ -398,6 +409,8 @@ const CheckoutClient = () => {
 			});
 			snapPurchase({
 				transaction_id: orderNumber ?? reference,
+				// The server sends this same reference as its Snap event_id.
+				dedup_id: reference,
 				item_ids: basketItems.map((item) => item.product._id ?? ""),
 				price: total,
 				currency: "NGN",
@@ -456,6 +469,9 @@ const CheckoutClient = () => {
 			});
 			snapPurchase({
 				transaction_id: result.order?.orderNumber ?? details.id,
+				// PayPal's order id is the paymentReference the server fulfils under,
+				// so it is what the server sends as its Snap event_id.
+				dedup_id: details.id,
 				item_ids: useBasketStore
 					.getState()
 					.items.map((item) => item.product._id ?? ""),
