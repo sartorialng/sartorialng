@@ -50,6 +50,14 @@ const creatorApplicationType = defineType({
 			description:
 				"Set automatically when the application is approved or rejected.",
 		}),
+		defineField({
+			name: "approvalEmailSentAt",
+			title: "Approval Email Sent At",
+			type: "datetime",
+			readOnly: true,
+			description:
+				"Set when the welcome email is claimed, and cleared again if the send fails so it can be retried.",
+		}),
 	],
 	preview: {
 		select: {

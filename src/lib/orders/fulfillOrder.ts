@@ -1,6 +1,7 @@
 import { adminClient } from "@/sanity/lib/sanity.admin";
 import { sendOrderConfirmationEmail } from "./orderEmail";
 import { isSnapCapiConfigured, sendSnapPurchaseEvent } from "../snap-capi";
+import { isConflict } from "../sanity/errors";
 import type { FulfillResult, OrderInput } from "./types";
 
 /**
@@ -11,16 +12,6 @@ import type { FulfillResult, OrderInput } from "./types";
  */
 export const orderDocIdForReference = (reference: string) =>
 	`order-${String(reference).replace(/[^A-Za-z0-9._-]/g, "-")}`;
-
-const isConflict = (error: unknown) => {
-	const err = error as { statusCode?: number; message?: string };
-	return (
-		err?.statusCode === 409 ||
-		/already exists|document already exists|conflict/i.test(
-			err?.message || "",
-		)
-	);
-};
 
 /**
  * Claims the right to send the confirmation email using an optimistic-lock
