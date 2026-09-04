@@ -39,6 +39,18 @@ const hashPhone = (phone?: string | null) => {
 	return sha256(e164);
 };
 
+/**
+ * Checked before the send-once claim is taken, so an unconfigured environment
+ * never burns the claim and mark an order as reported when nothing was sent.
+ */
+export const isSnapCapiConfigured = () =>
+	Boolean(process.env.SNAPCHAT_CAPI_TOKEN);
+
+/** Snap accepts sc_cookie1 only as a UUID (or a SHA-256 hash). */
+const isUuid = (value?: string | null): value is string =>
+	typeof value === "string" &&
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
 const hashName = (name?: string | null) => {
 	if (!name) return undefined;
 	const value = name.trim().toLowerCase();
@@ -55,7 +67,13 @@ export async function sendSnapPurchaseEvent(
 ): Promise<void> {
 	const token = process.env.SNAPCHAT_CAPI_TOKEN;
 	if (!token) {
-		// Not configured (e.g. local dev) — not an error worth failing an order over.
+		// Not an error worth failing an order over, but it must never be silent:
+		// a missing token and a successful send both used to log nothing, which
+		// made "no errors in the logs" impossible to interpret.
+		console.warn(
+			"⚠️ SNAPCHAT_CAPI_TOKEN is not set — skipping Snap purchase event for order:",
+			orderNumber,
+		);
 		return;
 	}
 
@@ -69,8 +87,9 @@ export async function sendSnapPurchaseEvent(
 		ln: [hashName(lastName)].filter(Boolean),
 		// The _scid cookie is Snap's strongest match signal. Captured in the
 		// browser at checkout and carried through Paystack metadata, because the
-		// webhook has no access to the shopper's cookies.
-		...(input.snapScid ? { sc_cookie1: input.snapScid } : {}),
+		// webhook has no access to the shopper's cookies. Snap rejects anything
+		// that is not a UUID here, so a mangled cookie is dropped rather than sent.
+		...(isUuid(input.snapScid) ? { sc_cookie1: input.snapScid } : {}),
 		// Deliberately no client_ip_address: on the webhook path the request comes
 		// from Paystack, so the IP we can see is theirs, not the shopper's, and a
 		// wrong IP degrades matching rather than helping it.
@@ -127,4 +146,12 @@ export async function sendSnapPurchaseEvent(
 		const body = await response.text().catch(() => "");
 		throw new Error(`Snap CAPI responded ${response.status}: ${body.slice(0, 300)}`);
 	}
+
+	// Positive confirmation, so "no errors" is never the only evidence we have.
+	console.log(
+		"✅ Snap Conversions API purchase sent for order:",
+		orderNumber,
+		"| dedup event_id:",
+		input.paymentReference,
+	);
 }

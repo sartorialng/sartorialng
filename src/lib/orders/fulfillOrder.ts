@@ -1,6 +1,6 @@
 import { adminClient } from "@/sanity/lib/sanity.admin";
 import { sendOrderConfirmationEmail } from "./orderEmail";
-import { sendSnapPurchaseEvent } from "../snap-capi";
+import { isSnapCapiConfigured, sendSnapPurchaseEvent } from "../snap-capi";
 import type { FulfillResult, OrderInput } from "./types";
 
 /**
@@ -285,7 +285,12 @@ export const fulfillOrder = async (
 				{ id: docId },
 			)) ?? doc.orderNumber);
 
-	if (await claimSnapPurchaseEvent(docId)) {
+	if (!isSnapCapiConfigured()) {
+		console.warn(
+			"⚠️ SNAPCHAT_CAPI_TOKEN is not set — skipping Snap purchase event for order:",
+			orderNumber,
+		);
+	} else if (await claimSnapPurchaseEvent(docId)) {
 		try {
 			await sendSnapPurchaseEvent(input, orderNumber);
 		} catch (snapError) {
