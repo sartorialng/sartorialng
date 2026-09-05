@@ -241,6 +241,8 @@ export type Product = {
   onPreOrder?: boolean;
   preOrderAvailability?: string;
   isComingSoon?: boolean;
+  isGift?: boolean;
+  isRecommendedGift?: boolean;
 };
 
 export type Color = {

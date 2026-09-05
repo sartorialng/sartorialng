@@ -125,6 +125,7 @@ export const joinSartorialSchema = yup.object().shape({
 export const joinCreatorSchema = yup.object().shape({
 	emailAddress: yup
 		.string()
+		.trim()
 		.email("Invalid email address")
 		.required("Email is required"),
 	instagramHandle: yup.string().trim(),

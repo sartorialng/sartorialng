@@ -141,6 +141,22 @@ const productType = defineType({
 			description: "Show in New Arrivals section",
 		}),
 		defineField({
+			name: "isGift",
+			title: "Gift Box",
+			type: "boolean",
+			initialValue: false,
+			description:
+				"Show in the Gift Concierge section. Gift boxes are hidden from the main shop listings.",
+		}),
+		defineField({
+			name: "isRecommendedGift",
+			title: "Recommended Gift",
+			type: "boolean",
+			initialValue: false,
+			description:
+				"Shows a 'Recommended' badge on this gift box. Only applies when Gift Box is on.",
+		}),
+		defineField({
 			name: "onPreSale",
 			title: "Pre-Sale",
 			type: "boolean",

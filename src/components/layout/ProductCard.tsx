@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Heart, ShoppingCartIcon } from "lucide-react";
+import { Heart, Plus, ShoppingCartIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { useWishlistStore } from "@/store/useWishlistStore";
 import { Product } from "../../../sanity.types";
-import { FastDelivery, SartorialBag } from "@/assets";
+import { FastDelivery, GiftOrnament, SartorialBag } from "@/assets";
 import { urlFor } from "@/lib/imageUrl";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { toast } from "sonner";
@@ -50,6 +50,11 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 	const preSaleAvailability = product?.preSaleAvailability;
 
 	const onPreSale = product?.onPreSale;
+
+	// Gift boxes are ordinary products with isGift on. They get the gift
+	// presentation: ornament, bordered card, inline price, "Add to box" CTA.
+	const isGift = product?.isGift === true;
+	const isRecommendedGift = isGift && product?.isRecommendedGift === true;
 
 	const isFavorite = isInWishlist(productId);
 
@@ -109,12 +114,42 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 		}
 	};
 
+	const handleAddToCart = (e: React.MouseEvent) => {
+		e.preventDefault();
+		if (onPreSale) {
+			setShowPreSale(true);
+			return;
+		}
+		trackTikTokEvent({
+			event_name: "AddToCart",
+			value: product.onSale ? salePrice : productPrice,
+			currency: "NGN",
+			url: window.location.href,
+			content_id: productId,
+			content_name: productName,
+		});
+		onAddToCart?.();
+	};
+
 	if (!product || !productId) return null;
 
 	return (
 		<div className="w-full max-w-sm border-none cursor-pointer">
 			<Link href={`/product/${productSlug}`}>
-				<div className="bg-white p-3 md:px-5 md:py-5 rounded-lg hover:border-2 hover:border-sartorial-green hover:shadow-lg transition-all duration-200">
+				<div className="relative bg-white p-3 md:px-5 md:py-5 rounded-lg hover:border-2 hover:border-sartorial-green hover:shadow-lg transition-all duration-200">
+					{isGift && (
+						<Image
+							src={GiftOrnament}
+							alt=""
+							aria-hidden="true"
+							className="pointer-events-none absolute left-3 top-0 z-10 h-14 w-auto md:left-5 md:h-20"
+						/>
+					)}
+					{isRecommendedGift && (
+						<span className="absolute -top-2.5 right-3 z-10 rounded-md bg-sartorial-green px-2 py-0.5 text-[9px] font-semibold leading-tight text-white md:right-5 md:px-2.5 md:py-1 md:text-[11px]">
+							Recommended
+						</span>
+					)}
 					{product?.onCombo ? (
 						<div className="flex justify-between mb-2 md:mb-4">
 							<div className="bg-[#2d5a43] text-white px-2 py-1.5 rounded-lg flex items-end justify-between w-fit gap-4">
@@ -326,29 +361,23 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 							Pre Order
 						</Button>
 					</div>
+				) : isGift ? (
+					<div className="flex justify-center mt-2 md:mt-4">
+						<Button
+							className="w-full text-[11px] md:text-base h-8 md:h-10 bg-sartorial-green hover:bg-green-800 text-white font-medium rounded-sm cursor-pointer"
+							onClick={handleAddToCart}
+							disabled={isOutOfStock && !onPreOrder && !onPreSale}
+						>
+							Add to box
+							<Plus className="w-4 h-4" />
+						</Button>
+					</div>
 				) : (
 					<div className="flex flex-row items-center justify-between gap-2 sm:gap-3 mt-2 md:mt-4">
 						<Button
 							variant="outline"
 							className="flex-1 text-[11px] md:text-base h-8 md:h-10 border-2 border-sartorial-green hover:bg-gray-50 text-sartorial-green font-medium rounded-sm cursor-pointer"
-							onClick={(e) => {
-								e.preventDefault();
-								if (onPreSale) {
-									setShowPreSale(true);
-								} else {
-									trackTikTokEvent({
-										event_name: "AddToCart",
-										value: product.onSale
-											? salePrice
-											: productPrice,
-										currency: "NGN",
-										url: window.location.href,
-										content_id: productId,
-										content_name: productName,
-									});
-									onAddToCart?.();
-								}
-							}}
+							onClick={handleAddToCart}
 							disabled={isOutOfStock && !onPreOrder && !onPreSale}
 						>
 							<span className="hidden md:inline">

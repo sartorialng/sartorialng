@@ -55,7 +55,7 @@ const Header = () => {
 
 	return (
 		<header className="w-full fixed z-50 bg-white">
-			{pathname === "/" && (
+			{(pathname === "/" || pathname === "/gift-concierge") && (
 				<div className="bg-sartorial-green text-white py-2 px-4 md:px-10 lg:px-20">
 					<div className="relative flex items-center justify-between md:justify-center">
 						<p className="text-sm font-medium">
@@ -96,7 +96,7 @@ const Header = () => {
 				</div>
 			)}
 			<div className="flex items-center bg-sartorial-offWhite px-3 md:px-10 py-2 border-b border-gray-200 justify-between">
-				<div className="flex items-center gap-40">
+				<div className="flex items-center gap-4 lg:gap-10 xl:gap-24">
 					<div className="flex items-center">
 						<MobileHeaderLinks />
 						<Link href="/">
@@ -109,7 +109,7 @@ const Header = () => {
 						</Link>
 					</div>
 					<div className="hidden md:flex items-center gap-20">
-						<div className="flex items-center gap-7">
+						<div className="flex items-center gap-4 lg:gap-5 xl:gap-7">
 							{headerLinks.map((link) =>
 								link.kind === "categoryDropdown" ? (
 									<CategoryDropdown key="category" />
@@ -118,7 +118,7 @@ const Header = () => {
 										key={link.href}
 										href={link.href}
 										className={cn(
-											"relative font-semibold text-sartorial-green transition-colors duration-300",
+											"relative whitespace-nowrap font-semibold text-sartorial-green transition-colors duration-300",
 											"after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full",
 											"after:origin-left after:scale-x-0 after:bg-sartorial-green after:transition-transform after:duration-300",
 											"hover:text-sartorial-green hover:after:scale-x-100",
@@ -186,7 +186,7 @@ const Header = () => {
 									</UserButton.MenuItems>
 								</UserButton>
 
-								<div className="hidden sm:block text-xs">
+								<div className="hidden sm:block text-xs whitespace-nowrap">
 									<p className="text-sartorial-green">
 										Welcome Back
 									</p>

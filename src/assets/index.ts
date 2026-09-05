@@ -63,6 +63,8 @@ import Sales from "./images/sale-clearance.png";
 import SalesTC from "./images/sales-tc-new.png";
 import FastDelivery from "./icons/truck-speed.svg";
 import PartyPopper from "./icons/party-popper.svg";
+import GiftHeroVisual from "./images/gift-hero-visual.png";
+import GiftOrnament from "./images/gift-ornament.png";
 
 export {
 	SnapIcon,
@@ -127,4 +129,6 @@ export {
 	SalesTC,
 	FastDelivery,
 	PartyPopper,
+	GiftHeroVisual,
+	GiftOrnament,
 };

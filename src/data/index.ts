@@ -11,6 +11,7 @@ export const headerLinks: HeaderLink[] = [
 	{ kind: "link", href: "/about-us", label: "About Us" },
 	{ kind: "categoryDropdown", label: "Category" },
 	{ kind: "link", href: "/#pre-sale", label: "Pre-Sale" },
+	{ kind: "link", href: "/gift-concierge", label: "Gift Concierge" },
 ];
 
 export const sortOptions = [

@@ -12,14 +12,27 @@ import {structureTool} from 'sanity/structure'
 import {apiVersion, dataset, projectId} from './src/sanity/env'
 import {schema} from './src/sanity/schemaTypes'
 import {structure} from './src/sanity/structure'
-import {ApproveCreatorAction, RejectCreatorAction} from './src/sanity/actions/creatorActions'
+import {ApproveCreatorAction, RejectCreatorAction, ResendApprovalEmailAction} from './src/sanity/actions/creatorActions'
 
 export default defineConfig({
   basePath: '/studio',
   projectId,
   dataset,
   // Add and edit the content schema in the './sanity/schemaTypes' folder
-  schema,
+  schema: {
+    types: schema.types,
+    // Lets the "Gift Boxes" pane create products with isGift already on, so a
+    // new gift doesn't vanish from the pane the moment it is saved.
+    templates: (prev) => [
+      ...prev,
+      {
+        id: 'product-gift',
+        title: 'Gift Box',
+        schemaType: 'product',
+        value: {isGift: true},
+      },
+    ],
+  },
   plugins: [
     structureTool({structure}),
     // Vision is for querying with GROQ from inside the Studio
@@ -29,7 +42,7 @@ export default defineConfig({
   document: {
     actions: (prev, context) =>
       context.schemaType === 'creatorApplication'
-        ? [ApproveCreatorAction, RejectCreatorAction, ...prev]
+        ? [ApproveCreatorAction, RejectCreatorAction, ResendApprovalEmailAction, ...prev]
         : prev,
   },
 })
