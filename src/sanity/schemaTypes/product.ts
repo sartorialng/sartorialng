@@ -110,9 +110,69 @@ const productType = defineType({
 		defineField({
 			name: "colors",
 			title: "Available Colors",
+			description:
+				"One row per colour. Give each colour its own stock count so it can sell out on its own.",
 			type: "array",
-			of: [{ type: "reference", to: [{ type: "color" }] }],
-			validation: (Rule) => Rule.required(),
+			of: [
+				{
+					type: "object",
+					name: "colorVariant",
+					title: "Colour",
+					fields: [
+						defineField({
+							name: "color",
+							title: "Colour",
+							type: "reference",
+							to: [{ type: "color" }],
+							validation: (Rule) => Rule.required(),
+						}),
+						defineField({
+							name: "stock",
+							title: "Stock for this colour",
+							type: "number",
+							description:
+								"Leave blank to fall back to the product-level stock below.",
+							validation: (Rule) => [
+								Rule.min(0).integer(),
+								Rule.custom((value) =>
+									value === undefined || value === null
+										? "Set a count so this colour can sell out on its own. Blank means it shares the product-level stock."
+										: true,
+								).warning(),
+							],
+						}),
+					],
+					preview: {
+						select: { title: "color.title", stock: "stock" },
+						prepare({ title, stock }) {
+							const subtitle =
+								typeof stock !== "number"
+									? "Uses product-level stock"
+									: stock <= 0
+										? "Sold out"
+										: `${stock} in stock`;
+							return { title: title || "Colour not set", subtitle };
+						},
+					},
+				},
+			],
+			validation: (Rule) =>
+				Rule.required()
+					.min(1)
+					.custom((items) => {
+						const refs = ((items as unknown[]) ?? [])
+							.map((item) => {
+								const entry = item as {
+									color?: { _ref?: string };
+									_ref?: string;
+								};
+								return entry?.color?._ref ?? entry?._ref;
+							})
+							.filter(Boolean);
+						return new Set(refs).size === refs.length
+							? true
+							: "The same colour is listed more than once.";
+					}),
 		}),
 		defineField({
 			name: "categories",
@@ -122,8 +182,10 @@ const productType = defineType({
 		}),
 		defineField({
 			name: "stock",
-			title: "Stock",
+			title: "Stock (fallback)",
 			type: "number",
+			description:
+				"Only used for colours above that have no stock of their own. Once every colour has a number, this can stay blank.",
 			validation: (Rule) => Rule.min(0),
 		}),
 		defineField({

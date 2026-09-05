@@ -227,7 +227,12 @@ export type Product = {
   discountValue?: number;
   price?: number;
   salePrice?: number;
-  colors?: Array<{ _id: string; title: string }>;
+  colors?: Array<{
+    _key?: string;
+    _id: string;
+    title: string;
+    stock?: number | null;
+  }>;
   categories?: Array<
     {
       _key: string;
@@ -459,8 +464,10 @@ export type ALL_PRODUCTS_QUERY_RESULT = Array<{
     alt: string | null;
   }> | null;
   colors: Array<{
+    _key: string | null;
     _id: string;
     title: string | null;
+    stock: number | null;
   }> | null;
   categories: Array<{
     _id: string;
@@ -525,8 +532,10 @@ export type NEW_ARRIVALS_QUERY_RESULT = Array<{
     alt: string | null;
   }> | null;
   colors: Array<{
+    _key: string | null;
     _id: string;
     title: string | null;
+    stock: number | null;
   }> | null;
 }>;
 
@@ -607,8 +616,10 @@ export type PRE_SALE_QUERY_RESULT = Array<{
     alt: string | null;
   }> | null;
   colors: Array<{
+    _key: string | null;
     _id: string;
     title: string | null;
+    stock: number | null;
   }> | null;
 }>;
 
@@ -646,9 +657,10 @@ export type PRODUCT_BY_SLUG_QUERY_RESULT = {
     } | null;
   }> | null;
   colors: Array<{
+    _key: string | null;
     _id: string;
     title: string | null;
-    hex: null;
+    stock: number | null;
   }> | null;
   categories: Array<{
     _id: string;
@@ -689,9 +701,10 @@ export type FILTERED_PRODUCTS_QUERY_RESULT = Array<{
     } | null;
   }> | null;
   colors: Array<{
+    _key: string | null;
     _id: string;
     title: string | null;
-    hex: null;
+    stock: number | null;
   }> | null;
   categories: Array<{
     _id: string;

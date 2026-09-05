@@ -9,13 +9,14 @@ import { Product } from "../../../../sanity.types";
 import { SartorialBag } from "@/assets";
 import { urlFor } from "@/lib/imageUrl";
 import { convertNGNtoUSD } from "@/lib/currency";
+import { getFirstAvailableColor } from "@/lib/stock";
 
 const WishList = () => {
 	const { items, removeFromWishlist } = useWishlistStore();
 	const addItem = useBasketStore((s) => s.addItem);
 
 	const handleAddToCart = (product: Product) => {
-		const colorToUse = product.colors?.[0];
+		const colorToUse = getFirstAvailableColor(product);
 		if (!colorToUse) {
 			console.warn("Product has no colors");
 			return;

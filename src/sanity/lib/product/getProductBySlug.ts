@@ -38,10 +38,11 @@ export const getProductBySlug = async (slug: string) => {
           hex
         }
       },
-      colors[]->{
-        _id,
-        title,
-        hex
+      colors[]{
+        _key,
+        "_id": coalesce(color->_id, @->_id),
+        "title": coalesce(color->title, @->title),
+        stock
       },
       categories[]->{
         _id,
@@ -55,7 +56,7 @@ export const getProductBySlug = async (slug: string) => {
 		{ slug },
 		{
 			next: {
-				revalidate: 1800,
+				revalidate: 900,
 			},
 		},
 	);

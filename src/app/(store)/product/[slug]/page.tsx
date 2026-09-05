@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProductBySlug } from "@/sanity/lib/product/getProductBySlug";
 import { getBestSellers } from "@/sanity/lib/product/getBestSellers";
+import { isProductSoldOut } from "@/lib/stock";
 // import { getAllProductSlugs } from "@/sanity/lib/product/getAllProductSlugs";
 import ProductDetailsClient from "../ProductDetailsClient";
 
@@ -169,10 +170,9 @@ export default async function ProductPage({ params }: PageProps) {
 			url: `${BASE_URL}/product/${slug}`,
 			priceCurrency: "NGN",
 			price: offerPrice,
-			availability:
-				product.stock > 0
-					? "https://schema.org/InStock"
-					: "https://schema.org/OutOfStock",
+			availability: !isProductSoldOut(product)
+				? "https://schema.org/InStock"
+				: "https://schema.org/OutOfStock",
 			seller: {
 				"@type": "Organization",
 				name: "Sartorial",

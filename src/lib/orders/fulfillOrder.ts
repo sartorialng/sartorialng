@@ -2,6 +2,7 @@ import { adminClient } from "@/sanity/lib/sanity.admin";
 import { sendOrderConfirmationEmail } from "./orderEmail";
 import { isSnapCapiConfigured, sendSnapPurchaseEvent } from "../snap-capi";
 import { isConflict } from "../sanity/errors";
+import { adjustStock, stockLinesFromOrderInput } from "./stock";
 import type { FulfillResult, OrderInput } from "./types";
 
 /**
@@ -61,45 +62,6 @@ const claimSnapPurchaseEvent = async (docId: string) => {
 		return true;
 	} catch {
 		return false;
-	}
-};
-
-const deductStock = async (input: OrderInput, orderNumber: string) => {
-	const productIds = input.items.map((item) => item._id);
-	const products = await adminClient.fetch<
-		Array<{ _id: string; stock: number | null; name: string | null }>
-	>(`*[_type == "product" && _id in $ids]{_id, stock, name}`, {
-		ids: productIds,
-	});
-
-	const productMap = new Map(products.map((p) => [p._id, p]));
-	const transaction = adminClient.transaction();
-	let hasPatches = false;
-
-	for (const item of input.items) {
-		const product = productMap.get(item._id);
-		if (!product || typeof product.stock !== "number") continue;
-
-		transaction.patch(item._id, (p) => p.dec({ stock: item.quantity }));
-		hasPatches = true;
-
-		const draftExists = await adminClient.fetch(
-			`*[_id == $draftId][0]._id`,
-			{ draftId: `drafts.${item._id}` },
-		);
-		if (draftExists) transaction.delete(`drafts.${item._id}`);
-	}
-
-	if (!hasPatches) return;
-
-	try {
-		await transaction.commit();
-	} catch (error) {
-		console.error(
-			"🚨 CRITICAL: Stock deduction failed for order:",
-			orderNumber,
-			error,
-		);
 	}
 };
 
@@ -263,7 +225,11 @@ export const fulfillOrder = async (
 	}
 
 	if (created) {
-		await deductStock(input, doc.orderNumber);
+		await adjustStock(
+			stockLinesFromOrderInput(input.items),
+			"deduct",
+			doc.orderNumber,
+		);
 		await redeemCoupon(input);
 	}
 

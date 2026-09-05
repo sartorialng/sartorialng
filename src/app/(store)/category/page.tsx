@@ -15,6 +15,7 @@ import { categories, colors, priceRanges } from "@/data";
 import { SortByDropdownMobile } from "@/components/layout/SortByDropdownMobile";
 import { SortByDropdown } from "@/components/layout/SortByDropdown";
 import { getAllCategories } from "@/sanity/lib/product/getCategories";
+import { getFirstAvailableColor } from "@/lib/stock";
 
 const CategoryContent = () => {
 	const searchParams = useSearchParams();
@@ -200,7 +201,7 @@ const CategoryContent = () => {
 									<ProductCardSkeleton key={index} />
 								))
 							: filteredAndSortedProducts.map((product) => {
-									const colorToUse = product.colors?.[0];
+									const colorToUse = getFirstAvailableColor(product);
 
 									if (!colorToUse) {
 										console.warn("Product has no colors");

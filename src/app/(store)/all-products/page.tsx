@@ -14,6 +14,7 @@ import { convertNGNtoUSD } from "@/lib/currency";
 import { categories, colors, priceRanges } from "@/data";
 import { SortByDropdown } from "@/components/layout/SortByDropdown";
 import { SortByDropdownMobile } from "@/components/layout/SortByDropdownMobile";
+import { getFirstAvailableColor } from "@/lib/stock";
 
 const AllProducts = () => {
 	const router = useRouter();
@@ -174,7 +175,7 @@ const AllProducts = () => {
 									<ProductCardSkeleton key={index} />
 								))
 							: filteredAndSortedProducts.map((product) => {
-									const colorToUse = product.colors?.[0];
+									const colorToUse = getFirstAvailableColor(product);
 
 									if (!colorToUse) {
 										console.warn("Product has no colors");

@@ -21,10 +21,8 @@ export const getFilteredProducts = async ({
 	}
 
 	if (colors && colors.length > 0) {
-		const colorConditions = colors
-			.map((color) => `lower(title) == lower("${color}")`)
-			.join(" || ");
-		colorFilter = `&& count((colors[]->title)[lower(@) in [${colors.map((c) => `lower("${c}")`).join(", ")}]]) > 0`;
+		// Colour rows may be plain references (legacy) or {color, stock} objects.
+		colorFilter = `&& count(colors[lower(coalesce(color->title, @->title)) in $colorTitles]) > 0`;
 	}
 
 	const FILTERED_PRODUCTS_QUERY = groq`
@@ -62,10 +60,11 @@ export const getFilteredProducts = async ({
           hex
         }
       },
-      colors[]->{
-        _id,
-        title,
-        hex
+      colors[]{
+        _key,
+        "_id": coalesce(color->_id, @->_id),
+        "title": coalesce(color->title, @->title),
+        stock
       },
       categories[]->{
         _id,
@@ -78,7 +77,7 @@ export const getFilteredProducts = async ({
 	try {
 		const products = await client.fetch(
 			FILTERED_PRODUCTS_QUERY,
-			{},
+			{ colorTitles: (colors ?? []).map((c) => c.toLowerCase()) },
 			{
 				next: {
 					revalidate: 1800,

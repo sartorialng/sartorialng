@@ -28,9 +28,11 @@ export const getNewArrivals = async () => {
       preOrderAvailability,
       isComingSoon,
       images[]{ asset->{url}, alt },
-      colors[]->{
-        _id,
-        title
+      colors[]{
+        _key,
+        "_id": coalesce(color->_id, @->_id),
+        "title": coalesce(color->title, @->title),
+        stock
       }
     }
   `;
@@ -39,7 +41,7 @@ export const getNewArrivals = async () => {
 		{},
 		{
 			next: {
-				revalidate: 1800,
+				revalidate: 900,
 			},
 		},
 	);
