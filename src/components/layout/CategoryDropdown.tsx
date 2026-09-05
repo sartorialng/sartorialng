@@ -85,7 +85,7 @@ const CategoryDropdown = () => {
 				aria-expanded={isOpen}
 				aria-haspopup="true"
 				className={cn(
-					"relative flex items-center gap-1 font-semibold text-sartorial-green transition-colors duration-300 cursor-pointer",
+					"relative flex items-center gap-1 whitespace-nowrap font-semibold text-sartorial-green transition-colors duration-300 cursor-pointer",
 					"after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full",
 					"after:origin-left after:scale-x-0 after:bg-sartorial-green after:transition-transform after:duration-300",
 					"hover:after:scale-x-100",

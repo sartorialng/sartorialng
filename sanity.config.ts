@@ -19,7 +19,20 @@ export default defineConfig({
   projectId,
   dataset,
   // Add and edit the content schema in the './sanity/schemaTypes' folder
-  schema,
+  schema: {
+    types: schema.types,
+    // Lets the "Gift Boxes" pane create products with isGift already on, so a
+    // new gift doesn't vanish from the pane the moment it is saved.
+    templates: (prev) => [
+      ...prev,
+      {
+        id: 'product-gift',
+        title: 'Gift Box',
+        schemaType: 'product',
+        value: {isGift: true},
+      },
+    ],
+  },
   plugins: [
     structureTool({structure}),
     // Vision is for querying with GROQ from inside the Studio

@@ -5,6 +5,7 @@ const BASE_URL = "https://www.sartorial.ng";
 const STATIC_PAGES = [
 	{ url: "/", priority: 1.0, changeFrequency: "daily" },
 	{ url: "/all-products", priority: 0.9, changeFrequency: "daily" },
+	{ url: "/gift-concierge", priority: 0.8, changeFrequency: "weekly" },
 	{ url: "/about-us", priority: 0.7, changeFrequency: "monthly" },
 	{ url: "/contact-us", priority: 0.6, changeFrequency: "monthly" },
 	{ url: "/faqs", priority: 0.5, changeFrequency: "monthly" },

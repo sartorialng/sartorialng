@@ -3,7 +3,7 @@ import { groq } from "next-sanity";
 
 export const getAllProducts = async () => {
 	const ALL_PRODUCTS_QUERY = groq`
-    *[_type == "product"] | order(_createdAt desc) {
+    *[_type == "product" && isGift != true] | order(_createdAt desc) {
       _id,
       name,
       "slug": slug.current,
