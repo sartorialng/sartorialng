@@ -9,13 +9,42 @@ import { Product } from "../../../../sanity.types";
 import { SartorialBag } from "@/assets";
 import { urlFor } from "@/lib/imageUrl";
 import { convertNGNtoUSD } from "@/lib/currency";
-import { getFirstAvailableColor } from "@/lib/stock";
+import { getFirstAvailableColor, isProductSoldOut } from "@/lib/stock";
+import { fetchFreshProducts } from "@/lib/refreshProducts";
+import { useEffect, useRef } from "react";
 
 const WishList = () => {
 	const { items, removeFromWishlist } = useWishlistStore();
+	const refreshItems = useWishlistStore((s) => s.refreshItems);
 	const addItem = useBasketStore((s) => s.addItem);
+	const hasRefreshed = useRef(false);
+
+	// A saved item is a copy of the product taken when it was added, often
+	// months ago. Without this the page would show that copy's stock and
+	// price, which is how sold-out items stayed buyable from here.
+	useEffect(() => {
+		if (hasRefreshed.current || items.length === 0) return;
+		hasRefreshed.current = true;
+
+		const ids = useWishlistStore
+			.getState()
+			.items.map((item) => item?._id)
+			.filter((id): id is string => Boolean(id));
+
+		fetchFreshProducts(ids)
+			.then(refreshItems)
+			.catch(() => {
+				// Leave the saved copies in place; the checkout stock and
+				// price checks still run against live data before payment.
+			});
+	}, [items.length, refreshItems]);
 
 	const handleAddToCart = (product: Product) => {
+		if (isProductSoldOut(product)) {
+			toast.error(`${product.name} is out of stock`);
+			return;
+		}
+
 		const colorToUse = getFirstAvailableColor(product);
 		if (!colorToUse) {
 			console.warn("Product has no colors");
@@ -50,7 +79,9 @@ const WishList = () => {
 					</h1>
 
 					<div className="border border-gray-200 rounded-lg overflow-hidden">
-						{items.map((product, index) => (
+						{items.map((product, index) => {
+							const soldOut = isProductSoldOut(product);
+							return (
 							<div
 								key={product._id}
 								className={`flex flex-col md:flex-row items-center justify-between p-3 md:p-8 gap-6 ${
@@ -76,6 +107,11 @@ const WishList = () => {
 										<h3 className="text-xl font-medium text-gray-900">
 											{product.name}
 										</h3>
+										{soldOut && (
+											<span className="mt-1 inline-block rounded-full bg-red-600 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+												Out of Stock
+											</span>
+										)}
 									</div>
 								</div>
 
@@ -120,14 +156,20 @@ const WishList = () => {
 											onClick={() =>
 												handleAddToCart(product)
 											}
-											className="text-sm px-4 md:px-10 py-2.5 bg-sartorial-green text-white rounded-full hover:bg-[#234231] transition-colors md:min-w-35 cursor-pointer"
+											disabled={soldOut}
+											className={`text-sm px-4 md:px-10 py-2.5 rounded-full transition-colors md:min-w-35 ${
+												soldOut
+													? "cursor-not-allowed bg-gray-300 text-gray-500"
+													: "cursor-pointer bg-sartorial-green text-white hover:bg-[#234231]"
+											}`}
 										>
-											Add to Cart
+											{soldOut ? "Out of Stock" : "Add to Cart"}
 										</button>
 									</div>
 								</div>
 							</div>
-						))}
+							);
+						})}
 					</div>
 				</div>
 			</main>

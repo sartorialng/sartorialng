@@ -3,7 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getColorStock } from "@/lib/stock";
 
 type CartLine = {
-	product?: { _id?: string; name?: string } | null;
+	product?: {
+		_id?: string;
+		name?: string;
+		price?: number | null;
+		salePrice?: number | null;
+		onSale?: boolean | null;
+	} | null;
 	quantity?: number;
 	selectedColor?: { _id?: string; title?: string } | null;
 };
@@ -12,6 +18,9 @@ type ProductAvailability = {
 	_id: string;
 	name: string | null;
 	stock: number | null;
+	price: number | null;
+	salePrice: number | null;
+	onSale: boolean | null;
 	onPreSale: boolean | null;
 	onPreOrder: boolean | null;
 	colors: Array<{
@@ -22,10 +31,19 @@ type ProductAvailability = {
 	}> | null;
 };
 
+/** What a line should cost, from whichever record we are looking at. */
+const effectivePrice = (source: {
+	onSale?: boolean | null;
+	price?: number | null;
+	salePrice?: number | null;
+}) => (source.onSale ? (source.salePrice ?? 0) : (source.price ?? 0));
+
 /**
- * Pre-payment gate. Checks the requested quantity of every product + colour in
- * the cart against the live count in Sanity (per colour where the colour has
- * its own count, otherwise the product-level count).
+ * The last check before the payment modal opens.
+ *
+ * The basket holds a copy of each product taken when it was added, which can be
+ * months old, so both the stock and the price it carries are re-read from
+ * Sanity here and the sale is stopped if either has moved.
  */
 export async function POST(req: NextRequest) {
 	try {
@@ -48,6 +66,7 @@ export async function POST(req: NextRequest) {
 				colorTitle: string | null;
 				name: string;
 				quantity: number;
+				submittedPrice: number | null;
 			}
 		>();
 
@@ -67,6 +86,9 @@ export async function POST(req: NextRequest) {
 					colorTitle: item?.selectedColor?.title ?? null,
 					name: item?.product?.name ?? "Unknown product",
 					quantity,
+					submittedPrice: item?.product
+						? effectivePrice(item.product)
+						: null,
 				});
 			}
 		}
@@ -85,6 +107,9 @@ export async function POST(req: NextRequest) {
 				_id,
 				name,
 				stock,
+				price,
+				salePrice,
+				onSale,
 				onPreSale,
 				onPreOrder,
 				colors[]{
@@ -101,6 +126,7 @@ export async function POST(req: NextRequest) {
 
 		const problems: string[] = [];
 		let insufficientStock = false;
+		let priceChanged = false;
 
 		for (const group of requested.values()) {
 			const product = productMap.get(group.productId);
@@ -110,19 +136,42 @@ export async function POST(req: NextRequest) {
 				continue;
 			}
 
-			if (product.onPreSale === true || product.onPreOrder === true) {
-				continue;
-			}
-
-			const available = getColorStock(product, group.colorId);
-			if (available === null) continue;
-
 			const colorTitle =
 				product.colors?.find((c) => c._id === group.colorId)?.title ??
 				group.colorTitle;
 			const label = colorTitle
 				? `${product.name ?? group.name} (${colorTitle})`
 				: (product.name ?? group.name);
+
+			// Price first, so a stale basket cannot pay an old price even for
+			// something that is still in stock.
+			const currentPrice = effectivePrice(product);
+			if (
+				group.submittedPrice !== null &&
+				Math.abs(group.submittedPrice - currentPrice) > 0.01
+			) {
+				priceChanged = true;
+				problems.push(
+					`The price of "${label}" is now ₦${currentPrice.toLocaleString()}.`,
+				);
+			}
+
+			// Pre-sale and pre-order items are deliberately sold before the
+			// stock exists, so no count is expected for them.
+			if (product.onPreSale === true || product.onPreOrder === true) {
+				continue;
+			}
+
+			const available = getColorStock(product, group.colorId);
+
+			// No count recorded anywhere, or a colour that is no longer on the
+			// product. Refuse rather than guess — this is how a basket saved
+			// before a colour was removed gets stopped, and it matches how the
+			// gate behaved before per-colour stock existed.
+			if (available === null) {
+				problems.push(`"${label}" is not available for purchase.`);
+				continue;
+			}
 
 			if (available <= 0) {
 				problems.push(`"${label}" is sold out.`);
@@ -139,6 +188,7 @@ export async function POST(req: NextRequest) {
 				{
 					allInStock: false,
 					insufficientStock,
+					priceChanged,
 					outOfStockItems: problems,
 					message: problems.join(" "),
 				},

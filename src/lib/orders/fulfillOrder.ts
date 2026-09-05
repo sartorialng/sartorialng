@@ -65,6 +65,58 @@ const claimSnapPurchaseEvent = async (docId: string) => {
 	}
 };
 
+/**
+ * Compares what each line was charged against Sanity's current price.
+ *
+ * The order is still written either way — the customer's money is already
+ * gone — but a mismatch means a stale basket got past the checkout gate, and
+ * the shop owner needs to see that in the logs.
+ */
+const warnOnPriceDrift = async (input: OrderInput, orderNumber: string) => {
+	try {
+		const ids = [
+			...new Set(
+				input.items
+					.filter((item) => !item.isFreeGift)
+					.map((item) => item._id),
+			),
+		];
+		if (ids.length === 0) return;
+
+		const products = await adminClient.fetch<
+			Array<{
+				_id: string;
+				name: string | null;
+				price: number | null;
+				salePrice: number | null;
+				onSale: boolean | null;
+			}>
+		>(`*[_type == "product" && _id in $ids]{_id, name, price, salePrice, onSale}`, {
+			ids,
+		});
+
+		const byId = new Map(products.map((p) => [p._id, p]));
+
+		for (const item of input.items) {
+			if (item.isFreeGift) continue;
+			const product = byId.get(item._id);
+			if (!product) continue;
+
+			const expected = product.onSale
+				? (product.salePrice ?? 0)
+				: (product.price ?? 0);
+
+			if (Math.abs(expected - item.price) > 0.01) {
+				console.error(
+					`🚨 Price mismatch on order ${orderNumber}: "${product.name ?? item._id}" charged ${item.price}, current price ${expected}`,
+				);
+			}
+		}
+	} catch (error) {
+		console.error("⚠️ Price check failed for order:", orderNumber, error);
+	}
+};
+
 const redeemCoupon = async (input: OrderInput) => {
 	if (!input.couponCode || !input.emailAddress) return;
 
@@ -230,6 +282,7 @@ export const fulfillOrder = async (
 			"deduct",
 			doc.orderNumber,
 		);
+		await warnOnPriceDrift(input, doc.orderNumber);
 		await redeemCoupon(input);
 	}
 

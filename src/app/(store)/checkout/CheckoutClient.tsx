@@ -22,6 +22,7 @@ import { trackTikTokEvent } from "@/lib/tiktok-events";
 import { snapInitiateCheckout, snapPurchase } from "@/lib/snap-events";
 import { setSnapUser } from "@/lib/snap-user";
 import { getFreeGiftLines } from "@/lib/freeGift";
+import { fetchFreshProducts } from "@/lib/refreshProducts";
 // import SalesTCModal from "@/components/modals/SalesTCModal";
 
 const CheckoutClient = () => {
@@ -36,6 +37,29 @@ const CheckoutClient = () => {
 		generatePaystackReference,
 	);
 	// const [isSalesModalOpen, setIsSalesModalOpen] = useState(false);
+
+	// Basket lines carry a copy of the product taken when it was added, so the
+	// order summary would otherwise show whatever the price was that day. Read
+	// them back on arrival; the Checkout button refreshes again before paying.
+	useEffect(() => {
+		const items = useBasketStore.getState().items;
+		if (items.length === 0) return;
+
+		let cancelled = false;
+		fetchFreshProducts(items.map((item) => item.product._id))
+			.then((fresh) => {
+				if (!cancelled) {
+					useBasketStore.getState().refreshProducts(fresh);
+				}
+			})
+			.catch(() => {
+				// Non-fatal: the pre-payment check reads Sanity directly.
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, []);
 
 	const formik = useFormik<BillingFormValues>({
 		initialValues: {
