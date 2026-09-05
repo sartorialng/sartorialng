@@ -28,6 +28,9 @@ interface BasketState {
 		},
 	) => void;
 	clearBasket: () => void;
+	/** Replace the stored product copies with freshly fetched ones. Lines
+	 *  whose product no longer exists are dropped. */
+	refreshProducts: (fresh: Product[]) => void;
 	getTotalPrice: () => number;
 	getItemCount: (productId: string) => number;
 	getGroupedItems: () => BasketItem[];
@@ -93,6 +96,26 @@ export const useBasketStore = create<BasketState>()(
 			},
 
 			clearBasket: () => set({ items: [] }),
+
+			refreshProducts: (fresh: Product[]) =>
+				set((state) => {
+					if (!Array.isArray(fresh)) return state;
+					const byId = new Map(
+						fresh
+							.filter((p) => p && p._id)
+							.map((p) => [p._id, p] as const),
+					);
+					return {
+						items: state.items
+							.map((item) => {
+								const product = byId.get(item.product._id);
+								return product ? { ...item, product } : null;
+							})
+							.filter((item): item is BasketItem =>
+								Boolean(item),
+							),
+					};
+				}),
 
 			// getTotalPrice: () => {
 			// 	return get().items.reduce(

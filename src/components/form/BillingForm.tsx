@@ -12,6 +12,7 @@ import { useState } from "react";
 import PaymentMethodModal from "@/app/(store)/checkout/PaymentMethodModal";
 import { toast } from "sonner";
 import { useBasketStore } from "@/store/store";
+import { fetchFreshProducts } from "@/lib/refreshProducts";
 import { Loader2 } from "lucide-react";
 
 interface BillingFormProps {
@@ -35,7 +36,7 @@ const BillingForm = ({
 }: BillingFormProps) => {
 	const [showPaymentModal, setShowPaymentModal] = useState(false);
 	const [isValidating, setIsValidating] = useState(false);
-	const groupedItems = useBasketStore((s) => s.getGroupedItems());
+	const refreshProducts = useBasketStore((s) => s.refreshProducts);
 
 	const handleCheckoutClick = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -50,10 +51,26 @@ const BillingForm = ({
 
 		try {
 			setIsValidating(true);
+
+			// The basket holds a copy of each product from when it was added,
+			// which can be months old. Re-read it before anything is charged so
+			// the totals on screen, and the amount sent to the payment
+			// provider, are today's prices.
+			try {
+				const fresh = await fetchFreshProducts(
+					useBasketStore
+						.getState()
+						.items.map((item) => item.product._id),
+				);
+				refreshProducts(fresh);
+			} catch {
+				// Non-fatal: the server check below reads Sanity directly.
+			}
+
 			const response = await fetch("/api/inventory/check", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(groupedItems),
+				body: JSON.stringify(useBasketStore.getState().items),
 			});
 
 			const result = await response.json();
@@ -61,6 +78,12 @@ const BillingForm = ({
 			if (!response.ok || !result.allInStock) {
 				toast.error(
 					result.message || "Some items are no longer available.",
+					result.priceChanged
+						? {
+								description:
+									"Your cart now shows the current prices. Please review the total and try again.",
+							}
+						: undefined,
 				);
 				return;
 			}
