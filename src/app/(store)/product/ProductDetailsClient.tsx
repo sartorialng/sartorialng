@@ -21,11 +21,17 @@ import Link from "next/link";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
 import { snapViewContent, snapAddToCart } from "@/lib/snap-events";
 import { getFreeGift } from "@/lib/freeGift";
+import {
+	getColorStock,
+	getFirstAvailableColor,
+	isColorSoldOut,
+	isProductSoldOut,
+} from "@/lib/stock";
 
 export type Color = {
 	_id: string;
 	title: string;
-	hex: string;
+	stock?: number | null;
 };
 
 export type ProductImage = {
@@ -70,14 +76,34 @@ export default function ProductDetailsClient({
 	const [quantity, setQuantity] = useState(1);
 	const [generalTab, setGeneralTab] = useState("product-details");
 	const [selectedColor, setSelectedColor] = useState(
-		product?.colors?.[0]?._id || "",
+		() => getFirstAvailableColor<Color>(product)?._id || "",
 	);
-	const [selectedImage, setSelectedImage] = useState(
-		product?.images?.[0] || null,
-	);
+	const [selectedImage, setSelectedImage] = useState(() => {
+		const firstColorId = getFirstAvailableColor<Color>(product)?._id;
+		return (
+			(firstColorId &&
+				product?.images?.find(
+					(img: ProductImage) => img.color?._id === firstColorId,
+				)) ||
+			product?.images?.[0] ||
+			null
+		);
+	});
 
 	const isFavorite = isInWishlist(product?._id);
-	const isOutOfStock = product?.stock === 0;
+	// Stock is tracked per colour. A colour with no count of its own falls
+	// back to the product-level stock (see src/lib/stock.ts).
+	const selectedColorInfo = product?.colors?.find(
+		(c: Color) => c._id === selectedColor,
+	);
+	const selectedStock = getColorStock(product, selectedColor);
+	const selectedSoldOut = isColorSoldOut(product, selectedColor);
+	const isOutOfStock = isProductSoldOut(product);
+	const canPurchaseSoldOut =
+		product?.onPreSale === true || product?.onPreOrder === true;
+	const purchaseBlocked = selectedSoldOut && !canPurchaseSoldOut;
+	const quantityCap =
+		selectedStock === null || canPurchaseSoldOut ? Infinity : selectedStock;
 	const isComingSoon = product?.isComingSoon;
 	const freeGift = getFreeGift(product);
 	const priceInDollars = convertNGNtoUSD(product.price);
@@ -89,6 +115,11 @@ export default function ProductDetailsClient({
 
 	const handleColorSelect = (colorId: string) => {
 		setSelectedColor(colorId);
+
+		const nextStock = getColorStock(product, colorId);
+		if (nextStock !== null && !canPurchaseSoldOut) {
+			setQuantity((q) => Math.max(1, Math.min(q, nextStock)));
+		}
 
 		const matchedImage = product.images.find(
 			(img: ProductImage) => img.color?._id === colorId,
@@ -113,7 +144,8 @@ export default function ProductDetailsClient({
 	};
 
 	const handleQuantityChange = (action: "increment" | "decrement") => {
-		if (action === "increment" && quantity < product.stock)
+		if (purchaseBlocked) return;
+		if (action === "increment" && quantity < quantityCap)
 			setQuantity((q) => q + 1);
 		if (action === "decrement" && quantity > 1) setQuantity((q) => q - 1);
 	};
@@ -237,6 +269,26 @@ export default function ProductDetailsClient({
 									</div>
 								)}
 
+								{/* Selected colour sold out (other colours still available) */}
+								{selectedSoldOut && !isOutOfStock && (
+									<div className="absolute inset-0 flex items-center justify-center bg-black/20 px-4">
+										<div className="w-full max-w-xs rounded-lg bg-white px-6 py-5 text-center shadow-xl">
+											<span className="inline-block rounded-full bg-red-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
+												Sold Out
+											</span>
+											<p className="mt-3 text-sm text-gray-800">
+												<span className="font-semibold text-red-700">
+													{selectedColorInfo?.title}
+												</span>{" "}
+												is currently unavailable.
+											</p>
+											<p className="text-sm text-gray-800">
+												Select another color
+											</p>
+										</div>
+									</div>
+								)}
+
 								{/* Coming Soon Overlay */}
 								{isComingSoon && !isOutOfStock && (
 									<div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[1px]">
@@ -353,10 +405,10 @@ export default function ProductDetailsClient({
 									<span className="text-sartorial-green font-medium">
 										Coming Soon
 									</span>
-								) : product.stock > 0 ? (
+								) : !selectedSoldOut ? (
 									<span className="text-green-600">
-										{product.stock < 10
-											? `${product.stock} available`
+										{selectedStock !== null && selectedStock < 10
+											? `${selectedStock} available`
 											: "In Stock"}
 									</span>
 								) : (
@@ -370,38 +422,52 @@ export default function ProductDetailsClient({
 						{/* Color Selection */}
 						{product.colors && product.colors.length > 0 && (
 							<div className="mt-5">
-								<p className="mb-2">
-									Select Color:{" "}
-									<span className="font-semibold">
-										{
-											product.colors.find(
-												(c: Color) =>
-													c._id === selectedColor,
-											)?.title
-										}
+								<p className="mb-2 flex flex-wrap items-center gap-2">
+									<span>
+										Select Color:{" "}
+										<span className="font-semibold">
+											{selectedColorInfo?.title}
+										</span>
 									</span>
+									{selectedSoldOut && (
+										<span className="rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+											Sold Out
+										</span>
+									)}
 								</p>
 								<div className="flex items-center gap-2 flex-wrap">
-									{product.colors.map((color: Color) => (
-										<Button
-											key={color._id}
-											variant={
-												selectedColor === color._id
-													? "default"
-													: "outline"
-											}
-											className={`text-sm font-medium rounded-sm cursor-pointer ${
-												selectedColor === color._id
-													? "bg-sartorial-green hover:bg-green-800 text-white"
-													: "border-2 border-sartorial-green hover:bg-gray-50 text-sartorial-green"
-											}`}
-											onClick={() =>
-												handleColorSelect(color._id)
-											}
-										>
-											{color.title}
-										</Button>
-									))}
+									{product.colors.map((color: Color) => {
+										const soldOut = isColorSoldOut(
+											product,
+											color._id,
+										);
+										return (
+											<Button
+												key={color._id}
+												variant={
+													selectedColor === color._id
+														? "default"
+														: "outline"
+												}
+												aria-disabled={soldOut}
+												title={
+													soldOut
+														? `${color.title} is sold out`
+														: undefined
+												}
+												className={`text-sm font-medium rounded-sm cursor-pointer ${
+													selectedColor === color._id
+														? "bg-sartorial-green hover:bg-green-800 text-white"
+														: "border-2 border-sartorial-green hover:bg-gray-50 text-sartorial-green"
+												} ${soldOut ? "line-through opacity-60" : ""}`}
+												onClick={() =>
+													handleColorSelect(color._id)
+												}
+											>
+												{color.title}
+											</Button>
+										);
+									})}
 								</div>
 							</div>
 						)}
@@ -427,15 +493,12 @@ export default function ProductDetailsClient({
 										handleQuantityChange("decrement")
 									}
 									className="cursor-pointer text-sartorial-green border-2 border-sartorial-green rounded-tl-sm rounded-bl-sm h-10 px-3 md:px-4 text-xl hover:bg-gray-50 transition-colors"
-									disabled={
-										quantity <= 1 &&
-										product.onPreSale === false
-									}
+									disabled={purchaseBlocked || quantity <= 1}
 								>
 									-
 								</button>
 								<div className="cursor-default text-sartorial-green border-y-2 border-sartorial-green h-10 px-4 md:px-6 flex items-center justify-center w-10 md:w-15 text-lg md:text-xl font-semibold">
-									{quantity}
+									{purchaseBlocked ? 0 : quantity}
 								</div>
 								<button
 									onClick={() =>
@@ -443,8 +506,8 @@ export default function ProductDetailsClient({
 									}
 									className="cursor-pointer text-sartorial-green border-2 border-sartorial-green rounded-tr-sm rounded-br-sm h-10 px-3 md:px-4 text-xl hover:bg-gray-50 transition-colors"
 									disabled={
-										quantity >= product.stock &&
-										product.onPreSale === false
+										purchaseBlocked ||
+										quantity >= quantityCap
 									}
 								>
 									+
@@ -457,7 +520,7 @@ export default function ProductDetailsClient({
 									variant="outline"
 									className="cursor-pointer text-sartorial-green border-2 border-sartorial-green rounded-sm h-10 px-4 md:px-10 hover:bg-gray-50"
 									disabled={
-										product.stock <= 0 &&
+										selectedSoldOut &&
 										product.onPreSale === false
 									}
 									onClick={() => {
@@ -512,12 +575,12 @@ export default function ProductDetailsClient({
 							) : (
 								<Button
 									variant="outline"
-									className="cursor-pointer text-sartorial-green border-2 border-sartorial-green rounded-sm h-10 px-4 md:px-10 hover:bg-gray-50"
-									disabled={
-										!product.onPreSale &&
-										!product.onPreOrder &&
-										isOutOfStock
+									className={
+										purchaseBlocked
+											? "cursor-not-allowed rounded-sm h-10 px-4 md:px-10 border-2 border-gray-300 bg-gray-300 text-gray-500 line-through hover:bg-gray-300 disabled:opacity-100"
+											: "cursor-pointer text-sartorial-green border-2 border-sartorial-green rounded-sm h-10 px-4 md:px-10 hover:bg-gray-50"
 									}
+									disabled={purchaseBlocked}
 									onClick={() => {
 										const colorInfo = product.colors?.find(
 											(c: Color) =>
@@ -565,7 +628,7 @@ export default function ProductDetailsClient({
 										router.push("/checkout");
 									}}
 								>
-									Buy Now
+									{purchaseBlocked ? "Unavailable" : "Buy Now"}
 								</Button>
 							)}
 
@@ -692,7 +755,7 @@ export default function ProductDetailsClient({
 				</div>
 				<div className="mt-5 md:mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
 					{relatedProducts.map((product: any) => {
-						const colorToUse = product.colors?.[0];
+						const colorToUse = getFirstAvailableColor(product);
 
 						if (!colorToUse) {
 							console.warn("Product has no colors");

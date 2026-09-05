@@ -7,6 +7,7 @@ import { useBasketStore } from "@/store/store";
 import { toast } from "sonner";
 import { Product } from "../../../sanity.types";
 import { motion } from "framer-motion";
+import { getFirstAvailableColor } from "@/lib/stock";
 
 interface BestSellersProps {
 	products: Product[];
@@ -29,7 +30,7 @@ const BestSellers = ({ products }: BestSellersProps) => {
 
 			<div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
 				{products.map((product) => {
-					const colorToUse = product.colors?.[0];
+					const colorToUse = getFirstAvailableColor(product);
 
 					if (!colorToUse) {
 						console.warn("Product has no colors");

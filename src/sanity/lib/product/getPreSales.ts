@@ -28,9 +28,11 @@ export const getPreSale = async () => {
       preOrderAvailability,
       isComingSoon,
       images[]{ asset->{url}, alt },
-      colors[]->{
-        _id,
-        title
+      colors[]{
+        _key,
+        "_id": coalesce(color->_id, @->_id),
+        "title": coalesce(color->title, @->title),
+        stock
       }
     }
   `;

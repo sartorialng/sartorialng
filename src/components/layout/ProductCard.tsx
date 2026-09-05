@@ -15,6 +15,7 @@ import PreOrderNoticeModal from "../modals/PreOrderNoticeModal";
 import PreSaleNoticeModal from "../modals/PreSaleNoticeModal";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
 import { getFreeGift } from "@/lib/freeGift";
+import { isProductSoldOut } from "@/lib/stock";
 
 interface ProductCardProps {
 	product: Product;
@@ -41,7 +42,8 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 		? urlFor(product.images[0])
 		: SartorialBag;
 	const imageAlt = product?.name ?? "product-name";
-	const isOutOfStock = product?.stock === 0;
+	// Sold out only when every colour is (or, with no colours, the product is).
+	const isOutOfStock = isProductSoldOut(product);
 	const isComingSoon = product?.isComingSoon;
 	const freeGift = getFreeGift(product);
 	const onPreOrder = product?.onPreOrder;

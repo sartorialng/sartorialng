@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Product } from "../../../sanity.types";
 import ProductCard from "../layout/ProductCard";
 import { toast } from "sonner";
+import { getFirstAvailableColor } from "@/lib/stock";
 
 interface PreSaleProps {
 	products: Product[];
@@ -35,7 +36,7 @@ const PreSale = ({ products }: PreSaleProps) => {
 			) : (
 				<div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
 					{products.map((product) => {
-						const colorToUse = product.colors?.[0];
+						const colorToUse = getFirstAvailableColor(product);
 
 						if (!colorToUse) {
 							console.warn("Product has no colors");

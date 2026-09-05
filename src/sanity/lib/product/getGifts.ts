@@ -30,10 +30,12 @@ export const getGifts = async () => {
 	  isGift,
 	  isRecommendedGift,
 	  images[]{ asset->{url}, alt },
-	  colors[]->{
-		_id,
-		title
-	  }
+	  colors[]{
+        _key,
+        "_id": coalesce(color->_id, @->_id),
+        "title": coalesce(color->title, @->title),
+        stock
+      }
 	}
   `;
 	return client.fetch(
@@ -41,7 +43,7 @@ export const getGifts = async () => {
 		{},
 		{
 			next: {
-				revalidate: 1800,
+				revalidate: 900,
 			},
 		},
 	);

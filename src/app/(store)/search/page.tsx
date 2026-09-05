@@ -10,6 +10,7 @@ import { Product } from "../../../../sanity.types";
 import { toast } from "sonner";
 import { useBasketStore } from "@/store/store";
 import { useRouter } from "next/navigation";
+import { getFirstAvailableColor } from "@/lib/stock";
 
 const SearchPage = () => {
 	const router = useRouter();
@@ -101,7 +102,7 @@ const SearchPage = () => {
 
 							<div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
 								{filteredProducts.map((product) => {
-									const colorToUse = product.colors?.[0];
+									const colorToUse = getFirstAvailableColor(product);
 
 									if (!colorToUse) {
 										console.warn("Product has no colors");

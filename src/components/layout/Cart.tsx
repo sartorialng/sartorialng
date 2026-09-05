@@ -18,6 +18,7 @@ import { convertNGNtoUSD } from "@/lib/currency";
 import Link from "next/link";
 import { useMemo } from "react";
 import { getFreeGiftLines } from "@/lib/freeGift";
+import { getColorStock } from "@/lib/stock";
 
 const Cart = () => {
 	const router = useRouter();
@@ -62,98 +63,113 @@ const Cart = () => {
 						</p>
 					)}
 
-					{groupedItems.map((item) => (
-						<div
-							key={item.product._id}
-							className="flex items-center justify-between gap-6 py-6 border-b border-white/20"
-						>
-							<div className="flex items-center gap-4">
-								<Image
-									src={
-										item.product?.images?.[0]?.asset
-											? urlFor(item.product.images[0])
-											: SartorialBag
-									}
-									alt={item.product.name ?? "pic"}
-									width={50}
-									height={50}
-									className="rounded-lg object-cover"
-								/>
+					{groupedItems.map((item) => {
+						// Snapshot-based cap; the checkout inventory check is the live gate.
+						const available = getColorStock(
+							item.product,
+							item.selectedColor?._id,
+						);
+						const atCap =
+							available !== null && item.quantity >= available;
+						return (
+							<div
+								key={`${item.product._id}-${item.selectedColor?._id ?? "none"}`}
+								className="flex items-center justify-between gap-6 py-6 border-b border-white/20"
+							>
+								<div className="flex items-center gap-4">
+									<Image
+										src={
+											item.product?.images?.[0]?.asset
+												? urlFor(item.product.images[0])
+												: SartorialBag
+										}
+										alt={item.product.name ?? "pic"}
+										width={50}
+										height={50}
+										className="rounded-lg object-cover"
+									/>
 
-								<div>
-									<p className="text-sm md:text-base font-medium">
-										{item.product.name}
-									</p>
-									{item.selectedColor && (
-										<p className="text-xs text-white/70 mt-1">
-											Color: {item.selectedColor.title}
+									<div>
+										<p className="text-sm md:text-base font-medium">
+											{item.product.name}
 										</p>
-									)}
-									<div className="flex items-center gap-3 mt-2">
-										<button
-											onClick={() =>
-												// removeItem(item.product._id)
-												removeItem(
-													item.product._id,
-													item.selectedColor,
-												)
-											}
-											className="border border-white/40 rounded-sm py-2 px-2 hover:bg-white hover:text-green-900 cursor-pointer"
-										>
-											<Minus size={16} />
-										</button>
-										<span>{item.quantity}</span>
-										<button
-											onClick={() =>
-												// addItem(item.product)
-												addItem(
-													item.product,
-													item.selectedColor,
-												)
-											}
-											className="border border-white/40 rounded-sm py-2 px-2 hover:bg-white hover:text-green-900 cursor-pointer"
-										>
-											<Plus size={16} />
-										</button>
+										{item.selectedColor && (
+											<p className="text-xs text-white/70 mt-1">
+												Color: {item.selectedColor.title}
+											</p>
+										)}
+										<div className="flex items-center gap-3 mt-2">
+											<button
+												onClick={() =>
+													// removeItem(item.product._id)
+													removeItem(
+														item.product._id,
+														item.selectedColor,
+													)
+												}
+												className="border border-white/40 rounded-sm py-2 px-2 hover:bg-white hover:text-green-900 cursor-pointer"
+											>
+												<Minus size={16} />
+											</button>
+											<span>{item.quantity}</span>
+											<button
+												onClick={() =>
+													// addItem(item.product)
+													addItem(
+														item.product,
+														item.selectedColor,
+													)
+												}
+												disabled={atCap}
+												title={
+													atCap
+														? "No more of this colour in stock"
+														: undefined
+												}
+												className="border border-white/40 rounded-sm py-2 px-2 hover:bg-white hover:text-green-900 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-white"
+											>
+												<Plus size={16} />
+											</button>
+										</div>
 									</div>
 								</div>
-							</div>
 
-							<div className="text-right space-y-2">
-								<button
-									onClick={() =>
-										removeItem(
-											item.product._id,
-											item.selectedColor,
-										)
-									}
-									className="text-white/70 hover:text-red-400 cursor-pointer"
-								>
-									<Trash2 size={18} />
-								</button>
-								<p className="font-semibold">
-									{`₦${(
-										(item.product.onSale
-											? (item.product.salePrice ?? 0)
-											: (item.product.price ?? 0)) *
-										item.quantity
-									).toLocaleString()}`}
-								</p>
+								<div className="text-right space-y-2">
+									<button
+										onClick={() =>
+											removeItem(
+												item.product._id,
+												item.selectedColor,
+											)
+										}
+										className="text-white/70 hover:text-red-400 cursor-pointer"
+									>
+										<Trash2 size={18} />
+									</button>
+									<p className="font-semibold">
+										{`₦${(
+											(item.product.onSale
+												? (item.product.salePrice ?? 0)
+												: (item.product.price ?? 0)) *
+											item.quantity
+										).toLocaleString()}`}
+									</p>
 
-								<p className="font-semibold">
-									{`$${convertNGNtoUSD(
-										(item.product.onSale
-											? (item.product.salePrice ?? 0)
-											: (item.product.price ?? 0)) *
-											item.quantity,
-									).toLocaleString(undefined, {
-										minimumFractionDigits: 2,
-										maximumFractionDigits: 2,
-									})}`}
-								</p>
+									<p className="font-semibold">
+										{`$${convertNGNtoUSD(
+											(item.product.onSale
+												? (item.product.salePrice ?? 0)
+												: (item.product.price ?? 0)) *
+												item.quantity,
+										).toLocaleString(undefined, {
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2,
+										})}`}
+									</p>
+								</div>
 							</div>
-						</div>
-					))}
+						);
+					})}
 
 					{giftLines.map((line) => (
 						<div

@@ -1,6 +1,7 @@
 import { adminClient } from "../../../../sanity/lib/sanity.admin";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { adjustStock } from "@/lib/orders/stock";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -39,10 +40,11 @@ export async function PATCH(req: Request) {
 				shippingAddress{ address, city, state, country, postalCode, phone, secondaryPhone },
 				products[]{
 					quantity,
+					"productId": product._ref,
 					productName,
 					productPrice,
 					isFreeGift,
-					selectedColor{ colorTitle }
+					selectedColor{ colorId, colorTitle }
 				}
 			}`,
 			{ id: orderId },
@@ -64,6 +66,26 @@ export async function PATCH(req: Request) {
 		if (status === "shipped" && gigTrackingId) patch.gigTrackingId = gigTrackingId;
 		if (status === "shipped" && gigPin) patch.gigPin = gigPin;
 		await adminClient.patch(orderId).set(patch).commit();
+
+		// Stock was taken when the order was paid, so a cancellation puts it
+		// back — per colour where the colour has its own count. The transition
+		// table forbids cancelling twice, so this cannot double-restock.
+		if (
+			status === "cancelled" &&
+			(order.status === "paid" || order.status === "shipped")
+		) {
+			await adjustStock(
+				(order.products ?? [])
+					.filter((item: any) => item?.productId)
+					.map((item: any) => ({
+						productId: item.productId as string,
+						colorId: item.selectedColor?.colorId ?? null,
+						quantity: Number(item.quantity) || 0,
+					})),
+				"restock",
+				order.orderNumber,
+			);
+		}
 
 		if (status === "shipped" || status === "delivered") {
 			await sendStatusEmail({ order, newStatus: status, gigTrackingId, gigPin });

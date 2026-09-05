@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useBasketStore } from "@/store/store";
 import { toast } from "sonner";
 import { Product } from "../../../sanity.types";
+import { getFirstAvailableColor } from "@/lib/stock";
 
 interface GiftGridProps {
 	gifts: Product[];
@@ -37,7 +38,7 @@ const GiftGrid = ({ gifts }: GiftGridProps) => {
 					{gifts.map((gift) => {
 						// Gifts may legitimately have no colour, so unlike the
 						// shop grids we don't skip the card when one is missing.
-						const colorToUse = gift.colors?.[0];
+						const colorToUse = getFirstAvailableColor(gift);
 
 						return (
 							<ProductCard
