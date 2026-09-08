@@ -1,7 +1,7 @@
 "use client";
 import {
-	BrandLogo,
 	IgIcon,
+	NewBrandLogo,
 	SearchIcon,
 	SnapIcon,
 	TikTokIcon,
@@ -58,9 +58,7 @@ const Header = () => {
 			{(pathname === "/" || pathname === "/gift-concierge") && (
 				<div className="bg-sartorial-green text-white py-2 px-4 md:px-10 lg:px-20">
 					<div className="relative flex items-center justify-between md:justify-center">
-						<p className="text-sm font-medium">
-							Welcome to Sartorial!
-						</p>
+						<p className="text-sm font-medium">Welcome to Sartorial!</p>
 
 						<div className="absolute right-0 flex items-center gap-3">
 							<Link
@@ -101,10 +99,12 @@ const Header = () => {
 						<MobileHeaderLinks />
 						<Link href="/">
 							<Image
-								src={BrandLogo}
+								src={NewBrandLogo}
 								alt="Sartorial Logo"
-								width={100}
-								height={40}
+								width={87}
+								height={25}
+								priority
+								className="w-20 h-auto md:w-25"
 							/>
 						</Link>
 					</div>
@@ -122,8 +122,7 @@ const Header = () => {
 											"after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full",
 											"after:origin-left after:scale-x-0 after:bg-sartorial-green after:transition-transform after:duration-300",
 											"hover:text-sartorial-green hover:after:scale-x-100",
-											pathname === link.href &&
-												"after:scale-x-100",
+											pathname === link.href && "after:scale-x-100",
 										)}
 									>
 										{link.label}
@@ -163,36 +162,26 @@ const Header = () => {
 										<UserButton.Link
 											label="My Orders"
 											href="/account/orders"
-											labelIcon={
-												<Package className="h-4 w-4" />
-											}
+											labelIcon={<Package className="h-4 w-4" />}
 										/>
 										<UserButton.Link
 											label="My Reviews"
 											href="/account/reviews"
-											labelIcon={
-												<Star className="h-4 w-4" />
-											}
+											labelIcon={<Star className="h-4 w-4" />}
 										/>
 										{ADMIN_ID_PROD === user.id && (
 											<UserButton.Link
 												label="Manage Orders"
 												href="/account/manage-orders"
-												labelIcon={
-													<Package className="h-4 w-4" />
-												}
+												labelIcon={<Package className="h-4 w-4" />}
 											/>
 										)}
 									</UserButton.MenuItems>
 								</UserButton>
 
 								<div className="hidden sm:block text-xs whitespace-nowrap">
-									<p className="text-sartorial-green">
-										Welcome Back
-									</p>
-									<p className="font-bold">
-										{user.fullName}!
-									</p>
+									<p className="text-sartorial-green">Welcome Back</p>
+									<p className="font-bold">{user.fullName}!</p>
 								</div>
 							</div>
 						) : (

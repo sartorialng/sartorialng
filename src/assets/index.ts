@@ -65,6 +65,8 @@ import FastDelivery from "./icons/truck-speed.svg";
 import PartyPopper from "./icons/party-popper.svg";
 import GiftHeroVisual from "./images/gift-hero-visual.png";
 import GiftOrnament from "./images/gift-ornament.png";
+import NewBrandLogo from "./icons/sartorial-new.svg";
+import NewFooterBrandLogo from "./icons/new-sartorial-footer-logo.svg";
 
 export {
 	SnapIcon,
@@ -131,4 +133,6 @@ export {
 	PartyPopper,
 	GiftHeroVisual,
 	GiftOrnament,
+	NewBrandLogo,
+	NewFooterBrandLogo,
 };

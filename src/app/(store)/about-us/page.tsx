@@ -10,7 +10,7 @@ import {
 	Sustainability,
 	Trust,
 	Authenticity,
-	BrandLogo,
+	NewBrandLogo,
 } from "@/assets";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
@@ -101,16 +101,19 @@ const AboutUs = () => {
 				viewport={{ once: true }}
 				className="bg-sartorial-offWhite w-full flex flex-col md:flex-row py-10 px-6 md:px-20 gap-10"
 			>
-				<motion.div variants={fadeLeft} className="w-full  md:w-[50%]">
+				<motion.div
+					variants={fadeLeft}
+					className="w-full md:w-[50%] flex items-center justify-center"
+				>
 					{/* <Image
 						src={CEO}
 						alt="CEO"
 						className="w-full h-100 object-contain"
 					/> */}
 					<Image
-						src={BrandLogo}
+						src={NewBrandLogo}
 						alt="Sartorial Logo"
-						className="w-full h-50 md:h-80 object-contain"
+						className="w-48 md:w-64 lg:w-72 h-auto object-contain"
 					/>
 				</motion.div>
 

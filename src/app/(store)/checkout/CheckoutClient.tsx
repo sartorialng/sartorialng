@@ -182,9 +182,12 @@ const CheckoutClient = () => {
 	};
 
 	const hasComboItem = useBasketStore((s) => s.hasComboItem());
+	const hasFreeShippingItem = useBasketStore((s) => s.hasFreeShippingItem());
 
 	const isEligibleForFreeShipping =
-		hasComboItem || (country === "Nigeria" && subtotal >= 200000);
+		hasComboItem ||
+		hasFreeShippingItem ||
+		(country === "Nigeria" && subtotal >= 200000);
 
 	const shipping = isEligibleForFreeShipping
 		? 0
@@ -194,13 +197,7 @@ const CheckoutClient = () => {
 
 	const discount = Math.round((discountPercentage / 100) * baseAmount);
 
-	const discountedSubtotal =
-		(subtotal || 0) -
-		Math.round((discountPercentage / 100) * (subtotal || 0));
-	const vatBase = discountedSubtotal;
-	const vat = Math.round(0.075 * vatBase);
-
-	const total = baseAmount - discount + vat;
+	const total = baseAmount - discount;
 
 	const imageAssetRef = (image: unknown) =>
 		(image as { asset?: { _ref?: string } } | undefined)?.asset?._ref ?? null;
@@ -302,7 +299,6 @@ const CheckoutClient = () => {
 					subtotal,
 					amountDiscount: discount,
 					couponCode: couponStatus === "success" ? couponCode : null,
-					vat,
 				}),
 			});
 
@@ -375,7 +371,6 @@ const CheckoutClient = () => {
 		clerkUserId: user?.id || null,
 		subtotal,
 		shipping,
-		vat,
 		total,
 		amountDiscount: discount,
 		couponCode: couponStatus === "success" ? couponCode : null,
@@ -610,7 +605,6 @@ const CheckoutClient = () => {
 						couponStatus={couponStatus}
 						couponMessage={couponMessage}
 						onApplyCoupon={handleApplyCoupon}
-						vat={vat}
 					/>
 				</div>
 			</main>

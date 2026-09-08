@@ -35,6 +35,7 @@ interface BasketState {
 	getItemCount: (productId: string) => number;
 	getGroupedItems: () => BasketItem[];
 	hasComboItem: () => boolean;
+	hasFreeShippingItem: () => boolean;
 }
 
 export const useBasketStore = create<BasketState>()(
@@ -148,6 +149,11 @@ export const useBasketStore = create<BasketState>()(
 			hasComboItem: () => {
 				return get().items.some(
 					(item) => item.product.onCombo === true,
+				);
+			},
+			hasFreeShippingItem: () => {
+				return get().items.some(
+					(item) => item.product.freeShipping === true,
 				);
 			},
 		}),

@@ -44,7 +44,6 @@ export async function POST(req: Request) {
 			total,
 			shipping: shippingCost,
 			subtotal,
-			vat,
 			amountDiscount,
 			couponCode,
 			orderNote,
@@ -84,7 +83,6 @@ export async function POST(req: Request) {
 			})),
 			subtotal,
 			shipping: shippingCost,
-			vat,
 			total,
 			amountDiscount: amountDiscount || 0,
 			couponCode: couponCode || null,
@@ -122,7 +120,7 @@ export async function POST(req: Request) {
 			// — so `totalPrice` stays the goods total and only underpayment is
 			// treated as a problem. Overwriting it with the charged amount
 			// would put the processing fee into the order total, break
-			// subtotal + shipping + VAT = total, and make the stored figure
+			// subtotal + shipping = total, and make the stored figure
 			// depend on whether the webhook or the browser won the race.
 			const chargedTotal = transaction.amount / 100;
 			if (chargedTotal + 0.01 < Number(total)) {

@@ -202,7 +202,7 @@ const buildOrderDoc = (
 		totalPrice: input.total,
 		shippingCost: input.shipping,
 		subtotal: input.subtotal,
-		vat: input.vat,
+		...(input.vat ? { vat: input.vat } : {}),
 		currency: input.paymentMethod === "paypal" ? "USD" : "NGN",
 		status: "paid",
 		orderDate: input.orderDate || new Date().toISOString(),

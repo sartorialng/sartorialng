@@ -15,7 +15,8 @@ export interface PaystackOrderMetadata {
 	clerkUserId?: string | null;
 	subtotal: number;
 	shipping: number;
-	vat: number;
+	/** Legacy — VAT is folded into product prices, so new orders omit this. */
+	vat?: number;
 	total: number;
 	amountDiscount: number;
 	couponCode?: string | null;

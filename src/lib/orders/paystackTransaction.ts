@@ -90,7 +90,10 @@ export const orderInputFromPaystackTransaction = (
 			items,
 			subtotal: toNumber(order.subtotal),
 			shipping: toNumber(order.shipping),
-			vat: toNumber(order.vat),
+			// VAT is folded into product prices now, so metadata carries no
+			// figure. A checkout started before that change still does, and
+			// its total includes it — keep it rather than lose the breakdown.
+			vat: toNumber(order.vat) || undefined,
 			total: toNumber(order.total) || tx.amount / 100,
 			amountDiscount: toNumber(order.amountDiscount),
 			couponCode: order.couponCode || null,
@@ -124,7 +127,7 @@ export const orderInputFromPaystackTransaction = (
 		items,
 		subtotal: toNumber(formData.subtotal),
 		shipping: toNumber(formData.shippingCost),
-		vat: toNumber(formData.vat),
+		vat: toNumber(formData.vat) || undefined,
 		total: toNumber(formData.total) || tx.amount / 100,
 		amountDiscount: toNumber(formData.amountDiscount),
 		couponCode: formData.couponCode || null,

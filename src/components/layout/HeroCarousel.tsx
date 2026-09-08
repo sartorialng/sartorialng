@@ -59,16 +59,14 @@ const HeroCarousel = () => {
 
 	return (
 		<div className="relative">
-			<div className="pt-24 md:pt-24 flex flex-col items-center w-full overflow-hidden gap-4 bg-sartorial-offWhite">
+			<div className="pt-20 md:pt-20 flex flex-col items-center w-full overflow-hidden gap-4 bg-sartorial-offWhite">
 				<div className="relative w-full h-40 md:h-96">
 					{slides.map((slide, index) => (
 						<Link
 							href="/all-products"
 							key={slide.id}
 							className={`absolute inset-0 transition-opacity duration-700 ${
-								index === currentSlide
-									? "opacity-100 z-10"
-									: "opacity-0 z-0"
+								index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
 							}`}
 						>
 							<Image

@@ -106,11 +106,11 @@ export const buildOrderConfirmationHtml = (
 						`
 						}
 						${
-							input.vat > 0
+							(input.vat || 0) > 0
 								? `
 						<tr>
 							<td style="font-size: 13px; color: #666; padding: 4px 0;">VAT</td>
-							<td style="font-size: 13px; color: #333; text-align: right; padding: 4px 0;">${formatPrice(input.vat)}</td>
+							<td style="font-size: 13px; color: #333; text-align: right; padding: 4px 0;">${formatPrice(input.vat || 0)}</td>
 						</tr>
 						`
 								: ""

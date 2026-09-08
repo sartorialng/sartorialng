@@ -33,7 +33,9 @@ export interface OrderInput {
 	items: OrderLineInput[];
 	subtotal: number;
 	shipping: number;
-	vat: number;
+	/** Legacy — VAT is folded into product prices, so new orders omit this.
+	 *  Still carried for checkouts started before that change. */
+	vat?: number;
 	total: number;
 	amountDiscount?: number;
 	couponCode?: string | null;

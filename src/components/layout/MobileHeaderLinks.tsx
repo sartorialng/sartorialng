@@ -1,5 +1,5 @@
 "use client";
-import { BrandLogo } from "@/assets";
+import { NewBrandLogo } from "@/assets";
 import {
 	Sheet,
 	SheetContent,
@@ -48,10 +48,11 @@ const MobileHeaderLinks = () => {
 								className="hover:opacity-80 transition-opacity"
 							>
 								<Image
-									src={BrandLogo}
+									src={NewBrandLogo}
 									alt="Sartorial Logo"
-									width={100}
-									height={40}
+									width={87}
+									height={25}
+									className="w-24 h-auto"
 								/>
 							</Link>
 							<button

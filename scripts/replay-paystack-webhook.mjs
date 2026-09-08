@@ -110,7 +110,6 @@ const metadata = thin
 				clerkUserId: null,
 				subtotal: amountNaira,
 				shipping: 0,
-				vat: 0,
 				total: amountNaira,
 				amountDiscount: 0,
 				couponCode: null,

@@ -2,8 +2,8 @@ import {
 	IgIcon,
 	LocationIcon,
 	MailIcon,
+	NewFooterBrandLogo,
 	PhoneIcon,
-	SartorialFooterIcon,
 	SnapIcon,
 	TikTokIcon,
 	WhatsappIcon,
@@ -17,13 +17,14 @@ const Footer = () => {
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-5 md:gap-20">
 				<div className="">
 					<Image
-						src={SartorialFooterIcon}
-						width={200}
-						height={200}
+						src={NewFooterBrandLogo}
+						width={197}
+						height={50}
 						alt="sartorial-footer"
+						className="w-40 h-auto md:w-50"
 					/>
 
-					<div className="ml-5 mt-3 text-white flex flex-col gap-4">
+					<div className="ml-5 mt-10 text-white flex flex-col gap-4">
 						<div className="flex items-center gap-3">
 							<PhoneIcon />
 							<p>+234 916 987 0900</p>

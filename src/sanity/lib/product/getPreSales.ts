@@ -9,6 +9,7 @@ export const getPreSale = async () => {
       "slug": slug.current,
       onSale,
       onCombo,
+      freeShipping,
       freeGift->{
         _id,
         name,
