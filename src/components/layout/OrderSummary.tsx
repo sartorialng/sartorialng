@@ -17,7 +17,6 @@ interface OrderSummaryProps {
 	couponStatus: "idle" | "loading" | "success" | "error";
 	couponMessage: string;
 	onApplyCoupon: () => void;
-	vat: number;
 }
 
 const OrderSummary = ({
@@ -29,7 +28,6 @@ const OrderSummary = ({
 	couponStatus,
 	couponMessage,
 	onApplyCoupon,
-	vat,
 }: OrderSummaryProps) => {
 	const mounted = useSyncExternalStore(
 		() => () => {},
@@ -152,27 +150,6 @@ const OrderSummary = ({
 					<p className="text-gray-500 text-sm">
 						$
 						{convertNGNtoUSD(subtotal).toLocaleString(undefined, {
-							minimumFractionDigits: 2,
-							maximumFractionDigits: 2,
-						})}
-					</p>
-				</div>
-			</div>
-			<div className="my-4 border-t" />
-
-			<div className="flex justify-between mb-4">
-				<p className="flex items-baseline gap-1 font-medium text-gray-900">
-					<span>VAT</span>
-					<span className="text-sm font-normal text-gray-500">
-						(7.5% on items only)
-					</span>
-					<span>:</span>
-				</p>
-				<div className="text-right">
-					<p>₦{vat.toLocaleString()}</p>
-					<p className="text-gray-500 text-sm">
-						$
-						{convertNGNtoUSD(vat).toLocaleString(undefined, {
 							minimumFractionDigits: 2,
 							maximumFractionDigits: 2,
 						})}

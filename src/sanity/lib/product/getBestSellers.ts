@@ -9,6 +9,7 @@ export const getBestSellers = async () => {
       "slug": slug.current,
       onSale,
       onCombo,
+      freeShipping,
       freeGift->{
         _id,
         name,

@@ -196,8 +196,11 @@ const orderType = defineType({
 		}),
 		defineField({
 			name: "vat",
-			title: "VAT",
+			title: "VAT (legacy)",
 			type: "number",
+			description:
+				"Historical only. VAT is included in product prices, so orders no longer record it separately.",
+			readOnly: true,
 			validation: (Rule) => Rule.min(0),
 		}),
 		defineField({

@@ -34,6 +34,7 @@ export const getFilteredProducts = async ({
       stock,
 	  onSale,
 	  onCombo,
+	  freeShipping,
       freeGift->{
         _id,
         name,

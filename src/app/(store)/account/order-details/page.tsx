@@ -321,7 +321,7 @@ const OrderDetailContent = () => {
     <div class="totals">
       ${order.subtotal !== undefined ? `<div class="totals-row"><span>Subtotal</span><span>${formatCurrency(order.subtotal, order.currency)}</span></div>` : ""}
       ${order.shippingCost !== undefined ? `<div class="totals-row"><span>Shipping</span><span>${formatCurrency(order.shippingCost, order.currency)}</span></div>` : ""}
-      ${order.vat !== undefined ? `<div class="totals-row"><span>VAT</span><span>${formatCurrency(order.vat, order.currency)}</span></div>` : ""}
+      ${order.vat ? `<div class="totals-row"><span>VAT</span><span>${formatCurrency(order.vat, order.currency)}</span></div>` : ""}
       ${order.amountDiscount ? `<div class="totals-row"><span>Discount</span><span>-${formatCurrency(order.amountDiscount, order.currency)}</span></div>` : ""}
       <div class="totals-total"><span>Total</span><span>${formatCurrency(order.totalPrice, order.currency)}</span></div>
     </div>
@@ -661,7 +661,7 @@ const OrderDetailContent = () => {
 									</span>
 								</div>
 							)}
-							{order.vat !== undefined && (
+							{!!order.vat && (
 								<div className="flex justify-between text-sm text-gray-600">
 									<span>VAT</span>
 									<span>

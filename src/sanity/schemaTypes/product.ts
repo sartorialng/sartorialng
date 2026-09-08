@@ -80,6 +80,14 @@ const productType = defineType({
 			description: "Toggle this to activate the combo",
 		}),
 		defineField({
+			name: "freeShipping",
+			title: "Free Shipping",
+			type: "boolean",
+			initialValue: false,
+			description:
+				"Toggle on to ship the whole order free whenever this product is in the basket.",
+		}),
+		defineField({
 			name: "freeGift",
 			title: "Free Gift",
 			type: "reference",
