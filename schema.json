@@ -1054,6 +1054,13 @@
         },
         "optional": true
       },
+      "snapCapiSentAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
       "gigTrackingId": {
         "type": "objectAttribute",
         "value": {

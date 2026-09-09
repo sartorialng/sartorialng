@@ -182,6 +182,7 @@ export type Order = {
   orderDate?: string;
   orderNote?: string;
   confirmationEmailSentAt?: string;
+  snapCapiSentAt?: string;
   gigTrackingId?: string;
   gigPin?: string;
   deliveryType?: "pickup" | "doorstep";

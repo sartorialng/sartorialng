@@ -282,6 +282,14 @@ const orderType = defineType({
 				"Set automatically when the order confirmation email goes out. Empty means the customer has not been emailed yet.",
 		}),
 		defineField({
+			name: "snapCapiSentAt",
+			title: "Snap Purchase Event Sent At",
+			type: "datetime",
+			readOnly: true,
+			description:
+				"Set automatically when the Snap Conversions API purchase event goes out. Empty means it has not been sent. Do not clear this: it is what stops the same purchase being counted twice.",
+		}),
+		defineField({
 			name: "gigTrackingId",
 			title: "GIG Logistics Tracking ID",
 			type: "string",
