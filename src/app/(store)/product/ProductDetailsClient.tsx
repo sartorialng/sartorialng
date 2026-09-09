@@ -22,6 +22,17 @@ import { trackTikTokEvent } from "@/lib/tiktok-events";
 import { snapViewContent, snapAddToCart } from "@/lib/snap-events";
 import { getFreeGift } from "@/lib/freeGift";
 import {
+	buildComboSelections,
+	comboAvailability,
+	comboItemColorSoldOut,
+	comboItemColors,
+	comboItemKey,
+	comboSelectionComplete,
+	defaultComboSelection,
+	describeComboSelections,
+	getComboItems,
+} from "@/lib/combo";
+import {
 	getColorStock,
 	getFirstAvailableColor,
 	isColorSoldOut,
@@ -90,18 +101,39 @@ export default function ProductDetailsClient({
 		);
 	});
 
+	// A combo is made of two or more real products, each picked in its own
+	// colour. Its own `colors` list is legacy and is not used here.
+	const comboItems = getComboItems(product);
+	const productIsCombo = comboItems.length >= 2;
+	const [comboColors, setComboColors] = useState<Record<string, string>>(() =>
+		defaultComboSelection(getComboItems(initialProduct)),
+	);
+	const comboComplete =
+		!productIsCombo || comboSelectionComplete(comboItems, comboColors);
+	// How many combos the chosen colours can cover, across every component.
+	const comboStock = productIsCombo
+		? comboAvailability(comboItems, comboColors)
+		: null;
+
 	const isFavorite = isInWishlist(product?._id);
 	// Stock is tracked per colour. A colour with no count of its own falls
 	// back to the product-level stock (see src/lib/stock.ts).
 	const selectedColorInfo = product?.colors?.find(
 		(c: Color) => c._id === selectedColor,
 	);
-	const selectedStock = getColorStock(product, selectedColor);
-	const selectedSoldOut = isColorSoldOut(product, selectedColor);
-	const isOutOfStock = isProductSoldOut(product);
+	const selectedStock = productIsCombo
+		? comboStock
+		: getColorStock(product, selectedColor);
+	const selectedSoldOut = productIsCombo
+		? comboStock !== null && comboStock <= 0
+		: isColorSoldOut(product, selectedColor);
+	const isOutOfStock = productIsCombo
+		? selectedSoldOut
+		: isProductSoldOut(product);
 	const canPurchaseSoldOut =
 		product?.onPreSale === true || product?.onPreOrder === true;
-	const purchaseBlocked = selectedSoldOut && !canPurchaseSoldOut;
+	const purchaseBlocked =
+		(selectedSoldOut && !canPurchaseSoldOut) || !comboComplete;
 	const quantityCap =
 		selectedStock === null || canPurchaseSoldOut ? Infinity : selectedStock;
 	const isComingSoon = product?.isComingSoon;
@@ -129,6 +161,21 @@ export default function ProductDetailsClient({
 			setSelectedImage(matchedImage);
 		}
 	};
+
+	const handleComboColorSelect = (itemKey: string, colorId: string) => {
+		const next = { ...comboColors, [itemKey]: colorId };
+		setComboColors(next);
+
+		const cap = comboAvailability(comboItems, next);
+		if (cap !== null && !canPurchaseSoldOut) {
+			setQuantity((q) => Math.max(1, Math.min(q, Math.max(cap, 1))));
+		}
+	};
+
+	/** The colours frozen into the basket line, empty for a normal product. */
+	const comboSelections = productIsCombo
+		? buildComboSelections(comboItems, comboColors)
+		: [];
 
 	const toggleFavorite = (e: React.MouseEvent) => {
 		e.preventDefault();
@@ -419,8 +466,92 @@ export default function ProductDetailsClient({
 							</p>
 						</div>
 
+						{/* One colour selector per bag in a combo */}
+						{productIsCombo && (
+							<div className="mt-5 space-y-4">
+								{comboItems.map((item, index) => {
+									const itemKey = comboItemKey(item, index);
+									const colors = comboItemColors(item);
+									const chosen = comboColors[itemKey];
+									const chosenInfo = colors.find(
+										(c) => c._id === chosen,
+									);
+									const chosenSoldOut =
+										Boolean(chosen) &&
+										comboItemColorSoldOut(item, chosen);
+									const left = getColorStock(
+										item.product,
+										chosen,
+									);
+
+									return (
+										<div key={itemKey}>
+											<p className="mb-2 flex flex-wrap items-center gap-2">
+												<span>
+													{item.product?.name?.trim()}:{" "}
+													<span className="font-semibold">
+														{chosenInfo?.title?.trim() ??
+															"Select a colour"}
+													</span>
+												</span>
+												{chosenSoldOut ? (
+													<span className="rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+														Sold Out
+													</span>
+												) : left !== null && left <= 5 ? (
+													<span className="text-xs text-gray-500">
+														{left} left
+													</span>
+												) : null}
+											</p>
+											<div className="flex items-center gap-2 flex-wrap">
+												{colors.map((color) => {
+													const soldOut =
+														comboItemColorSoldOut(
+															item,
+															color._id,
+														);
+													return (
+														<Button
+															key={color._id}
+															variant={
+																chosen === color._id
+																	? "default"
+																	: "outline"
+															}
+															aria-disabled={soldOut}
+															title={
+																soldOut
+																	? `${color.title} is sold out`
+																	: undefined
+															}
+															className={`text-sm font-medium rounded-sm cursor-pointer ${
+																chosen === color._id
+																	? "bg-sartorial-green hover:bg-green-800 text-white"
+																	: "border-2 border-sartorial-green hover:bg-gray-50 text-sartorial-green"
+															} ${soldOut ? "line-through opacity-60" : ""}`}
+															onClick={() =>
+																handleComboColorSelect(
+																	itemKey,
+																	color._id,
+																)
+															}
+														>
+															{color.title?.trim()}
+														</Button>
+													);
+												})}
+											</div>
+										</div>
+									);
+								})}
+							</div>
+						)}
+
 						{/* Color Selection */}
-						{product.colors && product.colors.length > 0 && (
+						{!productIsCombo &&
+							product.colors &&
+							product.colors.length > 0 && (
 							<div className="mt-5">
 								<p className="mb-2 flex flex-wrap items-center gap-2">
 									<span>
@@ -524,10 +655,12 @@ export default function ProductDetailsClient({
 										product.onPreSale === false
 									}
 									onClick={() => {
-										const colorInfo = product.colors?.find(
-											(c: Color) =>
-												c._id === selectedColor,
-										);
+										const colorInfo = productIsCombo
+											? undefined
+											: product.colors?.find(
+													(c: Color) =>
+														c._id === selectedColor,
+												);
 
 										trackTikTokEvent({
 											event_name: "AddToCart",
@@ -562,10 +695,19 @@ export default function ProductDetailsClient({
 															title: colorInfo.title,
 														}
 													: undefined,
+												productIsCombo
+													? comboSelections
+													: undefined,
 											);
 										}
 										toast.success(
-											`${product.name}${colorInfo ? ` (${colorInfo.title})` : ""} added to cart`,
+											`${product.name}${
+												productIsCombo
+													? ` (${describeComboSelections(comboSelections)})`
+													: colorInfo
+														? ` (${colorInfo.title})`
+														: ""
+											} added to cart`,
 										);
 										router.push("/checkout");
 									}}
@@ -582,10 +724,12 @@ export default function ProductDetailsClient({
 									}
 									disabled={purchaseBlocked}
 									onClick={() => {
-										const colorInfo = product.colors?.find(
-											(c: Color) =>
-												c._id === selectedColor,
-										);
+										const colorInfo = productIsCombo
+											? undefined
+											: product.colors?.find(
+													(c: Color) =>
+														c._id === selectedColor,
+												);
 
 										trackTikTokEvent({
 											event_name: "AddToCart",
@@ -620,10 +764,19 @@ export default function ProductDetailsClient({
 															title: colorInfo.title,
 														}
 													: undefined,
+												productIsCombo
+													? comboSelections
+													: undefined,
 											);
 										}
 										toast.success(
-											`${product.name}${colorInfo ? ` (${colorInfo.title})` : ""} added to cart`,
+											`${product.name}${
+												productIsCombo
+													? ` (${describeComboSelections(comboSelections)})`
+													: colorInfo
+														? ` (${colorInfo.title})`
+														: ""
+											} added to cart`,
 										);
 										router.push("/checkout");
 									}}
@@ -771,10 +924,6 @@ export default function ProductDetailsClient({
 									toast.success(
 										`${product.name} added to cart`,
 									);
-								}}
-								onBuyNow={() => {
-									addItem(product, colorToUse);
-									router.push("/checkout");
 								}}
 							/>
 						);

@@ -37,14 +37,43 @@ const fullestColour = (product: ProductStockDoc) =>
 		)
 		.sort((a, b) => b.stock - a.stock)[0];
 
+/**
+ * Turns one order line into the stock lines it actually consumes.
+ *
+ * A combo line names the bags it is made of, so it becomes one line per bag
+ * against that bag's own colour — the combo document holds no stock of its
+ * own. Everything else stands for itself. Both fulfilment and cancellation go
+ * through here so a refund puts stock back exactly where it was taken from.
+ */
+export const expandStockLine = (item: {
+	_id: string;
+	quantity: number;
+	selectedColor?: { colorId: string } | null;
+	components?: Array<{
+		productId: string;
+		colorId: string;
+		quantity?: number | null;
+	}> | null;
+}): StockLine[] => {
+	if (item.components?.length) {
+		return item.components.map((c) => ({
+			productId: c.productId,
+			colorId: c.colorId ?? null,
+			quantity: item.quantity * (c.quantity && c.quantity > 0 ? c.quantity : 1),
+		}));
+	}
+	return [
+		{
+			productId: item._id,
+			colorId: item.selectedColor?.colorId ?? null,
+			quantity: item.quantity,
+		},
+	];
+};
+
 export const stockLinesFromOrderInput = (
 	items: OrderLineInput[],
-): StockLine[] =>
-	items.map((item) => ({
-		productId: item._id,
-		colorId: item.selectedColor?.colorId ?? null,
-		quantity: item.quantity,
-	}));
+): StockLine[] => items.flatMap(expandStockLine);
 
 /**
  * Moves stock for a set of order lines, one Sanity transaction for the lot.

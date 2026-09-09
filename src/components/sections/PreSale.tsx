@@ -1,6 +1,5 @@
 "use client";
 import { useBasketStore } from "@/store/store";
-import { useRouter } from "next/navigation";
 import { Product } from "../../../sanity.types";
 import ProductCard from "../layout/ProductCard";
 import { toast } from "sonner";
@@ -11,7 +10,6 @@ interface PreSaleProps {
 }
 
 const PreSale = ({ products }: PreSaleProps) => {
-	const router = useRouter();
 	const addItem = useBasketStore((s) => s.addItem);
 
 	return (
@@ -52,10 +50,6 @@ const PreSale = ({ products }: PreSaleProps) => {
 									toast.success(
 										`${product.name} added to cart`,
 									);
-								}}
-								onBuyNow={() => {
-									addItem(product, colorToUse);
-									router.push("/checkout");
 								}}
 							/>
 						);

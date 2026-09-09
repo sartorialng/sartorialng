@@ -20,6 +20,7 @@ export const getOrderById = async (id: string) => {
         products[]{
           quantity,
           selectedColor,
+          components[]{ productId, name, colorId, colorTitle, quantity },
           productName,
           productPrice,
           isFreeGift,

@@ -12,6 +12,7 @@ import { useState } from "react";
 import PaymentMethodModal from "@/app/(store)/checkout/PaymentMethodModal";
 import { toast } from "sonner";
 import { useBasketStore } from "@/store/store";
+import type { BasketItem } from "@/store/store";
 import { fetchFreshProducts } from "@/lib/refreshProducts";
 import { getFreeGiftLines } from "@/lib/freeGift";
 import { Loader2 } from "lucide-react";
@@ -73,7 +74,76 @@ const BillingForm = ({
 			// in it, so they have to be appended here or they reach fulfilment
 			// unvalidated.
 			const basketItems = useBasketStore.getState().items;
-			const giftLines = getFreeGiftLines(basketItems).map((line) => ({
+
+			/** Exactly what /api/inventory/check reads — nothing more. */
+			type InventoryLine = {
+				product: {
+					_id: string;
+					name?: string | null;
+					price?: number | null;
+					salePrice?: number | null;
+					onSale?: boolean | null;
+				};
+				quantity: number;
+				selectedColor: { _id: string; title: string } | null;
+				check?: "price" | "stock";
+				comboName?: string | null;
+				isFreeGift?: boolean;
+			};
+
+			const priced = (p: BasketItem["product"]) => ({
+				_id: p._id,
+				name: p.name,
+				price: p.price,
+				salePrice: p.salePrice,
+				onSale: p.onSale,
+			});
+
+			// A combo holds no stock of its own, so it is checked for its price
+			// while each bag it is made of is checked for availability against
+			// that bag's own colour count.
+			const stockLines: InventoryLine[] = basketItems.flatMap<InventoryLine>((item) =>
+				item.comboSelections?.length
+					? [
+							{
+								product: priced(item.product),
+								quantity: item.quantity,
+								selectedColor: null,
+								check: "price" as const,
+							},
+							...item.comboSelections.map((c) => ({
+								product: {
+									_id: c.productId,
+									name: c.productName,
+								},
+								quantity:
+									item.quantity *
+									(c.quantity > 0 ? c.quantity : 1),
+								selectedColor: {
+									_id: c.colorId,
+									title: c.colorTitle,
+								},
+								check: "stock" as const,
+								comboName: item.product.name ?? null,
+							})),
+						]
+					: [
+							{
+								product: priced(item.product),
+								quantity: item.quantity,
+								selectedColor: item.selectedColor
+									? {
+											_id: item.selectedColor._id,
+											title: item.selectedColor.title,
+										}
+									: null,
+							},
+						],
+			);
+
+			const giftLines: InventoryLine[] = getFreeGiftLines(
+				basketItems,
+			).map((line) => ({
 				product: { _id: line.product._id, name: line.product.name },
 				quantity: line.quantity,
 				selectedColor: null,
@@ -83,7 +153,7 @@ const BillingForm = ({
 			const response = await fetch("/api/inventory/check", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify([...basketItems, ...giftLines]),
+				body: JSON.stringify([...stockLines, ...giftLines]),
 			});
 
 			const result = await response.json();

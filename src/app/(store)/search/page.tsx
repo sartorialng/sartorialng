@@ -9,11 +9,9 @@ import { getAllProducts } from "@/sanity/lib/product/getAllProducts";
 import { Product } from "../../../../sanity.types";
 import { toast } from "sonner";
 import { useBasketStore } from "@/store/store";
-import { useRouter } from "next/navigation";
 import { getFirstAvailableColor } from "@/lib/stock";
 
 const SearchPage = () => {
-	const router = useRouter();
 	const [searchQuery, setSearchQuery] = useState("");
 	const addItem = useBasketStore((s) => s.addItem);
 	const [products, setProducts] = useState([]);
@@ -117,10 +115,6 @@ const SearchPage = () => {
 												toast.success(
 													`${product.name} added to cart`,
 												);
-											}}
-											onBuyNow={() => {
-												addItem(product, colorToUse);
-												router.push("/checkout");
 											}}
 										/>
 									);

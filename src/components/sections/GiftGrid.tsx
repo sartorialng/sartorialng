@@ -1,6 +1,5 @@
 "use client";
 import ProductCard from "../layout/ProductCard";
-import { useRouter } from "next/navigation";
 import { useBasketStore } from "@/store/store";
 import { toast } from "sonner";
 import { Product } from "../../../sanity.types";
@@ -11,7 +10,6 @@ interface GiftGridProps {
 }
 
 const GiftGrid = ({ gifts }: GiftGridProps) => {
-	const router = useRouter();
 	const addItem = useBasketStore((s) => s.addItem);
 
 	return (
@@ -47,10 +45,6 @@ const GiftGrid = ({ gifts }: GiftGridProps) => {
 								onAddToCart={() => {
 									addItem(gift, colorToUse);
 									toast.success(`${gift.name} added to your box`);
-								}}
-								onBuyNow={() => {
-									addItem(gift, colorToUse);
-									router.push("/checkout");
 								}}
 							/>
 						);

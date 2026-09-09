@@ -232,6 +232,15 @@ const CheckoutClient = () => {
 								colorTitle: item.selectedColor.title ?? "",
 							}
 						: null,
+					components: item.comboSelections?.length
+						? item.comboSelections.map((c) => ({
+								productId: c.productId,
+								name: c.productName,
+								colorId: c.colorId,
+								colorTitle: c.colorTitle,
+								quantity: c.quantity,
+							}))
+						: null,
 				};
 			}),
 			...getFreeGiftLines(basketItems).map((line) => ({
@@ -242,6 +251,7 @@ const CheckoutClient = () => {
 				isFreeGift: true,
 				imageRef: imageAssetRef(line.product.images?.[0]),
 				selectedColor: null,
+				components: null,
 			})),
 		];
 	};

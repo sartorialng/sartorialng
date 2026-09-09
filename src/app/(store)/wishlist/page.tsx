@@ -11,12 +11,15 @@ import { urlFor } from "@/lib/imageUrl";
 import { convertNGNtoUSD } from "@/lib/currency";
 import { getFirstAvailableColor, isProductSoldOut } from "@/lib/stock";
 import { fetchFreshProducts } from "@/lib/refreshProducts";
+import { isCombo } from "@/lib/combo";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 const WishList = () => {
 	const { items, removeFromWishlist } = useWishlistStore();
 	const refreshItems = useWishlistStore((s) => s.refreshItems);
 	const addItem = useBasketStore((s) => s.addItem);
+	const router = useRouter();
 	const hasRefreshed = useRef(false);
 
 	// A saved item is a copy of the product taken when it was added, often
@@ -40,6 +43,13 @@ const WishList = () => {
 	}, [items.length, refreshItems]);
 
 	const handleAddToCart = (product: Product) => {
+		// A combo needs a colour per bag, which only the product page can ask
+		// for. Adding one from here would make a line that cannot be packed.
+		if (isCombo(product)) {
+			router.push(`/product/${product.slug}`);
+			return;
+		}
+
 		if (isProductSoldOut(product)) {
 			toast.error(`${product.name} is out of stock`);
 			return;

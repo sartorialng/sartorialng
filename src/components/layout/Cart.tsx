@@ -19,6 +19,11 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { getFreeGiftLines } from "@/lib/freeGift";
 import { getColorStock } from "@/lib/stock";
+import {
+	comboSelectionAvailability,
+	comboSelectionSignature,
+	describeComboSelections,
+} from "@/lib/combo";
 
 const Cart = () => {
 	const router = useRouter();
@@ -65,10 +70,18 @@ const Cart = () => {
 
 					{groupedItems.map((item) => {
 						// Snapshot-based cap; the checkout inventory check is the live gate.
-						const available = getColorStock(
-							item.product,
-							item.selectedColor?._id,
-						);
+						// A combo has no colour of its own: how many more can be
+						// added comes from the bags it holds, not from the combo
+						// document's own (legacy) count.
+						const available = item.comboSelections?.length
+							? comboSelectionAvailability(
+									item.product,
+									item.comboSelections,
+								)
+							: getColorStock(
+									item.product,
+									item.selectedColor?._id,
+								);
 						const atCap =
 							available !== null && item.quantity >= available;
 						return (
@@ -93,10 +106,16 @@ const Cart = () => {
 										<p className="text-sm md:text-base font-medium">
 											{item.product.name}
 										</p>
-										{item.selectedColor && (
+										{item.comboSelections?.length ? (
 											<p className="text-xs text-white/70 mt-1">
-												Color: {item.selectedColor.title}
+												{describeComboSelections(item.comboSelections)}
 											</p>
+										) : (
+											item.selectedColor && (
+												<p className="text-xs text-white/70 mt-1">
+													Color: {item.selectedColor.title}
+												</p>
+											)
 										)}
 										<div className="flex items-center gap-3 mt-2">
 											<button
@@ -105,6 +124,7 @@ const Cart = () => {
 													removeItem(
 														item.product._id,
 														item.selectedColor,
+														item.comboSelections,
 													)
 												}
 												className="border border-white/40 rounded-sm py-2 px-2 hover:bg-white hover:text-green-900 cursor-pointer"
@@ -118,6 +138,7 @@ const Cart = () => {
 													addItem(
 														item.product,
 														item.selectedColor,
+														item.comboSelections,
 													)
 												}
 												disabled={atCap}
@@ -140,6 +161,7 @@ const Cart = () => {
 											removeItem(
 												item.product._id,
 												item.selectedColor,
+												item.comboSelections,
 											)
 										}
 										className="text-white/70 hover:text-red-400 cursor-pointer"

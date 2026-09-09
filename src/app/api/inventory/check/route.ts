@@ -15,6 +15,14 @@ type CartLine = {
 	/** Gift lines carry no colour and are not paid for, so they are checked
 	 *  for availability but never for price. */
 	isFreeGift?: boolean;
+	/**
+	 * Which half of the check this line is for. A combo sends itself as
+	 * "price" (its bundle price is what gets charged) and each of its bags as
+	 * "stock" (the combo document holds no stock of its own). Default "both".
+	 */
+	check?: "both" | "price" | "stock";
+	/** The combo a "stock" line belongs to, so a problem can name it. */
+	comboName?: string | null;
 };
 
 type ProductAvailability = {
@@ -93,8 +101,11 @@ export async function POST(req: NextRequest) {
 				colorId: string | null;
 				colorTitle: string | null;
 				name: string;
+				comboName: string | null;
 				quantity: number;
 				submittedPrice: number | null;
+				checkPrice: boolean;
+				checkStock: boolean;
 				isFreeGift: boolean;
 			}
 		>();
@@ -106,16 +117,26 @@ export async function POST(req: NextRequest) {
 			const key = `${productId}::${colorId ?? ""}`;
 			const quantity = Math.max(1, Number(item?.quantity) || 1);
 			const isFreeGift = item?.isFreeGift === true;
+			const mode = item?.check ?? "both";
+			// Gifts are not paid for, so they never carry a price to check.
+			const wantsPrice = mode !== "stock" && !isFreeGift;
+			const wantsStock = mode !== "price";
+
 			const existing = requested.get(key);
 			if (existing) {
-				existing.quantity += quantity;
+				if (wantsStock) existing.quantity += quantity;
+				existing.checkStock = existing.checkStock || wantsStock;
 				// A paid line in the same group still has to clear the price
-				// check, so the group only stays a gift while every line is.
-				if (!isFreeGift) {
-					existing.isFreeGift = false;
+				// check, so the group only stays unpriced while every line is.
+				if (wantsPrice && !existing.checkPrice) {
+					existing.checkPrice = true;
 					existing.submittedPrice = item?.product
 						? effectivePrice(item.product)
 						: null;
+				}
+				if (!isFreeGift) existing.isFreeGift = false;
+				if (!existing.comboName && item?.comboName) {
+					existing.comboName = item.comboName;
 				}
 			} else {
 				requested.set(key, {
@@ -123,11 +144,14 @@ export async function POST(req: NextRequest) {
 					colorId,
 					colorTitle: item?.selectedColor?.title ?? null,
 					name: item?.product?.name ?? "Unknown product",
-					quantity,
+					comboName: item?.comboName ?? null,
+					quantity: wantsStock ? quantity : 0,
 					submittedPrice:
-						isFreeGift || !item?.product
-							? null
-							: effectivePrice(item.product),
+						wantsPrice && item?.product
+							? effectivePrice(item.product)
+							: null,
+					checkPrice: wantsPrice,
+					checkStock: wantsStock,
 					isFreeGift,
 				});
 			}
@@ -187,6 +211,7 @@ export async function POST(req: NextRequest) {
 			// something that is still in stock.
 			const currentPrice = effectivePrice(product);
 			if (
+				group.checkPrice &&
 				group.submittedPrice !== null &&
 				Math.abs(group.submittedPrice - currentPrice) > 0.01
 			) {
@@ -195,6 +220,10 @@ export async function POST(req: NextRequest) {
 					`The price of "${label}" is now ₦${currentPrice.toLocaleString()}.`,
 				);
 			}
+
+			// A combo sends itself for the price only — the bags it is made of
+			// carry the stock, and arrive as their own lines.
+			if (!group.checkStock) continue;
 
 			// Pre-sale and pre-order items are deliberately sold before the
 			// stock exists, so no count is expected for them.
@@ -217,12 +246,16 @@ export async function POST(req: NextRequest) {
 				problems.push(
 					group.isFreeGift
 						? `The free gift "${label}" is sold out, so this combo cannot be ordered right now.`
-						: `"${label}" is sold out.`,
+						: group.comboName
+							? `"${group.comboName}" cannot be ordered — ${label} is sold out.`
+							: `"${label}" is sold out.`,
 				);
 			} else if (group.quantity > available) {
 				insufficientStock = true;
 				problems.push(
-					`Only ${available} of "${label}" left — you have ${group.quantity} in your cart.`,
+					group.comboName
+						? `Only ${available} of ${label} left, and "${group.comboName}" needs ${group.quantity}.`
+						: `Only ${available} of "${label}" left — you have ${group.quantity} in your cart.`,
 				);
 			}
 		}

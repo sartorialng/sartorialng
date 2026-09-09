@@ -445,7 +445,7 @@ export type AllSanitySchemaTypes =
 
 // Source: src/sanity/lib/product/getAllOrders.ts
 // Variable: ALL_ORDERS_QUERY
-// Query: *[_type == "order"] | order(orderDate desc) {      _id,      orderNumber,      paymentMethod,      paystackReference,      paypalOrderId,      orderDate,      customerName,      email,      status,      totalPrice,      currency,      amountDiscount,      clerkUserId,      products[]{        quantity,        selectedColor,        productName,        productPrice,        isFreeGift,        product->{          name,          price,          images[]{ asset->{url}, alt }        }      },      shippingAddress,      shippingCost,      vat,      subtotal,      orderNote,      deliveryType,      gigTrackingId,      gigPin,      gigPark    }
+// Query: *[_type == "order"] | order(orderDate desc) {      _id,      orderNumber,      paymentMethod,      paystackReference,      paypalOrderId,      orderDate,      customerName,      email,      status,      totalPrice,      currency,      amountDiscount,      clerkUserId,      products[]{        quantity,        selectedColor,        components[]{ productId, name, colorId, colorTitle, quantity },        productName,        productPrice,        isFreeGift,        product->{          name,          price,          images[]{ asset->{url}, alt }        }      },      shippingAddress,      shippingCost,      vat,      subtotal,      orderNote,      deliveryType,      gigTrackingId,      gigPin,      gigPark    }
 export type ALL_ORDERS_QUERY_RESULT = Array<{
   _id: string;
   orderNumber: string | null;
@@ -466,6 +466,13 @@ export type ALL_ORDERS_QUERY_RESULT = Array<{
       colorId?: string;
       colorTitle?: string;
     } | null;
+    components: Array<{
+      productId: string | null;
+      name: string | null;
+      colorId: string | null;
+      colorTitle: string | null;
+      quantity: number | null;
+    }> | null;
     productName: string | null;
     productPrice: number | null;
     isFreeGift: boolean | null;
@@ -508,7 +515,7 @@ export type QueryResult = Array<{
 
 // Source: src/sanity/lib/product/getAllProducts.ts
 // Variable: ALL_PRODUCTS_QUERY
-// Query: *[_type == "product" && isGift != true] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      onSale,      onCombo,      freeShipping,      freeGift->{        _id,        name,        "slug": slug.current,        price,        images[]{ asset->{url}, alt }      },      discountValue,      price,      salePrice,      stock,      isBestSeller,      isNewArrival,      onPreSale,      preSaleAvailability,      onPreOrder,      preOrderAvailability,      isComingSoon,      images[]{ asset->{url}, alt },      colors[]{        _key,        "_id": coalesce(color->_id, @->_id),        "title": coalesce(color->title, @->title),        stock      },      categories[]->{        _id,        title,        "slug": slug.current      }    }
+// Query: *[_type == "product" && isGift != true] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      onSale,      onCombo,      freeShipping,      comboItems[]{        _key,        quantity,        "colorOptionIds": colorOptions[]->_id,        product->{          _id,          name,          "slug": slug.current,          stock,          colors[]{            _key,            "_id": coalesce(color->_id, @->_id),            "title": coalesce(color->title, @->title),            stock          }        }      },      freeGift->{        _id,        name,        "slug": slug.current,        price,        images[]{ asset->{url}, alt }      },      discountValue,      price,      salePrice,      stock,      isBestSeller,      isNewArrival,      onPreSale,      preSaleAvailability,      onPreOrder,      preOrderAvailability,      isComingSoon,      images[]{ asset->{url}, alt },      colors[]{        _key,        "_id": coalesce(color->_id, @->_id),        "title": coalesce(color->title, @->title),        stock      },      categories[]->{        _id,        title,        "slug": slug.current      }    }
 export type ALL_PRODUCTS_QUERY_RESULT = Array<{
   _id: string;
   name: string | null;
@@ -516,6 +523,23 @@ export type ALL_PRODUCTS_QUERY_RESULT = Array<{
   onSale: boolean | null;
   onCombo: boolean | null;
   freeShipping: boolean | null;
+  comboItems: Array<{
+    _key: string;
+    quantity: number | null;
+    colorOptionIds: Array<string> | null;
+    product: {
+      _id: string;
+      name: string | null;
+      slug: string | null;
+      stock: number | null;
+      colors: Array<{
+        _key: string;
+        _id: string | null;
+        title: string | null;
+        stock: number | null;
+      }> | null;
+    } | null;
+  }> | null;
   freeGift: {
     _id: string;
     name: string | null;
@@ -600,7 +624,7 @@ export type ALL_CATEGORIES_QUERY_RESULT = Array<{
 
 // Source: src/sanity/lib/product/getGifts.ts
 // Variable: GIFTS_QUERY
-// Query: *[_type == "product" && isGift == true] | order(_createdAt desc) {	  _id,	  name,	  "slug": slug.current,	  onSale,	  onCombo,	  freeShipping,	  freeGift->{		_id,		name,		"slug": slug.current,		price,		images[]{ asset->{url}, alt }	  },	  discountValue,	  price,	  salePrice,	  stock,	  isBestSeller,	  isNewArrival,	  onPreSale,	  preSaleAvailability,	  onPreOrder,	  preOrderAvailability,	  isComingSoon,	  isGift,	  isRecommendedGift,	  images[]{ asset->{url}, alt },	  colors[]{        _key,        "_id": coalesce(color->_id, @->_id),        "title": coalesce(color->title, @->title),        stock      }	}
+// Query: *[_type == "product" && isGift == true] | order(_createdAt desc) {	  _id,	  name,	  "slug": slug.current,	  onSale,	  onCombo,	  freeShipping,	  comboItems[]{	    _key,	    quantity,	    "colorOptionIds": colorOptions[]->_id,	    product->{	      _id,	      name,	      "slug": slug.current,	      stock,	      colors[]{	        _key,	        "_id": coalesce(color->_id, @->_id),	        "title": coalesce(color->title, @->title),	        stock	      }	    }	  },	  freeGift->{		_id,		name,		"slug": slug.current,		price,		images[]{ asset->{url}, alt }	  },	  discountValue,	  price,	  salePrice,	  stock,	  isBestSeller,	  isNewArrival,	  onPreSale,	  preSaleAvailability,	  onPreOrder,	  preOrderAvailability,	  isComingSoon,	  isGift,	  isRecommendedGift,	  images[]{ asset->{url}, alt },	  colors[]{        _key,        "_id": coalesce(color->_id, @->_id),        "title": coalesce(color->title, @->title),        stock      }	}
 export type GIFTS_QUERY_RESULT = Array<{
   _id: string;
   name: string | null;
@@ -608,6 +632,23 @@ export type GIFTS_QUERY_RESULT = Array<{
   onSale: boolean | null;
   onCombo: boolean | null;
   freeShipping: boolean | null;
+  comboItems: Array<{
+    _key: string;
+    quantity: number | null;
+    colorOptionIds: Array<string> | null;
+    product: {
+      _id: string;
+      name: string | null;
+      slug: string | null;
+      stock: number | null;
+      colors: Array<{
+        _key: string;
+        _id: string | null;
+        title: string | null;
+        stock: number | null;
+      }> | null;
+    } | null;
+  }> | null;
   freeGift: {
     _id: string;
     name: string | null;
@@ -649,7 +690,7 @@ export type GIFTS_QUERY_RESULT = Array<{
 
 // Source: src/sanity/lib/product/getMyOrders.ts
 // Variable: MY_ORDERS_QUERY
-// Query: *[_type == "order" && clerkUserId == $userId] | order(orderDate desc) {        _id,        orderNumber,        orderDate,        status,        totalPrice,        currency,        products[]{          quantity,          selectedColor,          productName,          productPrice,          isFreeGift,          product->{            name,            price,            images[]{ asset->{url}, alt }          }        }      }
+// Query: *[_type == "order" && clerkUserId == $userId] | order(orderDate desc) {        _id,        orderNumber,        orderDate,        status,        totalPrice,        currency,        products[]{          quantity,          selectedColor,          components[]{ productId, name, colorId, colorTitle, quantity },          productName,          productPrice,          isFreeGift,          product->{            name,            price,            images[]{ asset->{url}, alt }          }        }      }
 export type MY_ORDERS_QUERY_RESULT = Array<{
   _id: string;
   orderNumber: string | null;
@@ -663,6 +704,13 @@ export type MY_ORDERS_QUERY_RESULT = Array<{
       colorId?: string;
       colorTitle?: string;
     } | null;
+    components: Array<{
+      productId: string | null;
+      name: string | null;
+      colorId: string | null;
+      colorTitle: string | null;
+      quantity: number | null;
+    }> | null;
     productName: string | null;
     productPrice: number | null;
     isFreeGift: boolean | null;
@@ -681,7 +729,7 @@ export type MY_ORDERS_QUERY_RESULT = Array<{
 
 // Source: src/sanity/lib/product/getNewArrivals.ts
 // Variable: NEW_ARRIVALS_QUERY
-// Query: *[_type == "product" && isNewArrival == true] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      onSale,      onCombo,      freeShipping,      freeGift->{        _id,        name,        "slug": slug.current,        price,        images[]{ asset->{url}, alt }      },      discountValue,      price,      salePrice,      stock,      isBestSeller,      isNewArrival,      onPreSale,      preSaleAvailability,      onPreOrder,      preOrderAvailability,      isComingSoon,      images[]{ asset->{url}, alt },      colors[]{        _key,        "_id": coalesce(color->_id, @->_id),        "title": coalesce(color->title, @->title),        stock      }    }
+// Query: *[_type == "product" && isNewArrival == true] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      onSale,      onCombo,      freeShipping,      comboItems[]{        _key,        quantity,        "colorOptionIds": colorOptions[]->_id,        product->{          _id,          name,          "slug": slug.current,          stock,          colors[]{            _key,            "_id": coalesce(color->_id, @->_id),            "title": coalesce(color->title, @->title),            stock          }        }      },      freeGift->{        _id,        name,        "slug": slug.current,        price,        images[]{ asset->{url}, alt }      },      discountValue,      price,      salePrice,      stock,      isBestSeller,      isNewArrival,      onPreSale,      preSaleAvailability,      onPreOrder,      preOrderAvailability,      isComingSoon,      images[]{ asset->{url}, alt },      colors[]{        _key,        "_id": coalesce(color->_id, @->_id),        "title": coalesce(color->title, @->title),        stock      }    }
 export type NEW_ARRIVALS_QUERY_RESULT = Array<{
   _id: string;
   name: string | null;
@@ -689,6 +737,23 @@ export type NEW_ARRIVALS_QUERY_RESULT = Array<{
   onSale: boolean | null;
   onCombo: boolean | null;
   freeShipping: boolean | null;
+  comboItems: Array<{
+    _key: string;
+    quantity: number | null;
+    colorOptionIds: Array<string> | null;
+    product: {
+      _id: string;
+      name: string | null;
+      slug: string | null;
+      stock: number | null;
+      colors: Array<{
+        _key: string;
+        _id: string | null;
+        title: string | null;
+        stock: number | null;
+      }> | null;
+    } | null;
+  }> | null;
   freeGift: {
     _id: string;
     name: string | null;
@@ -728,7 +793,7 @@ export type NEW_ARRIVALS_QUERY_RESULT = Array<{
 
 // Source: src/sanity/lib/product/getOrderById.ts
 // Variable: ORDER_BY_ID_QUERY
-// Query: *[_type == "order" && _id == $_id][0] {        _id,        orderNumber,        paymentMethod,        paystackReference,        paypalOrderId,        orderDate,        customerName,        email,        status,        totalPrice,        currency,        amountDiscount,        clerkUserId,        products[]{          quantity,          selectedColor,          productName,          productPrice,          isFreeGift,          product->{            name,            price,            images[]{ asset->{url}, alt }          }        },        shippingAddress,        shippingCost,        vat,        subtotal,        orderNote,        deliveryType,        gigTrackingId,        gigPin,        gigPark      }
+// Query: *[_type == "order" && _id == $_id][0] {        _id,        orderNumber,        paymentMethod,        paystackReference,        paypalOrderId,        orderDate,        customerName,        email,        status,        totalPrice,        currency,        amountDiscount,        clerkUserId,        products[]{          quantity,          selectedColor,          components[]{ productId, name, colorId, colorTitle, quantity },          productName,          productPrice,          isFreeGift,          product->{            name,            price,            images[]{ asset->{url}, alt }          }        },        shippingAddress,        shippingCost,        vat,        subtotal,        orderNote,        deliveryType,        gigTrackingId,        gigPin,        gigPark      }
 export type ORDER_BY_ID_QUERY_RESULT = {
   _id: string;
   orderNumber: string | null;
@@ -749,6 +814,13 @@ export type ORDER_BY_ID_QUERY_RESULT = {
       colorId?: string;
       colorTitle?: string;
     } | null;
+    components: Array<{
+      productId: string | null;
+      name: string | null;
+      colorId: string | null;
+      colorTitle: string | null;
+      quantity: number | null;
+    }> | null;
     productName: string | null;
     productPrice: number | null;
     isFreeGift: boolean | null;
@@ -784,7 +856,7 @@ export type ORDER_BY_ID_QUERY_RESULT = {
 
 // Source: src/sanity/lib/product/getPreSales.ts
 // Variable: PRE_SALE_QUERY
-// Query: *[_type == "product" && onPreSale == true] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      onSale,      onCombo,      freeShipping,      freeGift->{        _id,        name,        "slug": slug.current,        price,        images[]{ asset->{url}, alt }      },      discountValue,      price,      salePrice,      stock,      isBestSeller,      isNewArrival,      onPreSale,      preSaleAvailability,      onPreOrder,      preOrderAvailability,      isComingSoon,      images[]{ asset->{url}, alt },      colors[]{        _key,        "_id": coalesce(color->_id, @->_id),        "title": coalesce(color->title, @->title),        stock      }    }
+// Query: *[_type == "product" && onPreSale == true] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      onSale,      onCombo,      freeShipping,      comboItems[]{        _key,        quantity,        "colorOptionIds": colorOptions[]->_id,        product->{          _id,          name,          "slug": slug.current,          stock,          colors[]{            _key,            "_id": coalesce(color->_id, @->_id),            "title": coalesce(color->title, @->title),            stock          }        }      },      freeGift->{        _id,        name,        "slug": slug.current,        price,        images[]{ asset->{url}, alt }      },      discountValue,      price,      salePrice,      stock,      isBestSeller,      isNewArrival,      onPreSale,      preSaleAvailability,      onPreOrder,      preOrderAvailability,      isComingSoon,      images[]{ asset->{url}, alt },      colors[]{        _key,        "_id": coalesce(color->_id, @->_id),        "title": coalesce(color->title, @->title),        stock      }    }
 export type PRE_SALE_QUERY_RESULT = Array<{
   _id: string;
   name: string | null;
@@ -792,6 +864,23 @@ export type PRE_SALE_QUERY_RESULT = Array<{
   onSale: boolean | null;
   onCombo: boolean | null;
   freeShipping: boolean | null;
+  comboItems: Array<{
+    _key: string;
+    quantity: number | null;
+    colorOptionIds: Array<string> | null;
+    product: {
+      _id: string;
+      name: string | null;
+      slug: string | null;
+      stock: number | null;
+      colors: Array<{
+        _key: string;
+        _id: string | null;
+        title: string | null;
+        stock: number | null;
+      }> | null;
+    } | null;
+  }> | null;
   freeGift: {
     _id: string;
     name: string | null;
@@ -831,7 +920,7 @@ export type PRE_SALE_QUERY_RESULT = Array<{
 
 // Source: src/sanity/lib/product/getProductBySlug.ts
 // Variable: PRODUCT_BY_SLUG_QUERY
-// Query: *[_type == "product" && slug.current == $slug][0] {      _id,      name,      "slug": slug.current,      onSale,      onCombo,      freeShipping,      freeGift->{        _id,        name,        "slug": slug.current,        price,        images[]{ asset->{url}, alt }      },      discountValue,      price,      salePrice,      stock,      description,      detailedDescription,      isBestSeller,      isNewArrival,      onPreSale,      preSaleAvailability,      onPreOrder,      preOrderAvailability,      isComingSoon,      images[]{        alt,        asset->{url},        "color": color->{          _id,          title,          hex        }      },      colors[]{        _key,        "_id": coalesce(color->_id, @->_id),        "title": coalesce(color->title, @->title),        stock      },      categories[]->{        _id,        name      }    }
+// Query: *[_type == "product" && slug.current == $slug][0] {      _id,      name,      "slug": slug.current,      onSale,      onCombo,      freeShipping,      comboItems[]{        _key,        quantity,        "colorOptionIds": colorOptions[]->_id,        product->{          _id,          name,          "slug": slug.current,          stock,          colors[]{            _key,            "_id": coalesce(color->_id, @->_id),            "title": coalesce(color->title, @->title),            stock          }        }      },      freeGift->{        _id,        name,        "slug": slug.current,        price,        images[]{ asset->{url}, alt }      },      discountValue,      price,      salePrice,      stock,      description,      detailedDescription,      isBestSeller,      isNewArrival,      onPreSale,      preSaleAvailability,      onPreOrder,      preOrderAvailability,      isComingSoon,      images[]{        alt,        asset->{url},        "color": color->{          _id,          title,          hex        }      },      colors[]{        _key,        "_id": coalesce(color->_id, @->_id),        "title": coalesce(color->title, @->title),        stock      },      categories[]->{        _id,        name      }    }
 export type PRODUCT_BY_SLUG_QUERY_RESULT = {
   _id: string;
   name: string | null;
@@ -839,6 +928,23 @@ export type PRODUCT_BY_SLUG_QUERY_RESULT = {
   onSale: boolean | null;
   onCombo: boolean | null;
   freeShipping: boolean | null;
+  comboItems: Array<{
+    _key: string;
+    quantity: number | null;
+    colorOptionIds: Array<string> | null;
+    product: {
+      _id: string;
+      name: string | null;
+      slug: string | null;
+      stock: number | null;
+      colors: Array<{
+        _key: string;
+        _id: string | null;
+        title: string | null;
+        stock: number | null;
+      }> | null;
+    } | null;
+  }> | null;
   freeGift: {
     _id: string;
     name: string | null;
@@ -889,7 +995,7 @@ export type PRODUCT_BY_SLUG_QUERY_RESULT = {
 
 // Source: src/sanity/lib/product/getProductsByCategory.ts
 // Variable: FILTERED_PRODUCTS_QUERY
-// Query: *[_type == "product"  ] {      _id,      name,      "slug": slug.current,      price,      stock,	  onSale,	  onCombo,	  freeShipping,      freeGift->{        _id,        name,        "slug": slug.current,        price,        images[]{ asset->{url}, alt }      },      discountValue,	  onPreSale,      preSaleAvailability,	  onPreOrder,      preOrderAvailability,      isComingSoon,      description,      detailedDescription,      isBestSeller,      isNewArrival,      images[]{        alt,        asset->{url},        "color": color->{          _id,          title,          hex        }      },      colors[]{        _key,        "_id": coalesce(color->_id, @->_id),        "title": coalesce(color->title, @->title),        stock      },      categories[]->{        _id,        title,        "slug": slug.current      }    }
+// Query: *[_type == "product"  ] {      _id,      name,      "slug": slug.current,      price,      stock,	  onSale,	  onCombo,	  freeShipping,	  comboItems[]{	    _key,	    quantity,	    "colorOptionIds": colorOptions[]->_id,	    product->{	      _id,	      name,	      "slug": slug.current,	      stock,	      colors[]{	        _key,	        "_id": coalesce(color->_id, @->_id),	        "title": coalesce(color->title, @->title),	        stock	      }	    }	  },      freeGift->{        _id,        name,        "slug": slug.current,        price,        images[]{ asset->{url}, alt }      },      discountValue,	  onPreSale,      preSaleAvailability,	  onPreOrder,      preOrderAvailability,      isComingSoon,      description,      detailedDescription,      isBestSeller,      isNewArrival,      images[]{        alt,        asset->{url},        "color": color->{          _id,          title,          hex        }      },      colors[]{        _key,        "_id": coalesce(color->_id, @->_id),        "title": coalesce(color->title, @->title),        stock      },      categories[]->{        _id,        title,        "slug": slug.current      }    }
 export type FILTERED_PRODUCTS_QUERY_RESULT = Array<{
   _id: string;
   name: string | null;
@@ -899,6 +1005,23 @@ export type FILTERED_PRODUCTS_QUERY_RESULT = Array<{
   onSale: boolean | null;
   onCombo: boolean | null;
   freeShipping: boolean | null;
+  comboItems: Array<{
+    _key: string;
+    quantity: number | null;
+    colorOptionIds: Array<string> | null;
+    product: {
+      _id: string;
+      name: string | null;
+      slug: string | null;
+      stock: number | null;
+      colors: Array<{
+        _key: string;
+        _id: string | null;
+        title: string | null;
+        stock: number | null;
+      }> | null;
+    } | null;
+  }> | null;
   freeGift: {
     _id: string;
     name: string | null;
@@ -974,18 +1097,18 @@ export type ALL_BABES_QUERY_RESULT = Array<{
 // Query TypeMap
 declare global {
   interface SanityQueries {
-    '\n    *[_type == "order"] | order(orderDate desc) {\n      _id,\n      orderNumber,\n      paymentMethod,\n      paystackReference,\n      paypalOrderId,\n      orderDate,\n      customerName,\n      email,\n      status,\n      totalPrice,\n      currency,\n      amountDiscount,\n      clerkUserId,\n      products[]{\n        quantity,\n        selectedColor,\n        productName,\n        productPrice,\n        isFreeGift,\n        product->{\n          name,\n          price,\n          images[]{ asset->{url}, alt }\n        }\n      },\n      shippingAddress,\n      shippingCost,\n      vat,\n      subtotal,\n      orderNote,\n      deliveryType,\n      gigTrackingId,\n      gigPin,\n      gigPark\n    }\n  ': ALL_ORDERS_QUERY_RESULT;
+    '\n    *[_type == "order"] | order(orderDate desc) {\n      _id,\n      orderNumber,\n      paymentMethod,\n      paystackReference,\n      paypalOrderId,\n      orderDate,\n      customerName,\n      email,\n      status,\n      totalPrice,\n      currency,\n      amountDiscount,\n      clerkUserId,\n      products[]{\n        quantity,\n        selectedColor,\n        components[]{ productId, name, colorId, colorTitle, quantity },\n        productName,\n        productPrice,\n        isFreeGift,\n        product->{\n          name,\n          price,\n          images[]{ asset->{url}, alt }\n        }\n      },\n      shippingAddress,\n      shippingCost,\n      vat,\n      subtotal,\n      orderNote,\n      deliveryType,\n      gigTrackingId,\n      gigPin,\n      gigPark\n    }\n  ': ALL_ORDERS_QUERY_RESULT;
     '*[_type == "product" && defined(slug.current)]{ "slug": slug.current }': QueryResult;
-    '\n    *[_type == "product" && isGift != true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      onCombo,\n      freeShipping,\n      freeGift->{\n        _id,\n        name,\n        "slug": slug.current,\n        price,\n        images[]{ asset->{url}, alt }\n      },\n      discountValue,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      onPreSale,\n      preSaleAvailability,\n      onPreOrder,\n      preOrderAvailability,\n      isComingSoon,\n      images[]{ asset->{url}, alt },\n      colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      },\n      categories[]->{\n        _id,\n        title,\n        "slug": slug.current\n      }\n    }\n  ': ALL_PRODUCTS_QUERY_RESULT;
+    '\n    *[_type == "product" && isGift != true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      onCombo,\n      freeShipping,\n      comboItems[]{\n        _key,\n        quantity,\n        "colorOptionIds": colorOptions[]->_id,\n        product->{\n          _id,\n          name,\n          "slug": slug.current,\n          stock,\n          colors[]{\n            _key,\n            "_id": coalesce(color->_id, @->_id),\n            "title": coalesce(color->title, @->title),\n            stock\n          }\n        }\n      },\n      freeGift->{\n        _id,\n        name,\n        "slug": slug.current,\n        price,\n        images[]{ asset->{url}, alt }\n      },\n      discountValue,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      onPreSale,\n      preSaleAvailability,\n      onPreOrder,\n      preOrderAvailability,\n      isComingSoon,\n      images[]{ asset->{url}, alt },\n      colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      },\n      categories[]->{\n        _id,\n        title,\n        "slug": slug.current\n      }\n    }\n  ': ALL_PRODUCTS_QUERY_RESULT;
     '\n\t*[_type == "category" && showOnHomepage == true]\n\t\t| order(coalesce(displayOrder, 999) asc, title asc) {\n\t\t\n\t_id,\n\ttitle,\n\t"slug": slug.current,\n\tmenuLabel,\n\tcomingSoon,\n\tdisplayOrder,\n\timage\n\n\t}\n': STOREFRONT_CATEGORIES_QUERY_RESULT;
     '\n\t*[_type == "category"]\n\t\t| order(coalesce(displayOrder, 999) asc, title asc) {\n\t\t\n\t_id,\n\ttitle,\n\t"slug": slug.current,\n\tmenuLabel,\n\tcomingSoon,\n\tdisplayOrder,\n\timage\n\n\t}\n': ALL_CATEGORIES_QUERY_RESULT;
-    '\n\t*[_type == "product" && isGift == true] | order(_createdAt desc) {\n\t  _id,\n\t  name,\n\t  "slug": slug.current,\n\t  onSale,\n\t  onCombo,\n\t  freeShipping,\n\t  freeGift->{\n\t\t_id,\n\t\tname,\n\t\t"slug": slug.current,\n\t\tprice,\n\t\timages[]{ asset->{url}, alt }\n\t  },\n\t  discountValue,\n\t  price,\n\t  salePrice,\n\t  stock,\n\t  isBestSeller,\n\t  isNewArrival,\n\t  onPreSale,\n\t  preSaleAvailability,\n\t  onPreOrder,\n\t  preOrderAvailability,\n\t  isComingSoon,\n\t  isGift,\n\t  isRecommendedGift,\n\t  images[]{ asset->{url}, alt },\n\t  colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      }\n\t}\n  ': GIFTS_QUERY_RESULT;
-    '\n      *[_type == "order" && clerkUserId == $userId] | order(orderDate desc) {\n        _id,\n        orderNumber,\n        orderDate,\n        status,\n        totalPrice,\n        currency,\n        products[]{\n          quantity,\n          selectedColor,\n          productName,\n          productPrice,\n          isFreeGift,\n          product->{\n            name,\n            price,\n            images[]{ asset->{url}, alt }\n          }\n        }\n      }\n    ': MY_ORDERS_QUERY_RESULT;
-    '\n    *[_type == "product" && isNewArrival == true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      onCombo,\n      freeShipping,\n      freeGift->{\n        _id,\n        name,\n        "slug": slug.current,\n        price,\n        images[]{ asset->{url}, alt }\n      },\n      discountValue,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      onPreSale,\n      preSaleAvailability,\n      onPreOrder,\n      preOrderAvailability,\n      isComingSoon,\n      images[]{ asset->{url}, alt },\n      colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      }\n    }\n  ': NEW_ARRIVALS_QUERY_RESULT;
-    '\n      *[_type == "order" && _id == $_id][0] {\n        _id,\n        orderNumber,\n        paymentMethod,\n        paystackReference,\n        paypalOrderId,\n        orderDate,\n        customerName,\n        email,\n        status,\n        totalPrice,\n        currency,\n        amountDiscount,\n        clerkUserId,\n        products[]{\n          quantity,\n          selectedColor,\n          productName,\n          productPrice,\n          isFreeGift,\n          product->{\n            name,\n            price,\n            images[]{ asset->{url}, alt }\n          }\n        },\n        shippingAddress,\n        shippingCost,\n        vat,\n        subtotal,\n        orderNote,\n        deliveryType,\n        gigTrackingId,\n        gigPin,\n        gigPark\n      }\n    ': ORDER_BY_ID_QUERY_RESULT;
-    '\n    *[_type == "product" && onPreSale == true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      onCombo,\n      freeShipping,\n      freeGift->{\n        _id,\n        name,\n        "slug": slug.current,\n        price,\n        images[]{ asset->{url}, alt }\n      },\n      discountValue,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      onPreSale,\n      preSaleAvailability,\n      onPreOrder,\n      preOrderAvailability,\n      isComingSoon,\n      images[]{ asset->{url}, alt },\n      colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      }\n    }\n  ': PRE_SALE_QUERY_RESULT;
-    '\n    *[_type == "product" && slug.current == $slug][0] {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      onCombo,\n      freeShipping,\n      freeGift->{\n        _id,\n        name,\n        "slug": slug.current,\n        price,\n        images[]{ asset->{url}, alt }\n      },\n      discountValue,\n      price,\n      salePrice,\n      stock,\n      description,\n      detailedDescription,\n      isBestSeller,\n      isNewArrival,\n      onPreSale,\n      preSaleAvailability,\n      onPreOrder,\n      preOrderAvailability,\n      isComingSoon,\n      images[]{\n        alt,\n        asset->{url},\n        "color": color->{\n          _id,\n          title,\n          hex\n        }\n      },\n      colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      },\n      categories[]->{\n        _id,\n        name\n      }\n    }\n  ': PRODUCT_BY_SLUG_QUERY_RESULT;
-    '\n    *[_type == "product"  ] {\n      _id,\n      name,\n      "slug": slug.current,\n      price,\n      stock,\n\t  onSale,\n\t  onCombo,\n\t  freeShipping,\n      freeGift->{\n        _id,\n        name,\n        "slug": slug.current,\n        price,\n        images[]{ asset->{url}, alt }\n      },\n      discountValue,\n\t  onPreSale,\n      preSaleAvailability,\n\t  onPreOrder,\n      preOrderAvailability,\n      isComingSoon,\n      description,\n      detailedDescription,\n      isBestSeller,\n      isNewArrival,\n      images[]{\n        alt,\n        asset->{url},\n        "color": color->{\n          _id,\n          title,\n          hex\n        }\n      },\n      colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      },\n      categories[]->{\n        _id,\n        title,\n        "slug": slug.current\n      }\n    }\n  ': FILTERED_PRODUCTS_QUERY_RESULT;
+    '\n\t*[_type == "product" && isGift == true] | order(_createdAt desc) {\n\t  _id,\n\t  name,\n\t  "slug": slug.current,\n\t  onSale,\n\t  onCombo,\n\t  freeShipping,\n\t  comboItems[]{\n\t    _key,\n\t    quantity,\n\t    "colorOptionIds": colorOptions[]->_id,\n\t    product->{\n\t      _id,\n\t      name,\n\t      "slug": slug.current,\n\t      stock,\n\t      colors[]{\n\t        _key,\n\t        "_id": coalesce(color->_id, @->_id),\n\t        "title": coalesce(color->title, @->title),\n\t        stock\n\t      }\n\t    }\n\t  },\n\t  freeGift->{\n\t\t_id,\n\t\tname,\n\t\t"slug": slug.current,\n\t\tprice,\n\t\timages[]{ asset->{url}, alt }\n\t  },\n\t  discountValue,\n\t  price,\n\t  salePrice,\n\t  stock,\n\t  isBestSeller,\n\t  isNewArrival,\n\t  onPreSale,\n\t  preSaleAvailability,\n\t  onPreOrder,\n\t  preOrderAvailability,\n\t  isComingSoon,\n\t  isGift,\n\t  isRecommendedGift,\n\t  images[]{ asset->{url}, alt },\n\t  colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      }\n\t}\n  ': GIFTS_QUERY_RESULT;
+    '\n      *[_type == "order" && clerkUserId == $userId] | order(orderDate desc) {\n        _id,\n        orderNumber,\n        orderDate,\n        status,\n        totalPrice,\n        currency,\n        products[]{\n          quantity,\n          selectedColor,\n          components[]{ productId, name, colorId, colorTitle, quantity },\n          productName,\n          productPrice,\n          isFreeGift,\n          product->{\n            name,\n            price,\n            images[]{ asset->{url}, alt }\n          }\n        }\n      }\n    ': MY_ORDERS_QUERY_RESULT;
+    '\n    *[_type == "product" && isNewArrival == true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      onCombo,\n      freeShipping,\n      comboItems[]{\n        _key,\n        quantity,\n        "colorOptionIds": colorOptions[]->_id,\n        product->{\n          _id,\n          name,\n          "slug": slug.current,\n          stock,\n          colors[]{\n            _key,\n            "_id": coalesce(color->_id, @->_id),\n            "title": coalesce(color->title, @->title),\n            stock\n          }\n        }\n      },\n      freeGift->{\n        _id,\n        name,\n        "slug": slug.current,\n        price,\n        images[]{ asset->{url}, alt }\n      },\n      discountValue,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      onPreSale,\n      preSaleAvailability,\n      onPreOrder,\n      preOrderAvailability,\n      isComingSoon,\n      images[]{ asset->{url}, alt },\n      colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      }\n    }\n  ': NEW_ARRIVALS_QUERY_RESULT;
+    '\n      *[_type == "order" && _id == $_id][0] {\n        _id,\n        orderNumber,\n        paymentMethod,\n        paystackReference,\n        paypalOrderId,\n        orderDate,\n        customerName,\n        email,\n        status,\n        totalPrice,\n        currency,\n        amountDiscount,\n        clerkUserId,\n        products[]{\n          quantity,\n          selectedColor,\n          components[]{ productId, name, colorId, colorTitle, quantity },\n          productName,\n          productPrice,\n          isFreeGift,\n          product->{\n            name,\n            price,\n            images[]{ asset->{url}, alt }\n          }\n        },\n        shippingAddress,\n        shippingCost,\n        vat,\n        subtotal,\n        orderNote,\n        deliveryType,\n        gigTrackingId,\n        gigPin,\n        gigPark\n      }\n    ': ORDER_BY_ID_QUERY_RESULT;
+    '\n    *[_type == "product" && onPreSale == true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      onCombo,\n      freeShipping,\n      comboItems[]{\n        _key,\n        quantity,\n        "colorOptionIds": colorOptions[]->_id,\n        product->{\n          _id,\n          name,\n          "slug": slug.current,\n          stock,\n          colors[]{\n            _key,\n            "_id": coalesce(color->_id, @->_id),\n            "title": coalesce(color->title, @->title),\n            stock\n          }\n        }\n      },\n      freeGift->{\n        _id,\n        name,\n        "slug": slug.current,\n        price,\n        images[]{ asset->{url}, alt }\n      },\n      discountValue,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      onPreSale,\n      preSaleAvailability,\n      onPreOrder,\n      preOrderAvailability,\n      isComingSoon,\n      images[]{ asset->{url}, alt },\n      colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      }\n    }\n  ': PRE_SALE_QUERY_RESULT;
+    '\n    *[_type == "product" && slug.current == $slug][0] {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      onCombo,\n      freeShipping,\n      comboItems[]{\n        _key,\n        quantity,\n        "colorOptionIds": colorOptions[]->_id,\n        product->{\n          _id,\n          name,\n          "slug": slug.current,\n          stock,\n          colors[]{\n            _key,\n            "_id": coalesce(color->_id, @->_id),\n            "title": coalesce(color->title, @->title),\n            stock\n          }\n        }\n      },\n      freeGift->{\n        _id,\n        name,\n        "slug": slug.current,\n        price,\n        images[]{ asset->{url}, alt }\n      },\n      discountValue,\n      price,\n      salePrice,\n      stock,\n      description,\n      detailedDescription,\n      isBestSeller,\n      isNewArrival,\n      onPreSale,\n      preSaleAvailability,\n      onPreOrder,\n      preOrderAvailability,\n      isComingSoon,\n      images[]{\n        alt,\n        asset->{url},\n        "color": color->{\n          _id,\n          title,\n          hex\n        }\n      },\n      colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      },\n      categories[]->{\n        _id,\n        name\n      }\n    }\n  ': PRODUCT_BY_SLUG_QUERY_RESULT;
+    '\n    *[_type == "product"  ] {\n      _id,\n      name,\n      "slug": slug.current,\n      price,\n      stock,\n\t  onSale,\n\t  onCombo,\n\t  freeShipping,\n\t  comboItems[]{\n\t    _key,\n\t    quantity,\n\t    "colorOptionIds": colorOptions[]->_id,\n\t    product->{\n\t      _id,\n\t      name,\n\t      "slug": slug.current,\n\t      stock,\n\t      colors[]{\n\t        _key,\n\t        "_id": coalesce(color->_id, @->_id),\n\t        "title": coalesce(color->title, @->title),\n\t        stock\n\t      }\n\t    }\n\t  },\n      freeGift->{\n        _id,\n        name,\n        "slug": slug.current,\n        price,\n        images[]{ asset->{url}, alt }\n      },\n      discountValue,\n\t  onPreSale,\n      preSaleAvailability,\n\t  onPreOrder,\n      preOrderAvailability,\n      isComingSoon,\n      description,\n      detailedDescription,\n      isBestSeller,\n      isNewArrival,\n      images[]{\n        alt,\n        asset->{url},\n        "color": color->{\n          _id,\n          title,\n          hex\n        }\n      },\n      colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      },\n      categories[]->{\n        _id,\n        title,\n        "slug": slug.current\n      }\n    }\n  ': FILTERED_PRODUCTS_QUERY_RESULT;
     '\n    *[_type == "review" && isApproved == true] | order(date desc) {\n      _id,\n      customerName,\n      rating,\n      comment,\n      date\n    }\n  ': ALL_REVIEWS_QUERY_RESULT;
     '\n    *[_type == "sartorialBabe"] | order(_createdAt desc) {\n      _id,\n      name,\n      image\n    }\n  ': ALL_BABES_QUERY_RESULT;
   }

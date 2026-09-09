@@ -33,6 +33,14 @@ type OrderProduct = {
 		colorId: string;
 		colorTitle: string;
 	};
+	/** Set on combo lines: which bag was bought in which colour. */
+	components?: {
+		productId: string;
+		name: string;
+		colorId: string;
+		colorTitle: string;
+		quantity: number;
+	}[];
 };
 
 type Product = {
@@ -234,10 +242,18 @@ const OrderCard = ({ order }: { order: Order }) => (
 									🎁 Free gift
 								</p>
 							)}
-							{item.selectedColor?.colorTitle && (
+							{item.components?.length ? (
 								<p className="text-xs text-gray-500 mt-0.5">
-									Colour: {item.selectedColor.colorTitle}
+									{item.components
+										.map((c) => `${c.name}: ${c.colorTitle}`)
+										.join(" · ")}
 								</p>
+							) : (
+								item.selectedColor?.colorTitle && (
+									<p className="text-xs text-gray-500 mt-0.5">
+										Colour: {item.selectedColor.colorTitle}
+									</p>
+								)
 							)}
 							<p className="text-xs text-gray-500">
 								Qty: {item.quantity}

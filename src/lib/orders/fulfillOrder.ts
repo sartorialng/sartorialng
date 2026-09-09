@@ -184,6 +184,18 @@ const buildOrderDoc = (
 			};
 		}
 
+		if (item.components?.length) {
+			productData.components = item.components.map((c, i) => ({
+				_key: `${c.productId}-${c.colorId}-${i}`,
+				_type: "orderComponent",
+				productId: c.productId,
+				name: c.name,
+				colorId: c.colorId,
+				colorTitle: c.colorTitle,
+				quantity: c.quantity,
+			}));
+		}
+
 		return productData;
 	});
 

@@ -1,7 +1,7 @@
 import { adminClient } from "../../../../sanity/lib/sanity.admin";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { adjustStock } from "@/lib/orders/stock";
+import { adjustStock, expandStockLine } from "@/lib/orders/stock";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -44,7 +44,8 @@ export async function PATCH(req: Request) {
 					productName,
 					productPrice,
 					isFreeGift,
-					selectedColor{ colorId, colorTitle }
+					selectedColor{ colorId, colorTitle },
+					components[]{ productId, colorId, quantity }
 				}
 			}`,
 			{ id: orderId },
@@ -77,11 +78,14 @@ export async function PATCH(req: Request) {
 			await adjustStock(
 				(order.products ?? [])
 					.filter((item: any) => item?.productId)
-					.map((item: any) => ({
-						productId: item.productId as string,
-						colorId: item.selectedColor?.colorId ?? null,
-						quantity: Number(item.quantity) || 0,
-					})),
+					.flatMap((item: any) =>
+						expandStockLine({
+							_id: item.productId as string,
+							quantity: Number(item.quantity) || 0,
+							selectedColor: item.selectedColor ?? null,
+							components: item.components ?? null,
+						}),
+					),
 				"restock",
 				order.orderNumber,
 			);

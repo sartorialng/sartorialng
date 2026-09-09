@@ -307,7 +307,13 @@ const OrderDetailContent = () => {
 				(p) => `
           <tr>
             <td>${getOrderLineName(p)}${isFreeGiftLine(p) ? " (Free gift)" : ""}</td>
-            <td>${p.selectedColor?.colorTitle || "—"}</td>
+            <td>${
+				p.components?.length
+					? p.components
+							.map((c) => `${c.name}: ${c.colorTitle}`)
+							.join("<br>")
+					: p.selectedColor?.colorTitle || "—"
+			}</td>
             <td class="text-right">${p.quantity}</td>
             <td class="text-right">${isFreeGiftLine(p) ? "FREE" : formatCurrency(getOrderLineUnitPrice(p), order.currency)}</td>
             <td class="text-right">${isFreeGiftLine(p) ? "FREE" : formatCurrency(getOrderLineTotal(p), order.currency)}</td>
@@ -603,14 +609,21 @@ const OrderDetailContent = () => {
 													🎁 Free gift
 												</p>
 											)}
-											{item.selectedColor?.colorTitle && (
+											{item.components?.length ? (
 												<p className="text-xs text-gray-500">
-													Color:{" "}
-													{
-														item.selectedColor
-															.colorTitle
-													}
+													{item.components
+														.map(
+															(c) =>
+																`${c.name}: ${c.colorTitle}`,
+														)
+														.join(" · ")}
 												</p>
+											) : (
+												item.selectedColor?.colorTitle && (
+													<p className="text-xs text-gray-500">
+														Color: {item.selectedColor.colorTitle}
+													</p>
+												)
 											)}
 											<p className="text-xs text-gray-500">
 												Qty: {item.quantity} ×{" "}
