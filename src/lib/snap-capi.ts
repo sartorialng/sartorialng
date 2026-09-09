@@ -68,6 +68,104 @@ const hashName = (name?: string | null) => {
 };
 
 /**
+ * City and state, hashed the way Snap documents: lower case with punctuation
+ * and spaces removed, so "Victoria Island" and "victoria island" agree.
+ */
+const hashPlace = (place?: string | null) => {
+	if (!place) return undefined;
+	const value = place.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+	return value ? sha256(value) : undefined;
+};
+
+/**
+ * Nigerian codes are five or six digits and pass through unchanged. A US
+ * ZIP+4 is cut to the first five digits, which is the form Snap asks for.
+ */
+const hashZip = (zip?: string | null) => {
+	if (!zip) return undefined;
+	const value = zip.trim().toLowerCase().replace(/\s+/g, "");
+	if (!value) return undefined;
+	const zipPlusFour = value.match(/^(\d{5})-?\d{4}$/);
+	return sha256(zipPlusFour ? zipPlusFour[1] : value);
+};
+
+/**
+ * Snap wants an ISO 3166 alpha-2 code, but the checkout stores the display
+ * name the shopper picked. Every entry in COUNTRIES (src/data/shipping.ts) is
+ * mapped here; a country missing from this map is dropped rather than sent as
+ * a name Snap cannot read.
+ */
+const COUNTRY_CODES: Record<string, string> = {
+	nigeria: "ng",
+	ghana: "gh",
+	kenya: "ke",
+	"south africa": "za",
+	uganda: "ug",
+	tanzania: "tz",
+	rwanda: "rw",
+	senegal: "sn",
+	"cote d'ivoire": "ci",
+	cameroon: "cm",
+	"united states": "us",
+	canada: "ca",
+	"united kingdom": "gb",
+	ireland: "ie",
+	france: "fr",
+	germany: "de",
+	netherlands: "nl",
+	belgium: "be",
+	italy: "it",
+	spain: "es",
+	portugal: "pt",
+	sweden: "se",
+	norway: "no",
+	switzerland: "ch",
+	austria: "at",
+	denmark: "dk",
+	finland: "fi",
+	"united arab emirates": "ae",
+	"saudi arabia": "sa",
+	qatar: "qa",
+	kuwait: "kw",
+	india: "in",
+	pakistan: "pk",
+	bangladesh: "bd",
+	"sri lanka": "lk",
+	china: "cn",
+	japan: "jp",
+	"south korea": "kr",
+	australia: "au",
+	"new zealand": "nz",
+	brazil: "br",
+	argentina: "ar",
+	mexico: "mx",
+	colombia: "co",
+	egypt: "eg",
+	morocco: "ma",
+	tunisia: "tn",
+	algeria: "dz",
+	israel: "il",
+	turkey: "tr",
+};
+
+const hashCountry = (country?: string | null) => {
+	if (!country) return undefined;
+	// The list uses a curly apostrophe in "Côte d'Ivoire"; accents and both
+	// apostrophe forms are folded so the lookup key is stable either way.
+	const key = country
+		.trim()
+		.toLowerCase()
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.replace(/[\u2018\u2019]/g, "'")
+		.replace(/\s+/g, " ");
+	if (!key) return undefined;
+
+	const code = COUNTRY_CODES[key] ?? (/^[a-z]{2}$/.test(key) ? key : undefined);
+	return code ? sha256(code) : undefined;
+};
+
+/**
  * Sends one PURCHASE to Snap. Throws on failure so the caller can release its
  * send-once claim and let a later retry try again.
  */
@@ -95,6 +193,15 @@ export async function sendSnapPurchaseEvent(
 		ph: [hashPhone(input.shippingAddress?.phone)].filter(Boolean),
 		fn: [hashName(input.firstName ?? firstName)].filter(Boolean),
 		ln: [hashName(lastName)].filter(Boolean),
+		// Location signals. Snap grades "first name, surname and postcode"
+		// coverage as one figure, so fn and ln alone scored 0% while zp was
+		// missing. Postcode is optional at checkout and most Nigerian shoppers
+		// leave it blank, but city, state and country are captured on nearly
+		// every order and are match signals in their own right.
+		ct: [hashPlace(input.shippingAddress?.city)].filter(Boolean),
+		st: [hashPlace(input.shippingAddress?.state)].filter(Boolean),
+		zp: [hashZip(input.shippingAddress?.postalCode)].filter(Boolean),
+		country: [hashCountry(input.shippingAddress?.country)].filter(Boolean),
 		// The _scid cookie is Snap's strongest match signal. Captured in the
 		// browser at checkout and carried through Paystack metadata, because the
 		// webhook has no access to the shopper's cookies.
@@ -113,7 +220,7 @@ export async function sendSnapPurchaseEvent(
 	};
 
 	// Drop empty arrays so we never send `"em": []`.
-	for (const key of ["em", "ph", "fn", "ln"]) {
+	for (const key of ["em", "ph", "fn", "ln", "ct", "st", "zp", "country"]) {
 		const value = userData[key];
 		if (Array.isArray(value) && value.length === 0) delete userData[key];
 	}
