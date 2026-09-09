@@ -6,10 +6,45 @@ declare global {
 	}
 }
 
-function getSnapUuid(): string | undefined {
+/** Snap's first-party cookie, set by the Pixel SDK on this domain. */
+export function getSnapScid(): string | undefined {
 	if (typeof document === "undefined") return undefined;
 	const match = document.cookie.match(/_scid=([^;]+)/);
 	return match ? decodeURIComponent(match[1]) : undefined;
+}
+
+const CLICK_ID_KEY = "snap_click_id";
+/** Snap attributes a swipe-up for up to 28 days, so keep the id that long. */
+const CLICK_ID_TTL_MS = 28 * 24 * 60 * 60 * 1000;
+
+/**
+ * A shopper arriving from a Snap ad lands with `?ScCid=…`. The Pixel SDK
+ * picks it up for its own events, but the server-side purchase can only carry
+ * it if we remember it ourselves.
+ */
+export function rememberSnapClickId(clickId: string | null | undefined) {
+	if (!clickId || typeof window === "undefined") return;
+	try {
+		window.localStorage.setItem(
+			CLICK_ID_KEY,
+			JSON.stringify({ id: clickId, at: Date.now() }),
+		);
+	} catch {
+		// Storage unavailable — the click id just won't survive this page.
+	}
+}
+
+export function getSnapClickId(): string | undefined {
+	if (typeof window === "undefined") return undefined;
+	try {
+		const raw = window.localStorage.getItem(CLICK_ID_KEY);
+		if (!raw) return undefined;
+		const { id, at } = JSON.parse(raw) as { id?: string; at?: number };
+		if (!id || !at || Date.now() - at > CLICK_ID_TTL_MS) return undefined;
+		return id;
+	} catch {
+		return undefined;
+	}
 }
 
 /**
@@ -28,7 +63,7 @@ export function snapDedupId(): string {
 function fireSnap(event: string, params?: Record<string, unknown>) {
 	if (typeof window === "undefined" || typeof window.snaptr !== "function") return;
 	window.snaptr("track", event, {
-		uuid_c1: getSnapUuid(),
+		uuid_c1: getSnapScid(),
 		client_dedup_id: snapDedupId(),
 		...getSnapUserParams(),
 		...params,

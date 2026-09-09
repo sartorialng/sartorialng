@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import Script from "next/script";
 import { useUser } from "@clerk/nextjs";
 import { getSnapUserParams, setSnapUser } from "@/lib/snap-user";
-import { snapSignUp, snapDedupId } from "@/lib/snap-events";
+import { snapSignUp, snapDedupId, rememberSnapClickId } from "@/lib/snap-events";
 
 const SNAP_PIXEL_ID = "31bfe258-9f77-46a0-b0d0-c1a3f9fdd715";
 
@@ -65,6 +65,12 @@ export default function SnapPixel() {
 		clerkLastName,
 		clerkCreatedAt,
 	]);
+
+	// Ad landings carry ?ScCid=…; keep it so the server-side purchase weeks
+	// later can still be attributed to the swipe-up.
+	useEffect(() => {
+		rememberSnapClickId(searchParams.get("ScCid"));
+	}, [searchParams]);
 
 	// The pixel is init'd exactly once, in the inline script below. Re-initialising
 	// with the same id registers a second pixel instance on the page (Snap flags it

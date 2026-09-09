@@ -61,6 +61,13 @@ export interface OrderInput {
 	 *  server-side Conversions API event can still match the shopper. */
 	snapScid?: string | null;
 	snapUserAgent?: string | null;
+	/** The shopper's public IP. The browser callback reads it off its own
+	 *  request headers; the webhook gets it from Paystack metadata, where the
+	 *  checkout put it after asking /api/snap/client. */
+	snapClientIp?: string | null;
+	/** Snap's `ScCid` landing-page parameter, kept for 28 days after an ad
+	 *  swipe-up so the purchase can be attributed to the click. */
+	snapClickId?: string | null;
 }
 
 export interface FulfillResult {

@@ -131,6 +131,8 @@ export const orderInputFromPaystackTransaction = (
 			orderDate: tx.paid_at || null,
 			snapScid: order.snapScid || null,
 			snapUserAgent: order.snapUserAgent || null,
+			snapClientIp: order.snapClientIp || null,
+			snapClickId: order.snapClickId || null,
 		};
 	}
 
