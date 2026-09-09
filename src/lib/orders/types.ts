@@ -1,3 +1,11 @@
+export interface OrderComponentInput {
+	productId: string;
+	name: string;
+	colorId: string;
+	colorTitle: string;
+	quantity: number;
+}
+
 export interface OrderLineInput {
 	_id: string;
 	name: string;
@@ -6,6 +14,10 @@ export interface OrderLineInput {
 	isFreeGift?: boolean;
 	imageRef?: string | null;
 	selectedColor?: { colorId: string; colorTitle: string } | null;
+	/** Set on combo lines: which bag was bought in which colour. Stock comes
+	 *  off these rather than the combo, and a cancellation puts it back to
+	 *  them, so this is what makes a combo fulfil correctly. */
+	components?: OrderComponentInput[] | null;
 }
 
 export interface OrderShippingAddress {

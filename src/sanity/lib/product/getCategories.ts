@@ -16,7 +16,9 @@ export interface StoreCategory {
 	} | null;
 }
 
-const CATEGORY_FIELDS = groq`
+// A projection fragment, not a query: typegen cannot parse it standalone, so
+// it is a plain template string and only the queries below carry the groq tag.
+const CATEGORY_FIELDS = `
 	_id,
 	title,
 	"slug": slug.current,

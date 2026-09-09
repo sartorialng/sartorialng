@@ -16,20 +16,22 @@ import PreSaleNoticeModal from "../modals/PreSaleNoticeModal";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
 import { getFreeGift } from "@/lib/freeGift";
 import { isProductSoldOut } from "@/lib/stock";
+import { isCombo, isComboSoldOut } from "@/lib/combo";
+import { useRouter } from "next/navigation";
 
 interface ProductCardProps {
 	product: Product;
 	onAddToCart?: () => void;
-	onBuyNow?: () => void;
 }
 
-const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
+const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
 	const [showPreOrder, setShowPreOrder] = useState(false);
 	const [showPreSale, setShowPreSale] = useState(false);
 	const { addToWishlist, removeFromWishlist, isInWishlist } =
 		useWishlistStore();
 	const { isSignedIn } = useUser();
 	const { openSignIn } = useClerk();
+	const router = useRouter();
 
 	const productId = product?._id ?? "";
 	const productName = product?.name ?? "Product";
@@ -43,7 +45,12 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 		: SartorialBag;
 	const imageAlt = product?.name ?? "product-name";
 	// Sold out only when every colour is (or, with no colours, the product is).
-	const isOutOfStock = isProductSoldOut(product);
+	// A combo has no stock of its own — it is sold out only when one of its bags
+	// has no colour left. Reading its legacy colours would call every combo
+	// sold out and disable both buttons.
+	const isOutOfStock = isCombo(product)
+		? isComboSoldOut(product)
+		: isProductSoldOut(product);
 	const isComingSoon = product?.isComingSoon;
 	const freeGift = getFreeGift(product);
 	const onPreOrder = product?.onPreOrder;
@@ -116,10 +123,26 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 		}
 	};
 
+	/**
+	 * A combo has no colour of its own — the customer picks one per bag on the
+	 * product page — so a card can never add one straight to the basket. A line
+	 * added without those choices cannot be priced, packed or deducted from
+	 * stock.
+	 */
+	const needsChoiceOnProductPage = isCombo(product);
+
+	const goToProduct = () => {
+		if (productSlug) router.push(`/product/${productSlug}`);
+	};
+
 	const handleAddToCart = (e: React.MouseEvent) => {
 		e.preventDefault();
 		if (onPreSale) {
 			setShowPreSale(true);
+			return;
+		}
+		if (needsChoiceOnProductPage) {
+			goToProduct();
 			return;
 		}
 		trackTikTokEvent({
@@ -402,7 +425,10 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 										currency: "NGN",
 										url: window.location.href,
 									});
-									onBuyNow?.();
+									// Buy Now sends the customer to the product
+									// page to choose for themselves rather than
+									// picking a colour on their behalf.
+									goToProduct();
 								}
 							}}
 							disabled={isOutOfStock && !onPreOrder && !onPreSale}
@@ -418,7 +444,7 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 				isOpen={showPreOrder}
 				onClose={() => setShowPreOrder(false)}
 				onContinue={() => {
-					onBuyNow?.();
+					goToProduct();
 				}}
 			/>
 			<PreSaleNoticeModal
@@ -426,7 +452,7 @@ const ProductCard = ({ product, onAddToCart, onBuyNow }: ProductCardProps) => {
 				isOpen={showPreSale}
 				onClose={() => setShowPreSale(false)}
 				onContinue={() => {
-					onBuyNow?.();
+					goToProduct();
 				}}
 			/>
 		</div>

@@ -38,6 +38,15 @@ export const verifyPaystackTransaction = async (
 	return body.data as PaystackTransaction;
 };
 
+/** One bag of a combo, as it comes back from Paystack metadata. */
+type RawComponent = {
+	productId: string;
+	name?: string;
+	colorId: string;
+	colorTitle?: string;
+	quantity?: unknown;
+};
+
 const toNumber = (value: unknown) => {
 	const n = Number(value);
 	return Number.isFinite(n) ? n : 0;
@@ -58,6 +67,24 @@ const normaliseItems = (rawItems: any[]): OrderLineInput[] =>
 						colorId: item.selectedColor.colorId,
 						colorTitle: item.selectedColor.colorTitle,
 					}
+				: null,
+			// A combo's per-bag colours have to survive the round trip through
+			// Paystack metadata: the webhook usually fulfils before the browser
+			// comes back, and without these the order would deduct stock from
+			// the combo document rather than the bags.
+			components: Array.isArray(item.components) && item.components.length
+				? (item.components as unknown[])
+						.filter((c): c is RawComponent => {
+							const row = c as RawComponent | null;
+							return Boolean(row?.productId && row?.colorId);
+						})
+						.map((c) => ({
+							productId: c.productId,
+							name: c.name || "",
+							colorId: c.colorId,
+							colorTitle: c.colorTitle || "",
+							quantity: toNumber(c.quantity) || 1,
+						}))
 				: null,
 		}));
 

@@ -100,6 +100,59 @@ const orderType = defineType({
 								},
 							],
 						}),
+						defineField({
+							name: "components",
+							title: "Combo Breakdown",
+							type: "array",
+							description:
+								"Set for combo lines: the individual products in this combo and the colour chosen for each. Stock comes off these, and a cancellation puts it back to these.",
+							of: [
+								{
+									type: "object",
+									name: "orderComponent",
+									fields: [
+										{
+											name: "productId",
+											title: "Product ID",
+											type: "string",
+										},
+										{
+											name: "name",
+											title: "Product Name",
+											type: "string",
+										},
+										{
+											name: "colorId",
+											title: "Colour ID",
+											type: "string",
+										},
+										{
+											name: "colorTitle",
+											title: "Colour Name",
+											type: "string",
+										},
+										{
+											name: "quantity",
+											title: "Quantity",
+											type: "number",
+										},
+									],
+									preview: {
+										select: {
+											name: "name",
+											colorTitle: "colorTitle",
+											quantity: "quantity",
+										},
+										prepare({ name, colorTitle, quantity }) {
+											return {
+												title: `${name ?? "Product"}${quantity > 1 ? ` x ${quantity}` : ""}`,
+												subtitle: colorTitle || "No colour recorded",
+											};
+										},
+									},
+								},
+							],
+						}),
 					],
 					preview: {
 						select: {
@@ -227,6 +280,14 @@ const orderType = defineType({
 			readOnly: true,
 			description:
 				"Set automatically when the order confirmation email goes out. Empty means the customer has not been emailed yet.",
+		}),
+		defineField({
+			name: "snapCapiSentAt",
+			title: "Snap Purchase Event Sent At",
+			type: "datetime",
+			readOnly: true,
+			description:
+				"Set automatically when the Snap Conversions API purchase event goes out. Empty means it has not been sent. Do not clear this: it is what stops the same purchase being counted twice.",
 		}),
 		defineField({
 			name: "gigTrackingId",

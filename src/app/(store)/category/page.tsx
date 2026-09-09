@@ -4,7 +4,7 @@ import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import ProductCard from "@/components/layout/ProductCard";
 import { useBasketStore } from "@/store/store";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, Suspense } from "react";
 import { getAllProducts } from "@/sanity/lib/product/getAllProducts";
 import { toast } from "sonner";
@@ -16,11 +16,11 @@ import { SortByDropdownMobile } from "@/components/layout/SortByDropdownMobile";
 import { SortByDropdown } from "@/components/layout/SortByDropdown";
 import { getAllCategories } from "@/sanity/lib/product/getCategories";
 import { getFirstAvailableColor } from "@/lib/stock";
+import { buyableColorTitles } from "@/lib/combo";
 
 const CategoryContent = () => {
 	const searchParams = useSearchParams();
 	const value = searchParams.get("value");
-	const router = useRouter();
 	const addItem = useBasketStore((s) => s.addItem);
 	const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 	const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>(
@@ -117,8 +117,8 @@ const CategoryContent = () => {
 
 		if (selectedColors.length > 0) {
 			filtered = filtered.filter((product) =>
-				product.colors?.some((color: any) =>
-					selectedColors.includes(color.title),
+				buyableColorTitles(product).some((title) =>
+					selectedColors.includes(title),
 				),
 			);
 		}
@@ -216,10 +216,6 @@ const CategoryContent = () => {
 												toast.success(
 													`${product.name} added to cart`,
 												);
-											}}
-											onBuyNow={() => {
-												addItem(product, colorToUse);
-												router.push("/checkout");
 											}}
 										/>
 									);

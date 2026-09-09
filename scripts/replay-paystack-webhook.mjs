@@ -17,6 +17,9 @@
  *                       will re-fetch metadata from Paystack (needs a real
  *                       test-mode transaction and matching test secret key).
  *   --product <id>      Sanity product _id to put on the order line.
+ *   --combo <id>        Sanity _id of a combo product. Builds the order line
+ *                       from its comboItems, picking the first in-stock colour
+ *                       for each bag, so the per-bag stock path is exercised.
  *   --email <address>   Recipient of the confirmation email. Use your own.
  *   --amount <naira>    Order total in naira. Default 1000.
  *   --thin              Send an event with no metadata, to test the handler's
@@ -82,10 +85,59 @@ const fetchAProductId = async () => {
 	}
 };
 
+const comboId = flag("combo");
 let productId = flag("product");
 let productName = "Test Product";
+let comboComponents = null;
+let comboPrice = null;
 
-if (!productId && !thin) {
+/** Build an order line for a combo: one component per bag, first colour that
+ *  has stock, so the replay exercises the real per-bag deduction. */
+if (comboId) {
+	const query = encodeURIComponent(
+		`*[_type == "product" && _id == "${comboId}"][0]{
+			_id, name, price, salePrice, onSale,
+			comboItems[]{ quantity, product->{ _id, name, stock,
+				colors[]{ "_id": coalesce(color->_id, @->_id),
+					"title": coalesce(color->title, @->title), stock } } }
+		}`,
+	);
+	const endpoint = `https://${projectId}.api.sanity.io/v2026-02-05/data/query/${dataset}?query=${query}`;
+	const body = await (await fetch(endpoint)).json();
+	const combo = body?.result;
+	if (!combo?.comboItems?.length) {
+		console.error(`✖ ${comboId} is not a combo, or has no comboItems.`);
+		process.exit(1);
+	}
+	productId = combo._id;
+	productName = combo.name;
+	comboPrice = combo.onSale ? (combo.salePrice ?? combo.price) : combo.price;
+	comboComponents = combo.comboItems.map((item) => {
+		const p = item.product;
+		const colour =
+			(p.colors ?? []).find((c) => {
+				const s = typeof c.stock === "number" ? c.stock : p.stock;
+				return typeof s === "number" && s > 0;
+			}) ?? (p.colors ?? [])[0];
+		if (!colour) {
+			console.error(`✖ ${p.name} has no colour to pick.`);
+			process.exit(1);
+		}
+		return {
+			productId: p._id,
+			name: p.name,
+			colorId: colour._id,
+			colorTitle: colour.title,
+			quantity: item.quantity || 1,
+		};
+	});
+	console.log(
+		`ℹ Combo ${productName}: ` +
+			comboComponents.map((c) => `${c.name.trim()} (${c.colorTitle.trim()})`).join(" + "),
+	);
+}
+
+if (!productId && !thin && !comboId) {
 	const product = await fetchAProductId();
 	if (!product?._id) {
 		console.error(
@@ -128,11 +180,14 @@ const metadata = thin
 					{
 						_id: productId,
 						name: productName,
-						price: amountNaira,
+						price: comboPrice ?? amountNaira,
 						quantity: 1,
 						isFreeGift: false,
 						imageRef: null,
 						selectedColor: null,
+						...(comboComponents
+							? { components: comboComponents }
+							: {}),
 					},
 				],
 			},

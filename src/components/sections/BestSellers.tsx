@@ -44,10 +44,6 @@ const BestSellers = ({ products }: BestSellersProps) => {
 								addItem(product, colorToUse);
 								toast.success(`${product.name} added to cart`);
 							}}
-							onBuyNow={() => {
-								addItem(product, colorToUse);
-								router.push("/checkout");
-							}}
 						/>
 					);
 				})}

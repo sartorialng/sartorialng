@@ -7,6 +7,10 @@ import { SartorialBag } from "@/assets";
 import { urlFor } from "@/lib/imageUrl";
 import { convertNGNtoUSD } from "@/lib/currency";
 import { getFreeGiftLines } from "@/lib/freeGift";
+import {
+	comboSelectionSignature,
+	describeComboSelections,
+} from "@/lib/combo";
 
 interface OrderSummaryProps {
 	shipping: number;
@@ -69,7 +73,7 @@ const OrderSummary = ({
 
 					return (
 						<div
-							key={`${item.product._id}-${item.selectedColor?.title ?? "default"}`}
+							key={`${item.product._id}-${item.selectedColor?.title ?? "default"}-${comboSelectionSignature(item.comboSelections)}`}
 							className="flex items-center justify-between"
 						>
 							<div className="flex items-center gap-3">
@@ -84,10 +88,19 @@ const OrderSummary = ({
 									<p className="text-sm md:text-base font-medium">
 										{item.product.name}
 									</p>
-									{item.selectedColor && (
+									{item.comboSelections?.length ? (
 										<p className="text-xs">
-											Color: {item.selectedColor.title}
+											{describeComboSelections(
+												item.comboSelections,
+											)}
 										</p>
+									) : (
+										item.selectedColor && (
+											<p className="text-xs">
+												Color:{" "}
+												{item.selectedColor.title}
+											</p>
+										)
 									)}
 								</div>
 							</div>

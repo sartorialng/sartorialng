@@ -1,6 +1,14 @@
 export type OrderProduct = {
 	quantity: number;
 	selectedColor?: { colorId: string; colorTitle: string };
+	/** Set on combo lines: which bag was bought in which colour. */
+	components?: {
+		productId: string;
+		name: string;
+		colorId: string;
+		colorTitle: string;
+		quantity: number;
+	}[];
 	product: {
 		name: string;
 		price: number;

@@ -80,6 +80,7 @@ export async function POST(req: Request) {
 				isFreeGift: item.isFreeGift === true,
 				imageRef: item.image?.asset?._ref || item.imageRef || null,
 				selectedColor: item.selectedColor || null,
+				components: item.components || null,
 			})),
 			subtotal,
 			shipping: shippingCost,

@@ -4,7 +4,6 @@ import Header from "@/components/layout/Header";
 import ProductCard from "@/components/layout/ProductCard";
 import Footer from "@/components/layout/Footer";
 import { FilterSidebar } from "@/components/layout/FilterSidebar";
-import { useRouter } from "next/navigation";
 import { useBasketStore } from "@/store/store";
 import { Product } from "../../../../sanity.types";
 import { getAllProducts } from "@/sanity/lib/product/getAllProducts";
@@ -15,9 +14,9 @@ import { categories, colors, priceRanges } from "@/data";
 import { SortByDropdown } from "@/components/layout/SortByDropdown";
 import { SortByDropdownMobile } from "@/components/layout/SortByDropdownMobile";
 import { getFirstAvailableColor } from "@/lib/stock";
+import { buyableColorTitles } from "@/lib/combo";
 
 const AllProducts = () => {
-	const router = useRouter();
 	const addItem = useBasketStore((s) => s.addItem);
 	const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 	const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>(
@@ -93,8 +92,8 @@ const AllProducts = () => {
 
 		if (selectedColors.length > 0) {
 			filtered = filtered.filter((product) =>
-				product.colors?.some((color: any) =>
-					selectedColors.includes(color.title),
+				buyableColorTitles(product).some((title) =>
+					selectedColors.includes(title),
 				),
 			);
 		}
@@ -190,10 +189,6 @@ const AllProducts = () => {
 												toast.success(
 													`${product.name} added to cart`,
 												);
-											}}
-											onBuyNow={() => {
-												addItem(product, colorToUse);
-												router.push("/checkout");
 											}}
 										/>
 									);

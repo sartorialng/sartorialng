@@ -24,7 +24,15 @@ export const buildOrderConfirmationHtml = (
 			<td style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; color: #333;">
 				${item.name}
 				${item.isFreeGift ? `<span style="display: block; font-size: 12px; color: #2d5a43; font-weight: 600; margin-top: 2px;">🎁 Free gift</span>` : ""}
-				${item.selectedColor?.colorTitle ? `<span style="display: block; font-size: 12px; color: #888; margin-top: 2px;">Colour: ${item.selectedColor.colorTitle}</span>` : ""}
+				${
+				item.components?.length
+					? `<span style="display: block; font-size: 12px; color: #888; margin-top: 2px;">${item.components
+							.map((c) => `${c.name}: ${c.colorTitle}`)
+							.join(" &middot; ")}</span>`
+					: item.selectedColor?.colorTitle
+						? `<span style="display: block; font-size: 12px; color: #888; margin-top: 2px;">Colour: ${item.selectedColor.colorTitle}</span>`
+						: ""
+			}
 			</td>
 			<td style="padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; color: #555; text-align: center;">
 				${item.quantity}

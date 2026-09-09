@@ -34,6 +34,23 @@ export async function POST(req: NextRequest) {
 				onSale,
 				onCombo,
 				freeShipping,
+				comboItems[]{
+				  _key,
+				  quantity,
+				  "colorOptionIds": colorOptions[]->_id,
+				  product->{
+				    _id,
+				    name,
+				    "slug": slug.current,
+				    stock,
+				    colors[]{
+				      _key,
+				      "_id": coalesce(color->_id, @->_id),
+				      "title": coalesce(color->title, @->title),
+				      stock
+				    }
+				  }
+				},
 				freeGift->{
 					_id,
 					name,

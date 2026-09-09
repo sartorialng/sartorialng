@@ -161,7 +161,18 @@ export function DataTable({ columns, data }: DataTableProps) {
 					o.products
 						?.map(
 							(p) =>
-								`${getOrderLineName(p)} x${p.quantity}${p.selectedColor?.colorTitle ? ` (${p.selectedColor.colorTitle})` : ""}${isFreeGiftLine(p) ? " [FREE GIFT]" : ""}`,
+								`${getOrderLineName(p)} x${p.quantity}${
+								p.components?.length
+									? ` [${p.components
+											.map(
+												(c) =>
+													`${c.name}: ${c.colorTitle}`,
+											)
+											.join("; ")}]`
+									: p.selectedColor?.colorTitle
+										? ` (${p.selectedColor.colorTitle})`
+										: ""
+							}${isFreeGiftLine(p) ? " [FREE GIFT]" : ""}`,
 						)
 						.join("; ") ?? "",
 			};
