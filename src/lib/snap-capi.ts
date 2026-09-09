@@ -46,10 +46,20 @@ const hashPhone = (phone?: string | null) => {
 export const isSnapCapiConfigured = () =>
 	Boolean(process.env.SNAPCHAT_CAPI_TOKEN);
 
-/** Snap accepts sc_cookie1 only as a UUID (or a SHA-256 hash). */
+/** Snap requires a UUID for sc_click_id (its validator warns on anything else). */
 const isUuid = (value?: string | null): value is string =>
 	typeof value === "string" &&
 	/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
+/**
+ * The Pixel SDK used to set _scid as a UUID; today it is a 32-character
+ * base64url-style token (e.g. "WW7v37_zuv1SXuKUBc2dhjNzq2dDbsqn"). Snap's
+ * validator accepts both without warning. A UUID-only check here silently
+ * dropped sc_cookie1 from every production event, so this only rejects
+ * values that cannot be a cookie at all.
+ */
+const isScid = (value?: string | null): value is string =>
+	typeof value === "string" && /^[A-Za-z0-9_-]{16,64}$/.test(value);
 
 const hashName = (name?: string | null) => {
 	if (!name) return undefined;
@@ -87,13 +97,19 @@ export async function sendSnapPurchaseEvent(
 		ln: [hashName(lastName)].filter(Boolean),
 		// The _scid cookie is Snap's strongest match signal. Captured in the
 		// browser at checkout and carried through Paystack metadata, because the
-		// webhook has no access to the shopper's cookies. Snap rejects anything
-		// that is not a UUID here, so a mangled cookie is dropped rather than sent.
-		...(isUuid(input.snapScid) ? { sc_cookie1: input.snapScid } : {}),
-		// Deliberately no client_ip_address: on the webhook path the request comes
-		// from Paystack, so the IP we can see is theirs, not the shopper's, and a
-		// wrong IP degrades matching rather than helping it.
+		// webhook has no access to the shopper's cookies.
+		...(isScid(input.snapScid) ? { sc_cookie1: input.snapScid } : {}),
+		// IP and user agent must be the shopper's, never the request's: on the
+		// webhook path the request comes from Paystack. The browser callback
+		// reads them off its own headers; the checkout puts the same values into
+		// the Paystack metadata for the webhook. Snap grades Purchase events on
+		// IP coverage and was scoring us 0% while this was omitted.
+		...(input.snapClientIp ? { client_ip_address: input.snapClientIp } : {}),
 		...(input.snapUserAgent ? { client_user_agent: input.snapUserAgent } : {}),
+		// The ScCid from the ad's landing URL — ties the purchase to the swipe-up.
+		// Snap warns on anything that is not a UUID here, so a stray value from
+		// a hand-typed URL is dropped rather than sent.
+		...(isUuid(input.snapClickId) ? { sc_click_id: input.snapClickId } : {}),
 	};
 
 	// Drop empty arrays so we never send `"em": []`.
@@ -129,6 +145,12 @@ export async function sendSnapPurchaseEvent(
 				},
 			},
 		],
+		// Set SNAPCHAT_TEST_EVENT_CODE to the code shown under Events Manager →
+		// Test events and Snap routes these there instead of live reporting.
+		// Leave it unset in production.
+		...(process.env.SNAPCHAT_TEST_EVENT_CODE
+			? { test_event_code: process.env.SNAPCHAT_TEST_EVENT_CODE }
+			: {}),
 	};
 
 	const response = await fetch(
@@ -142,16 +164,34 @@ export async function sendSnapPurchaseEvent(
 		},
 	);
 
+	const rawBody = await response.text().catch(() => "");
 	if (!response.ok) {
-		const body = await response.text().catch(() => "");
-		throw new Error(`Snap CAPI responded ${response.status}: ${body.slice(0, 300)}`);
+		throw new Error(`Snap CAPI responded ${response.status}: ${rawBody.slice(0, 300)}`);
+	}
+
+	// Snap answers 200 even when it rejects the batch; the verdict is in the
+	// body ({ status: "VALID" | "INVALID", reason }). Treat anything but VALID
+	// as a failure so the send-once claim is released and a retry can re-send.
+	let verdict: { status?: string; reason?: string } = {};
+	try {
+		verdict = JSON.parse(rawBody);
+	} catch {
+		// Non-JSON 200 — assume accepted rather than re-send forever.
+	}
+	if (verdict.status && verdict.status !== "VALID") {
+		throw new Error(
+			`Snap CAPI rejected the event: ${verdict.status} ${verdict.reason ?? ""}`.trim(),
+		);
 	}
 
 	// Positive confirmation, so "no errors" is never the only evidence we have.
+	// The signal summary makes a thin event (no IP, no cookie) visible in logs.
 	console.log(
 		"✅ Snap Conversions API purchase sent for order:",
 		orderNumber,
 		"| dedup event_id:",
 		input.paymentReference,
+		"| signals:",
+		Object.keys(userData).join(","),
 	);
 }

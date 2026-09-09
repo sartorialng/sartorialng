@@ -19,7 +19,12 @@ import { useUser } from "@clerk/nextjs";
 import { useEffect, useRef, useState } from "react";
 import ProcessingOverlay from "@/components/layout/ProcessingOverlay";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
-import { snapInitiateCheckout, snapPurchase } from "@/lib/snap-events";
+import {
+	getSnapClickId,
+	getSnapScid,
+	snapInitiateCheckout,
+	snapPurchase,
+} from "@/lib/snap-events";
 import { setSnapUser } from "@/lib/snap-user";
 import { getFreeGiftLines } from "@/lib/freeGift";
 import { fetchFreshProducts } from "@/lib/refreshProducts";
@@ -123,6 +128,25 @@ const CheckoutClient = () => {
 		formik.values.emailAddress ||
 		user?.emailAddresses?.[0]?.emailAddress ||
 		"";
+
+	// The shopper's public IP, for the Snap Conversions API purchase. Only the
+	// server can see it, and the webhook (which usually fulfils first) only
+	// sees Paystack's, so it is fetched here and sent along in the metadata.
+	const [snapClientIp, setSnapClientIp] = useState<string | null>(null);
+	useEffect(() => {
+		let cancelled = false;
+		fetch("/api/snap/client", { cache: "no-store" })
+			.then((res) => (res.ok ? res.json() : null))
+			.then((data) => {
+				if (!cancelled && typeof data?.ip === "string") setSnapClientIp(data.ip);
+			})
+			.catch(() => {
+				// Tracking only — never let it touch the checkout.
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, []);
 
 	// Feed the billing details into Snap's advanced matching as they are typed, so
 	// START_CHECKOUT (and any later add-to-cart on this browser) carries identity —
@@ -309,6 +333,10 @@ const CheckoutClient = () => {
 					subtotal,
 					amountDiscount: discount,
 					couponCode: couponStatus === "success" ? couponCode : null,
+					// For the Snap Conversions API purchase; IP and user agent are
+					// read from this request's headers server-side.
+					snapScid: getSnapScid() ?? null,
+					snapClickId: getSnapClickId() ?? null,
 				}),
 			});
 
@@ -392,15 +420,11 @@ const CheckoutClient = () => {
 			: formik.values.gigPark,
 		// Carried to the server so the Snap Conversions API purchase can still be
 		// matched to this shopper — the webhook cannot read their cookies.
-		snapScid:
-			typeof document !== "undefined"
-				? (() => {
-						const m = document.cookie.match(/_scid=([^;]+)/);
-						return m ? decodeURIComponent(m[1]) : null;
-					})()
-				: null,
+		snapScid: getSnapScid() ?? null,
 		snapUserAgent:
 			typeof navigator !== "undefined" ? navigator.userAgent : null,
+		snapClientIp,
+		snapClickId: getSnapClickId() ?? null,
 		items: buildOrderLines(),
 	};
 

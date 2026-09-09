@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { fulfillOrder } from "@/lib/orders/fulfillOrder";
 import { verifyPaystackTransaction } from "@/lib/orders/paystackTransaction";
 import type { OrderInput } from "@/lib/orders/types";
+import { clientIpFromRequest } from "@/lib/request-ip";
 
 /**
  * Fulfils an order from the checkout form. Guest checkout is supported — no
@@ -50,6 +51,8 @@ export async function POST(req: Request) {
 			interstateDeliveryType,
 			gigPark,
 			shippingGigPark,
+			snapScid,
+			snapClickId,
 		} = body;
 
 		if (!items || !paymentReference || !paymentMethod || !emailAddress) {
@@ -101,6 +104,13 @@ export async function POST(req: Request) {
 			},
 			interstateDeliveryType: interstateDeliveryType || null,
 			gigPark: useShipping ? shippingGigPark : gigPark,
+			// This request comes from the shopper's own browser, so its headers
+			// carry exactly the IP and user agent Snap wants on the Conversions
+			// API purchase. The webhook can't see them and relies on metadata.
+			snapScid: snapScid || null,
+			snapClickId: snapClickId || null,
+			snapUserAgent: req.headers.get("user-agent"),
+			snapClientIp: clientIpFromRequest(req),
 		};
 
 		if (paymentMethod === "paystack") {

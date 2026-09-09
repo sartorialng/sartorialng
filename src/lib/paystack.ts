@@ -36,6 +36,8 @@ export interface PaystackOrderMetadata {
 	 *  purchase back to the shopper even when the browser never returns. */
 	snapScid?: string | null;
 	snapUserAgent?: string | null;
+	snapClientIp?: string | null;
+	snapClickId?: string | null;
 	items: Array<{
 		_id: string;
 		name: string;
