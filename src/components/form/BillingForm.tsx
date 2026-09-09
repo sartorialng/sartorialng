@@ -13,6 +13,7 @@ import PaymentMethodModal from "@/app/(store)/checkout/PaymentMethodModal";
 import { toast } from "sonner";
 import { useBasketStore } from "@/store/store";
 import { fetchFreshProducts } from "@/lib/refreshProducts";
+import { getFreeGiftLines } from "@/lib/freeGift";
 import { Loader2 } from "lucide-react";
 
 interface BillingFormProps {
@@ -67,10 +68,22 @@ const BillingForm = ({
 				// Non-fatal: the server check below reads Sanity directly.
 			}
 
+			// Free gifts are real units off the shelf, so they have to be
+			// checked too. They are derived from the basket rather than stored
+			// in it, so they have to be appended here or they reach fulfilment
+			// unvalidated.
+			const basketItems = useBasketStore.getState().items;
+			const giftLines = getFreeGiftLines(basketItems).map((line) => ({
+				product: { _id: line.product._id, name: line.product.name },
+				quantity: line.quantity,
+				selectedColor: null,
+				isFreeGift: true,
+			}));
+
 			const response = await fetch("/api/inventory/check", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(useBasketStore.getState().items),
+				body: JSON.stringify([...basketItems, ...giftLines]),
 			});
 
 			const result = await response.json();

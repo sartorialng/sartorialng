@@ -151,6 +151,15 @@ export type Order = {
       colorId?: string;
       colorTitle?: string;
     };
+    components?: Array<{
+      productId?: string;
+      name?: string;
+      colorId?: string;
+      colorTitle?: string;
+      quantity?: number;
+      _type: "orderComponent";
+      _key: string;
+    }>;
     _key: string;
   }>;
   totalPrice?: number;
@@ -264,6 +273,17 @@ export type Product = {
   onSale?: boolean;
   onCombo?: boolean;
   freeShipping?: boolean;
+  comboItems?: Array<{
+    product?: ProductReference;
+    quantity?: number;
+    colorOptions?: Array<
+      {
+        _key: string;
+      } & ColorReference
+    >;
+    _type: "comboItem";
+    _key: string;
+  }>;
   freeGift?: ProductReference;
   discountValue?: number;
   price?: number;

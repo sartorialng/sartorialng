@@ -12,6 +12,9 @@ type CartLine = {
 	} | null;
 	quantity?: number;
 	selectedColor?: { _id?: string; title?: string } | null;
+	/** Gift lines carry no colour and are not paid for, so they are checked
+	 *  for availability but never for price. */
+	isFreeGift?: boolean;
 };
 
 type ProductAvailability = {
@@ -37,6 +40,31 @@ const effectivePrice = (source: {
 	price?: number | null;
 	salePrice?: number | null;
 }) => (source.onSale ? (source.salePrice ?? 0) : (source.price ?? 0));
+
+/**
+ * What is on the shelf for one line.
+ *
+ * A line with a colour goes against that colour's own count. A line without
+ * one — a free gift, or a product that never had colours — goes against the
+ * product-level count, except where the product keeps its stock per colour, in
+ * which case the total across colours is what is actually available to send.
+ * Reading the product-level field there would compare against a number nobody
+ * maintains.
+ */
+const availableForLine = (
+	product: ProductAvailability,
+	colorId: string | null,
+) => {
+	if (colorId) return getColorStock(product, colorId);
+
+	const perColour = (product.colors ?? [])
+		.map((c) => c?.stock)
+		.filter((s): s is number => typeof s === "number" && Number.isFinite(s));
+
+	if (perColour.length > 0) return perColour.reduce((a, b) => a + b, 0);
+
+	return getColorStock(product, null);
+};
 
 /**
  * The last check before the payment modal opens.
@@ -67,6 +95,7 @@ export async function POST(req: NextRequest) {
 				name: string;
 				quantity: number;
 				submittedPrice: number | null;
+				isFreeGift: boolean;
 			}
 		>();
 
@@ -76,9 +105,18 @@ export async function POST(req: NextRequest) {
 			const colorId = item?.selectedColor?._id ?? null;
 			const key = `${productId}::${colorId ?? ""}`;
 			const quantity = Math.max(1, Number(item?.quantity) || 1);
+			const isFreeGift = item?.isFreeGift === true;
 			const existing = requested.get(key);
 			if (existing) {
 				existing.quantity += quantity;
+				// A paid line in the same group still has to clear the price
+				// check, so the group only stays a gift while every line is.
+				if (!isFreeGift) {
+					existing.isFreeGift = false;
+					existing.submittedPrice = item?.product
+						? effectivePrice(item.product)
+						: null;
+				}
 			} else {
 				requested.set(key, {
 					productId,
@@ -86,9 +124,11 @@ export async function POST(req: NextRequest) {
 					colorTitle: item?.selectedColor?.title ?? null,
 					name: item?.product?.name ?? "Unknown product",
 					quantity,
-					submittedPrice: item?.product
-						? effectivePrice(item.product)
-						: null,
+					submittedPrice:
+						isFreeGift || !item?.product
+							? null
+							: effectivePrice(item.product),
+					isFreeGift,
 				});
 			}
 		}
@@ -162,7 +202,7 @@ export async function POST(req: NextRequest) {
 				continue;
 			}
 
-			const available = getColorStock(product, group.colorId);
+			const available = availableForLine(product, group.colorId);
 
 			// No count recorded anywhere, or a colour that is no longer on the
 			// product. Refuse rather than guess — this is how a basket saved
@@ -174,7 +214,11 @@ export async function POST(req: NextRequest) {
 			}
 
 			if (available <= 0) {
-				problems.push(`"${label}" is sold out.`);
+				problems.push(
+					group.isFreeGift
+						? `The free gift "${label}" is sold out, so this combo cannot be ordered right now.`
+						: `"${label}" is sold out.`,
+				);
 			} else if (group.quantity > available) {
 				insufficientStock = true;
 				problems.push(

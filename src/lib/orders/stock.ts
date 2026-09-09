@@ -22,6 +22,21 @@ type ProductStockDoc = {
 	}> | null;
 };
 
+/**
+ * The colour holding the most units, for a line that never picked one.
+ * Undefined when the product tracks no stock per colour, so the caller falls
+ * back to the product-level count.
+ */
+const fullestColour = (product: ProductStockDoc) =>
+	(product.colors ?? [])
+		.filter(
+			(c): c is NonNullable<ProductStockDoc["colors"]>[number] & {
+				_key: string;
+				stock: number;
+			} => Boolean(c && c._key) && typeof c?.stock === "number",
+		)
+		.sort((a, b) => b.stock - a.stock)[0];
+
 export const stockLinesFromOrderInput = (
 	items: OrderLineInput[],
 ): StockLine[] =>
@@ -34,12 +49,14 @@ export const stockLinesFromOrderInput = (
 /**
  * Moves stock for a set of order lines, one Sanity transaction for the lot.
  *
- * Each line goes against the colour's own count when that colour has one,
- * otherwise against the product-level `stock` (the pre-per-colour behaviour,
- * which is also what free-gift lines use since they carry no colour). Lines
- * whose product has no count anywhere are skipped. `dec`/`inc` are atomic on
- * the server, so concurrent orders never lose an update; a count can go
- * negative on an oversell and reads as sold out everywhere.
+ * Each line goes against the colour's own count when that colour has one.
+ * A line with no colour — a free gift, or a product that never had colours —
+ * goes against the product-level `stock`, except where the product keeps its
+ * stock per colour: nobody chose a colour there, so the fullest one is used,
+ * the way a packer takes from the fullest bin. Lines whose product has no
+ * count anywhere are skipped. `dec`/`inc` are atomic on the server, so
+ * concurrent orders never lose an update; a count can go negative on an
+ * oversell and reads as sold out everywhere.
  *
  * Never throws: fulfilment and cancellation must not fail because stock
  * bookkeeping did.
@@ -86,7 +103,7 @@ export const adjustStock = async (
 
 			const variant = line.colorId
 				? product.colors?.find((c) => c._id === line.colorId)
-				: undefined;
+				: fullestColour(product);
 
 			let path: string | null = null;
 			if (variant?._key && typeof variant.stock === "number") {
