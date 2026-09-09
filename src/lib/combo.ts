@@ -191,6 +191,27 @@ export const comboSelectionAvailability = (
 	return lowest;
 };
 
+/**
+ * Every colour a product can actually be bought in, for listing filters.
+ *
+ * A combo is bought in its bags' colours, not its own — its `colors` list is
+ * legacy and, on several combos, names colours neither bag has. Filtering on
+ * that would surface a combo under a colour it cannot be ordered in.
+ */
+export const buyableColorTitles = (product: unknown): string[] => {
+	const items = getComboItems(product);
+
+	const titles =
+		items.length >= 2
+			? items.flatMap((item) => comboItemColors(item).map((c) => c.title))
+			: (
+					(product as { colors?: Array<{ title?: string | null } | null> | null } | null)
+						?.colors ?? []
+				).map((c) => c?.title ?? "");
+
+	return [...new Set(titles.map((t) => (t ?? "").trim()).filter(Boolean))];
+};
+
 /** Identity for a basket line, so two differently-coloured combos stay apart. */
 export const comboSelectionSignature = (
 	selections: ComboSelection[] | null | undefined,

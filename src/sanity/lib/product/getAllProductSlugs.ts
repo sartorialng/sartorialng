@@ -2,9 +2,9 @@ import { client } from "../client";
 import { groq } from "next-sanity";
 
 export const getAllProductSlugs = async (): Promise<{ slug: string }[]> => {
-	const query = groq`*[_type == "product" && defined(slug.current)]{ "slug": slug.current }`;
+	const ALL_PRODUCT_SLUGS_QUERY = groq`*[_type == "product" && defined(slug.current)]{ "slug": slug.current }`;
 	return client.fetch(
-		query,
+		ALL_PRODUCT_SLUGS_QUERY,
 		{},
 		// {
 		// 	{ next: { revalidate: 3600 }

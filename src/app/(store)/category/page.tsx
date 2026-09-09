@@ -16,6 +16,7 @@ import { SortByDropdownMobile } from "@/components/layout/SortByDropdownMobile";
 import { SortByDropdown } from "@/components/layout/SortByDropdown";
 import { getAllCategories } from "@/sanity/lib/product/getCategories";
 import { getFirstAvailableColor } from "@/lib/stock";
+import { buyableColorTitles } from "@/lib/combo";
 
 const CategoryContent = () => {
 	const searchParams = useSearchParams();
@@ -116,8 +117,8 @@ const CategoryContent = () => {
 
 		if (selectedColors.length > 0) {
 			filtered = filtered.filter((product) =>
-				product.colors?.some((color: any) =>
-					selectedColors.includes(color.title),
+				buyableColorTitles(product).some((title) =>
+					selectedColors.includes(title),
 				),
 			);
 		}

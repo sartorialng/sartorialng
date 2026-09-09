@@ -507,9 +507,9 @@ export type ALL_ORDERS_QUERY_RESULT = Array<{
 }>;
 
 // Source: src/sanity/lib/product/getAllProductSlugs.ts
-// Variable: query
+// Variable: ALL_PRODUCT_SLUGS_QUERY
 // Query: *[_type == "product" && defined(slug.current)]{ "slug": slug.current }
-export type QueryResult = Array<{
+export type ALL_PRODUCT_SLUGS_QUERY_RESULT = Array<{
   slug: string | null;
 }>;
 
@@ -579,6 +579,70 @@ export type ALL_PRODUCTS_QUERY_RESULT = Array<{
     _id: string;
     title: string | null;
     slug: string | null;
+  }> | null;
+}>;
+
+// Source: src/sanity/lib/product/getBestSellers.ts
+// Variable: BEST_SELLERS_QUERY
+// Query: *[_type == "product" && isBestSeller == true] | order(_createdAt desc) {      _id,      name,      "slug": slug.current,      onSale,      onCombo,      freeShipping,      comboItems[]{        _key,        quantity,        "colorOptionIds": colorOptions[]->_id,        product->{          _id,          name,          "slug": slug.current,          stock,          colors[]{            _key,            "_id": coalesce(color->_id, @->_id),            "title": coalesce(color->title, @->title),            stock          }        }      },      freeGift->{        _id,        name,        "slug": slug.current,        price,        images[]{ asset->{url}, alt }      },      discountValue,      price,      salePrice,      stock,      isBestSeller,      isNewArrival,      onPreSale,      preSaleAvailability,      onPreOrder,      preOrderAvailability,      isComingSoon,      images[]{ asset->{url}, alt },      colors[]{        _key,        "_id": coalesce(color->_id, @->_id),        "title": coalesce(color->title, @->title),        stock      }    }
+export type BEST_SELLERS_QUERY_RESULT = Array<{
+  _id: string;
+  name: string | null;
+  slug: string | null;
+  onSale: boolean | null;
+  onCombo: boolean | null;
+  freeShipping: boolean | null;
+  comboItems: Array<{
+    _key: string;
+    quantity: number | null;
+    colorOptionIds: Array<string> | null;
+    product: {
+      _id: string;
+      name: string | null;
+      slug: string | null;
+      stock: number | null;
+      colors: Array<{
+        _key: string;
+        _id: string | null;
+        title: string | null;
+        stock: number | null;
+      }> | null;
+    } | null;
+  }> | null;
+  freeGift: {
+    _id: string;
+    name: string | null;
+    slug: string | null;
+    price: number | null;
+    images: Array<{
+      asset: {
+        url: string | null;
+      } | null;
+      alt: string | null;
+    }> | null;
+  } | null;
+  discountValue: number | null;
+  price: number | null;
+  salePrice: number | null;
+  stock: number | null;
+  isBestSeller: true;
+  isNewArrival: boolean | null;
+  onPreSale: boolean | null;
+  preSaleAvailability: string | null;
+  onPreOrder: boolean | null;
+  preOrderAvailability: string | null;
+  isComingSoon: boolean | null;
+  images: Array<{
+    asset: {
+      url: string | null;
+    } | null;
+    alt: string | null;
+  }> | null;
+  colors: Array<{
+    _key: string;
+    _id: string | null;
+    title: string | null;
+    stock: number | null;
   }> | null;
 }>;
 
@@ -1098,8 +1162,9 @@ export type ALL_BABES_QUERY_RESULT = Array<{
 declare global {
   interface SanityQueries {
     '\n    *[_type == "order"] | order(orderDate desc) {\n      _id,\n      orderNumber,\n      paymentMethod,\n      paystackReference,\n      paypalOrderId,\n      orderDate,\n      customerName,\n      email,\n      status,\n      totalPrice,\n      currency,\n      amountDiscount,\n      clerkUserId,\n      products[]{\n        quantity,\n        selectedColor,\n        components[]{ productId, name, colorId, colorTitle, quantity },\n        productName,\n        productPrice,\n        isFreeGift,\n        product->{\n          name,\n          price,\n          images[]{ asset->{url}, alt }\n        }\n      },\n      shippingAddress,\n      shippingCost,\n      vat,\n      subtotal,\n      orderNote,\n      deliveryType,\n      gigTrackingId,\n      gigPin,\n      gigPark\n    }\n  ': ALL_ORDERS_QUERY_RESULT;
-    '*[_type == "product" && defined(slug.current)]{ "slug": slug.current }': QueryResult;
+    '*[_type == "product" && defined(slug.current)]{ "slug": slug.current }': ALL_PRODUCT_SLUGS_QUERY_RESULT;
     '\n    *[_type == "product" && isGift != true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      onCombo,\n      freeShipping,\n      comboItems[]{\n        _key,\n        quantity,\n        "colorOptionIds": colorOptions[]->_id,\n        product->{\n          _id,\n          name,\n          "slug": slug.current,\n          stock,\n          colors[]{\n            _key,\n            "_id": coalesce(color->_id, @->_id),\n            "title": coalesce(color->title, @->title),\n            stock\n          }\n        }\n      },\n      freeGift->{\n        _id,\n        name,\n        "slug": slug.current,\n        price,\n        images[]{ asset->{url}, alt }\n      },\n      discountValue,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      onPreSale,\n      preSaleAvailability,\n      onPreOrder,\n      preOrderAvailability,\n      isComingSoon,\n      images[]{ asset->{url}, alt },\n      colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      },\n      categories[]->{\n        _id,\n        title,\n        "slug": slug.current\n      }\n    }\n  ': ALL_PRODUCTS_QUERY_RESULT;
+    '\n    *[_type == "product" && isBestSeller == true] | order(_createdAt desc) {\n      _id,\n      name,\n      "slug": slug.current,\n      onSale,\n      onCombo,\n      freeShipping,\n      comboItems[]{\n        _key,\n        quantity,\n        "colorOptionIds": colorOptions[]->_id,\n        product->{\n          _id,\n          name,\n          "slug": slug.current,\n          stock,\n          colors[]{\n            _key,\n            "_id": coalesce(color->_id, @->_id),\n            "title": coalesce(color->title, @->title),\n            stock\n          }\n        }\n      },\n      freeGift->{\n        _id,\n        name,\n        "slug": slug.current,\n        price,\n        images[]{ asset->{url}, alt }\n      },\n      discountValue,\n      price,\n      salePrice,\n      stock,\n      isBestSeller,\n      isNewArrival,\n      onPreSale,\n      preSaleAvailability,\n      onPreOrder,\n      preOrderAvailability,\n      isComingSoon,\n      images[]{ asset->{url}, alt },\n      colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      }\n    }\n  ': BEST_SELLERS_QUERY_RESULT;
     '\n\t*[_type == "category" && showOnHomepage == true]\n\t\t| order(coalesce(displayOrder, 999) asc, title asc) {\n\t\t\n\t_id,\n\ttitle,\n\t"slug": slug.current,\n\tmenuLabel,\n\tcomingSoon,\n\tdisplayOrder,\n\timage\n\n\t}\n': STOREFRONT_CATEGORIES_QUERY_RESULT;
     '\n\t*[_type == "category"]\n\t\t| order(coalesce(displayOrder, 999) asc, title asc) {\n\t\t\n\t_id,\n\ttitle,\n\t"slug": slug.current,\n\tmenuLabel,\n\tcomingSoon,\n\tdisplayOrder,\n\timage\n\n\t}\n': ALL_CATEGORIES_QUERY_RESULT;
     '\n\t*[_type == "product" && isGift == true] | order(_createdAt desc) {\n\t  _id,\n\t  name,\n\t  "slug": slug.current,\n\t  onSale,\n\t  onCombo,\n\t  freeShipping,\n\t  comboItems[]{\n\t    _key,\n\t    quantity,\n\t    "colorOptionIds": colorOptions[]->_id,\n\t    product->{\n\t      _id,\n\t      name,\n\t      "slug": slug.current,\n\t      stock,\n\t      colors[]{\n\t        _key,\n\t        "_id": coalesce(color->_id, @->_id),\n\t        "title": coalesce(color->title, @->title),\n\t        stock\n\t      }\n\t    }\n\t  },\n\t  freeGift->{\n\t\t_id,\n\t\tname,\n\t\t"slug": slug.current,\n\t\tprice,\n\t\timages[]{ asset->{url}, alt }\n\t  },\n\t  discountValue,\n\t  price,\n\t  salePrice,\n\t  stock,\n\t  isBestSeller,\n\t  isNewArrival,\n\t  onPreSale,\n\t  preSaleAvailability,\n\t  onPreOrder,\n\t  preOrderAvailability,\n\t  isComingSoon,\n\t  isGift,\n\t  isRecommendedGift,\n\t  images[]{ asset->{url}, alt },\n\t  colors[]{\n        _key,\n        "_id": coalesce(color->_id, @->_id),\n        "title": coalesce(color->title, @->title),\n        stock\n      }\n\t}\n  ': GIFTS_QUERY_RESULT;

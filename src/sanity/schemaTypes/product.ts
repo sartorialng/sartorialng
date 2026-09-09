@@ -1,6 +1,17 @@
 import { ShoppingCart } from "lucide-react";
 import { defineField, defineType } from "sanity";
 
+/**
+ * A combo's own colours and stock are legacy: it is sold as its component
+ * products, each picked in its own colour, and stock comes off those. The
+ * fields stay on the type so existing documents keep their data (colour
+ * filtering on listing pages still reads it), but they are hidden on combos so
+ * nobody maintains a number that no longer decides anything.
+ */
+const isComboDoc = (document: unknown) =>
+	Array.isArray((document as { comboItems?: unknown[] } | null)?.comboItems) &&
+	((document as { comboItems: unknown[] }).comboItems?.length ?? 0) >= 2;
+
 const productType = defineType({
 	name: "product",
 	title: "Products",
@@ -246,23 +257,30 @@ const productType = defineType({
 					},
 				},
 			],
+			hidden: ({ document }) => isComboDoc(document),
 			validation: (Rule) =>
-				Rule.required()
-					.min(1)
-					.custom((items) => {
-						const refs = ((items as unknown[]) ?? [])
-							.map((item) => {
-								const entry = item as {
-									color?: { _ref?: string };
-									_ref?: string;
-								};
-								return entry?.color?._ref ?? entry?._ref;
-							})
-							.filter(Boolean);
-						return new Set(refs).size === refs.length
-							? true
-							: "The same colour is listed more than once.";
-					}),
+				Rule.custom((items, context) => {
+					const rows = (items as unknown[]) ?? [];
+
+					// A combo is sold as its component products, so it needs no
+					// colours of its own. Everything else still does.
+					if (!isComboDoc(context.document) && rows.length < 1) {
+						return "Add at least one colour.";
+					}
+
+					const refs = rows
+						.map((item) => {
+							const entry = item as {
+								color?: { _ref?: string };
+								_ref?: string;
+							};
+							return entry?.color?._ref ?? entry?._ref;
+						})
+						.filter(Boolean);
+					return new Set(refs).size === refs.length
+						? true
+						: "The same colour is listed more than once.";
+				}),
 		}),
 		defineField({
 			name: "categories",
@@ -276,6 +294,7 @@ const productType = defineType({
 			type: "number",
 			description:
 				"Only used for colours above that have no stock of their own. Once every colour has a number, this can stay blank.",
+			hidden: ({ document }) => isComboDoc(document),
 			validation: (Rule) => Rule.min(0),
 		}),
 		defineField({

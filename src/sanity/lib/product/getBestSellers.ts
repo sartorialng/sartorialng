@@ -2,7 +2,7 @@ import { client } from "../client";
 import { groq } from "next-sanity";
 
 export const getBestSellers = async () => {
-	const query = groq`
+	const BEST_SELLERS_QUERY = groq`
     *[_type == "product" && isBestSeller == true] | order(_createdAt desc) {
       _id,
       name,
@@ -55,7 +55,7 @@ export const getBestSellers = async () => {
     }
   `;
 	return client.fetch(
-		query,
+		BEST_SELLERS_QUERY,
 		{},
 		{
 			next: {

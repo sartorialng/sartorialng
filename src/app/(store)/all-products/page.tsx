@@ -14,6 +14,7 @@ import { categories, colors, priceRanges } from "@/data";
 import { SortByDropdown } from "@/components/layout/SortByDropdown";
 import { SortByDropdownMobile } from "@/components/layout/SortByDropdownMobile";
 import { getFirstAvailableColor } from "@/lib/stock";
+import { buyableColorTitles } from "@/lib/combo";
 
 const AllProducts = () => {
 	const addItem = useBasketStore((s) => s.addItem);
@@ -91,8 +92,8 @@ const AllProducts = () => {
 
 		if (selectedColors.length > 0) {
 			filtered = filtered.filter((product) =>
-				product.colors?.some((color: any) =>
-					selectedColors.includes(color.title),
+				buyableColorTitles(product).some((title) =>
+					selectedColors.includes(title),
 				),
 			);
 		}
