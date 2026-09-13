@@ -163,7 +163,7 @@ const buildOrderDoc = (
 	const sanityProducts = input.items.map((item, index) => {
 		const productData: Record<string, unknown> = {
 			_key: `${item._id}-${index}`,
-			product: { _type: "reference", _ref: item._id },
+			product: { _type: "reference", _ref: item._id, _weak: true },
 			productName: item.name,
 			productPrice: item.isFreeGift ? 0 : item.price,
 			quantity: item.quantity,

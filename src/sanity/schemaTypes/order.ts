@@ -54,6 +54,9 @@ const orderType = defineType({
 							title: "Product Bought",
 							type: "reference",
 							to: [{ type: "product" }],
+							// Weak so a product can be deleted after it has been sold. The
+							// line keeps its own name/price snapshot for order history.
+							weak: true,
 						}),
 						defineField({
 							name: "productName",
