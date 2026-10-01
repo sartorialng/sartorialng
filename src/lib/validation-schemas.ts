@@ -1,4 +1,5 @@
 import * as yup from "yup";
+import { normalisePhone } from "@/lib/newsletter";
 
 export const billingSchema = yup.object().shape({
 	firstName: yup.string().trim().required("First name is required"),
@@ -38,10 +39,11 @@ export const billingSchema = yup.object().shape({
 	saveInfo: yup.boolean(),
 	shipToDifferentAddress: yup.boolean(),
 	hasRegistered: yup.boolean(),
-	// hasReadTC: yup
-	// 	.boolean()
-	// 	.oneOf([true], "Please read the Discount Sales Terms and Conditions")
-	// 	.required("Please read the Discount Sales Terms and Conditions"),
+	subscribeToNewsletter: yup.boolean(),
+	hasReadTC: yup
+		.boolean()
+		.oneOf([true], "Please accept our Terms and Conditions to continue")
+		.required("Please accept our Terms and Conditions to continue"),
 	gigPark: yup
 		.string()
 		.when(["country", "state", "interstateDeliveryType", "shipToDifferentAddress"], {
@@ -140,4 +142,22 @@ export const contactUsSchema = yup.object().shape({
 		.required("Email is required"),
 	phoneNo: yup.string().required("Phone number is required"),
 	message: yup.string().required("Message is required"),
+});
+
+export const newsletterSchema = yup.object().shape({
+	fullName: yup.string().trim().required("Your name is required"),
+	email: yup
+		.string()
+		.trim()
+		.email("Invalid email address")
+		.required("Email is required"),
+	phone: yup
+		.string()
+		.trim()
+		.required("WhatsApp number is required")
+		.test(
+			"phone",
+			"Use 08012345678, or +country code for numbers outside Nigeria",
+			(value) => normalisePhone(value) !== null,
+		),
 });

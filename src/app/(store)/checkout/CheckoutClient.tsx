@@ -28,7 +28,7 @@ import {
 import { setSnapUser } from "@/lib/snap-user";
 import { getFreeGiftLines } from "@/lib/freeGift";
 import { fetchFreshProducts } from "@/lib/refreshProducts";
-// import SalesTCModal from "@/components/modals/SalesTCModal";
+import TermsModal from "@/components/modals/TermsModal";
 
 const CheckoutClient = () => {
 	const isCreatingOrder = useRef(false);
@@ -41,7 +41,7 @@ const CheckoutClient = () => {
 	const [paystackReference, setPaystackReference] = useState(
 		generatePaystackReference,
 	);
-	// const [isSalesModalOpen, setIsSalesModalOpen] = useState(false);
+	const [isSalesModalOpen, setIsSalesModalOpen] = useState(false);
 
 	// Basket lines carry a copy of the product taken when it was added, so the
 	// order summary would otherwise show whatever the price was that day. Read
@@ -82,10 +82,11 @@ const CheckoutClient = () => {
 			saveInfo: false,
 			shipToDifferentAddress: false,
 			hasRegistered: false,
+			subscribeToNewsletter: false,
 			interstateDeliveryType: "pickup" as "pickup" | "doorstep",
 			gigPark: "",
 			shippingGigPark: "",
-			// hasReadTC: false,
+			hasReadTC: false,
 			receiverFirstName: "",
 			receiverLastName: "",
 			shippingAddress: "",
@@ -626,7 +627,7 @@ const CheckoutClient = () => {
 							onPaystack={handlePaystackPayment}
 							onPayPal={handlePayPalSuccess}
 							totalAmount={total}
-							// setIsSalesModalOpen={setIsSalesModalOpen}
+							setIsSalesModalOpen={setIsSalesModalOpen}
 						/>
 					</div>
 
@@ -644,10 +645,11 @@ const CheckoutClient = () => {
 			</main>
 			<Footer />
 			<ProcessingOverlay isVisible={isProcessing} />
-			{/* <SalesTCModal
-				isSalesModalOpen={isSalesModalOpen}
-				setIsSalesModalOpen={setIsSalesModalOpen}
-			/> */}
+			<TermsModal
+				open={isSalesModalOpen}
+				setOpen={setIsSalesModalOpen}
+				onAccept={() => formik.setFieldValue("hasReadTC", true)}
+			/>
 		</div>
 	);
 };

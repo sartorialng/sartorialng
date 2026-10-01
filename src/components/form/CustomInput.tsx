@@ -12,6 +12,8 @@ type CustomInputProps = {
 	labelStyle?: string;
 	inputStyle?: string;
 	id: string;
+	/** Form field name; defaults to id. Formik matches changes by it. */
+	name?: string;
 	type?: string;
 	placeholder?: string;
 	iconLeft?: ReactNode;
@@ -30,6 +32,7 @@ const CustomInput = ({
 	labelStyle,
 	inputStyle,
 	id,
+	name,
 	type,
 	placeholder,
 	iconLeft,
@@ -67,6 +70,7 @@ const CustomInput = ({
 
 					<Textarea
 						id={id}
+						name={name ?? id}
 						placeholder={placeholder}
 						rows={10}
 						cols={10}
@@ -90,6 +94,7 @@ const CustomInput = ({
 					<Input
 						type={inputType}
 						id={id}
+						name={name ?? id}
 						placeholder={placeholder}
 						className={`${inputStyle} ${iconLeft ? "pl-10" : "pl-4"} ${
 							iconRight ? "pr-10" : "pr-4"

@@ -22,10 +22,11 @@ export interface BillingFormValues {
 	saveInfo: boolean;
 	shipToDifferentAddress: boolean;
 	hasRegistered: boolean;
+	subscribeToNewsletter: boolean;
 	interstateDeliveryType: "pickup" | "doorstep";
 	gigPark: string;
 	shippingGigPark: string;
-	// hasReadTC: boolean;
+	hasReadTC: boolean;
 	receiverFirstName: string;
 	receiverLastName: string;
 	shippingAddress: string;

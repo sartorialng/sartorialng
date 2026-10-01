@@ -9,6 +9,7 @@ import FacebookPixel from "@/components/pixel/FacebookPixel";
 import SnapPixel from "@/components/pixel/SnapPixel";
 import TikTokPixel from "@/components/pixel/TikTokPixel";
 import InstagramNoticeModal from "@/components/modals/InstagramNoticeModal";
+import NewsletterModal from "@/components/modals/NewsletterModal";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -67,6 +68,7 @@ export default function RootLayout({
 				<body className={`${inter.variable} antialiased`}>
 					<PayPalProvider>{children}</PayPalProvider>
 					<InstagramNoticeModal />
+					<NewsletterModal />
 					<Toaster position="top-right" richColors />
 					<Suspense fallback={null}>
 						<FacebookPixel />

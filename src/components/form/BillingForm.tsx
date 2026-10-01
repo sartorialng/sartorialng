@@ -8,7 +8,8 @@ import { GIG_PARKS } from "@/data/gig-parks";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BillingFormValues } from "@/lib/types/types";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { subscribeToNewsletter } from "@/lib/newsletter";
 import PaymentMethodModal from "@/app/(store)/checkout/PaymentMethodModal";
 import { toast } from "sonner";
 import { useBasketStore } from "@/store/store";
@@ -22,7 +23,7 @@ interface BillingFormProps {
 	onPaystack: () => void;
 	onPayPal: (details: any) => void;
 	totalAmount: number;
-	// setIsSalesModalOpen: Dispatch<SetStateAction<boolean>>;
+	setIsSalesModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const labelStyle = "text-gray-400 font-normal text-sm";
@@ -34,11 +35,12 @@ const BillingForm = ({
 	onPaystack,
 	onPayPal,
 	totalAmount,
-	// setIsSalesModalOpen,
+	setIsSalesModalOpen,
 }: BillingFormProps) => {
 	const [showPaymentModal, setShowPaymentModal] = useState(false);
 	const [isValidating, setIsValidating] = useState(false);
 	const refreshProducts = useBasketStore((s) => s.refreshProducts);
+	const subscribedEmail = useRef<string | null>(null);
 
 	const handleCheckoutClick = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -51,6 +53,26 @@ const BillingForm = ({
 			return;
 		}
 
+		// They opted in, so subscribe them now, even if they abandon payment.
+		// Runs in the background; once per email, so repeat clicks are no-ops.
+		const email = formik.values.emailAddress.trim().toLowerCase();
+		if (
+			formik.values.subscribeToNewsletter &&
+			subscribedEmail.current !== email
+		) {
+			subscribedEmail.current = email;
+			subscribeToNewsletter({
+				firstName: formik.values.firstName,
+				lastName: formik.values.lastName,
+				email,
+				phone: formik.values.phoneNo,
+				source: "checkout",
+			}).catch((error) => {
+				subscribedEmail.current = null;
+				console.error("Newsletter subscription failed:", error);
+			});
+		}
+
 		try {
 			setIsValidating(true);
 
@@ -60,9 +82,7 @@ const BillingForm = ({
 			// provider, are today's prices.
 			try {
 				const fresh = await fetchFreshProducts(
-					useBasketStore
-						.getState()
-						.items.map((item) => item.product._id),
+					useBasketStore.getState().items.map((item) => item.product._id),
 				);
 				refreshProducts(fresh);
 			} catch {
@@ -102,53 +122,52 @@ const BillingForm = ({
 			// A combo holds no stock of its own, so it is checked for its price
 			// while each bag it is made of is checked for availability against
 			// that bag's own colour count.
-			const stockLines: InventoryLine[] = basketItems.flatMap<InventoryLine>((item) =>
-				item.comboSelections?.length
-					? [
-							{
-								product: priced(item.product),
-								quantity: item.quantity,
-								selectedColor: null,
-								check: "price" as const,
-							},
-							...item.comboSelections.map((c) => ({
-								product: {
-									_id: c.productId,
-									name: c.productName,
+			const stockLines: InventoryLine[] = basketItems.flatMap<InventoryLine>(
+				(item) =>
+					item.comboSelections?.length
+						? [
+								{
+									product: priced(item.product),
+									quantity: item.quantity,
+									selectedColor: null,
+									check: "price" as const,
 								},
-								quantity:
-									item.quantity *
-									(c.quantity > 0 ? c.quantity : 1),
-								selectedColor: {
-									_id: c.colorId,
-									title: c.colorTitle,
+								...item.comboSelections.map((c) => ({
+									product: {
+										_id: c.productId,
+										name: c.productName,
+									},
+									quantity: item.quantity * (c.quantity > 0 ? c.quantity : 1),
+									selectedColor: {
+										_id: c.colorId,
+										title: c.colorTitle,
+									},
+									check: "stock" as const,
+									comboName: item.product.name ?? null,
+								})),
+							]
+						: [
+								{
+									product: priced(item.product),
+									quantity: item.quantity,
+									selectedColor: item.selectedColor
+										? {
+												_id: item.selectedColor._id,
+												title: item.selectedColor.title,
+											}
+										: null,
 								},
-								check: "stock" as const,
-								comboName: item.product.name ?? null,
-							})),
-						]
-					: [
-							{
-								product: priced(item.product),
-								quantity: item.quantity,
-								selectedColor: item.selectedColor
-									? {
-											_id: item.selectedColor._id,
-											title: item.selectedColor.title,
-										}
-									: null,
-							},
-						],
+							],
 			);
 
-			const giftLines: InventoryLine[] = getFreeGiftLines(
-				basketItems,
-			).map((line) => ({
-				product: { _id: line.product._id, name: line.product.name },
-				quantity: line.quantity,
-				selectedColor: null,
-				isFreeGift: true,
-			}));
+			const giftLines: InventoryLine[] = getFreeGiftLines(basketItems).map(
+				(line) => ({
+					product: { _id: line.product._id, name: line.product.name },
+					quantity: line.quantity,
+					selectedColor: null,
+					isFreeGift: true,
+				}),
+			);
 
 			const response = await fetch("/api/inventory/check", {
 				method: "POST",
@@ -198,9 +217,7 @@ const BillingForm = ({
 	return (
 		<>
 			<form onSubmit={handleCheckoutClick} className="space-y-6">
-				<h2 className="text-xl text-white font-medium mb-6">
-					Billing Details
-				</h2>
+				<h2 className="text-xl text-white font-medium mb-6">Billing Details</h2>
 
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<CustomInput
@@ -301,21 +318,27 @@ const BillingForm = ({
 					formik.values.state !== "Lagos" &&
 					!formik.values.shipToDifferentAddress && (
 						<div className="space-y-2">
-							<p className={labelStyle}>
-								Delivery Type*
-							</p>
+							<p className={labelStyle}>Delivery Type*</p>
 							<div className="flex flex-col sm:flex-row gap-3">
 								{[
-									{ value: "doorstep", label: "Doorstep Delivery", price: "₦9,250" },
+									{
+										value: "doorstep",
+										label: "Doorstep Delivery",
+										price: "₦9,250",
+									},
 									{ value: "pickup", label: "Pick Up", price: "₦8,000" },
 								].map((option) => {
-									const selected = formik.values.interstateDeliveryType === option.value;
+									const selected =
+										formik.values.interstateDeliveryType === option.value;
 									return (
 										<button
 											key={option.value}
 											type="button"
 											onClick={() => {
-												formik.setFieldValue("interstateDeliveryType", option.value);
+												formik.setFieldValue(
+													"interstateDeliveryType",
+													option.value,
+												);
 												if (option.value !== "pickup") {
 													formik.setFieldValue("gigPark", "");
 													formik.setFieldValue("shippingGigPark", "");
@@ -327,18 +350,24 @@ const BillingForm = ({
 													: "border-white/30 bg-transparent hover:border-white/50"
 											}`}
 										>
-											<span className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-												selected ? "border-white" : "border-white/50"
-											}`}>
+											<span
+												className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+													selected ? "border-white" : "border-white/50"
+												}`}
+											>
 												{selected && (
 													<span className="w-2.5 h-2.5 rounded-full bg-white" />
 												)}
 											</span>
 											<span className="flex flex-col">
-												<span className={`text-sm font-medium leading-tight ${selected ? "text-white" : "text-gray-300"}`}>
+												<span
+													className={`text-sm font-medium leading-tight ${selected ? "text-white" : "text-gray-300"}`}
+												>
 													{option.label}
 												</span>
-												<span className={`text-xs mt-0.5 ${selected ? "text-gray-200" : "text-gray-400"}`}>
+												<span
+													className={`text-xs mt-0.5 ${selected ? "text-gray-200" : "text-gray-400"}`}
+												>
 													{option.price}
 												</span>
 											</span>
@@ -447,10 +476,7 @@ const BillingForm = ({
 						className="border-white data-[state=checked]:bg-white data-[state=checked]:text-[#2D5A43]"
 						checked={formik.values.shipToDifferentAddress}
 						onCheckedChange={(checked) =>
-							formik.setFieldValue(
-								"shipToDifferentAddress",
-								checked,
-							)
+							formik.setFieldValue("shipToDifferentAddress", checked)
 						}
 					/>
 					<label
@@ -562,21 +588,27 @@ const BillingForm = ({
 							formik.values.shippingState &&
 							formik.values.shippingState !== "Lagos" && (
 								<div className="space-y-2">
-									<p className={labelStyle}>
-										Delivery Type*
-									</p>
+									<p className={labelStyle}>Delivery Type*</p>
 									<div className="flex flex-col sm:flex-row gap-3">
 										{[
-											{ value: "doorstep", label: "Doorstep Delivery", price: "₦9,250" },
+											{
+												value: "doorstep",
+												label: "Doorstep Delivery",
+												price: "₦9,250",
+											},
 											{ value: "pickup", label: "Pick Up", price: "₦8,000" },
 										].map((option) => {
-											const selected = formik.values.interstateDeliveryType === option.value;
+											const selected =
+												formik.values.interstateDeliveryType === option.value;
 											return (
 												<button
 													key={option.value}
 													type="button"
 													onClick={() => {
-														formik.setFieldValue("interstateDeliveryType", option.value);
+														formik.setFieldValue(
+															"interstateDeliveryType",
+															option.value,
+														);
 														if (option.value !== "pickup") {
 															formik.setFieldValue("gigPark", "");
 															formik.setFieldValue("shippingGigPark", "");
@@ -588,18 +620,24 @@ const BillingForm = ({
 															: "border-white/30 bg-transparent hover:border-white/50"
 													}`}
 												>
-													<span className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-														selected ? "border-white" : "border-white/50"
-													}`}>
+													<span
+														className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+															selected ? "border-white" : "border-white/50"
+														}`}
+													>
 														{selected && (
 															<span className="w-2.5 h-2.5 rounded-full bg-white" />
 														)}
 													</span>
 													<span className="flex flex-col">
-														<span className={`text-sm font-medium leading-tight ${selected ? "text-white" : "text-gray-300"}`}>
+														<span
+															className={`text-sm font-medium leading-tight ${selected ? "text-white" : "text-gray-300"}`}
+														>
 															{option.label}
 														</span>
-														<span className={`text-xs mt-0.5 ${selected ? "text-gray-200" : "text-gray-400"}`}>
+														<span
+															className={`text-xs mt-0.5 ${selected ? "text-gray-200" : "text-gray-400"}`}
+														>
 															{option.price}
 														</span>
 													</span>
@@ -657,13 +695,9 @@ const BillingForm = ({
 								type="tel"
 								labelStyle={labelStyle}
 								inputStyle={inputStyle}
-								{...formik.getFieldProps(
-									"shippingSecondaryPhoneNo",
-								)}
+								{...formik.getFieldProps("shippingSecondaryPhoneNo")}
 								error={formik.errors.shippingSecondaryPhoneNo}
-								touched={
-									formik.touched.shippingSecondaryPhoneNo
-								}
+								touched={formik.touched.shippingSecondaryPhoneNo}
 							/>
 						</div>
 					</div>
@@ -674,12 +708,11 @@ const BillingForm = ({
 						Important Notice!
 					</h3>
 					<p className="text-[#404040] text-xs md:text-base leading-relaxed font-medium">
-						Please note that delivery starts when sales is generally
-						over. Delivery within Lagos takes 24-48hrs (Business
-						Days). <br /> Inter-state takes 2-5 business days,
-						deliveries within Africa take 5-8 business days, and
-						international deliveries take 14 business days excluding
-						public holidays.
+						Please note that delivery starts when sales is generally over.
+						Delivery within Lagos takes 24-48hrs (Business Days). <br />{" "}
+						Inter-state takes 2-5 business days, deliveries within Africa take
+						5-8 business days, and international deliveries take 14 business
+						days excluding public holidays.
 					</p>
 				</div> */}
 
@@ -696,42 +729,52 @@ const BillingForm = ({
 					</p>
 				</div>
 
-				<div className="flex space-x-2">
+				<div className="flex items-start gap-2.5">
 					<Checkbox
 						id="hasRegistered"
 						checked={formik.values.hasRegistered}
 						onCheckedChange={(checked) => {
-							formik.setFieldValue(
-								"hasRegistered",
-								checked === true,
-							);
+							formik.setFieldValue("hasRegistered", checked === true);
 						}}
-						className="border-white data-[state=checked]:bg-white data-[state=checked]:text-[#2D5A43]"
+						className="mt-0.5 border-white data-[state=checked]:bg-white data-[state=checked]:text-[#2D5A43]"
 					/>
 					<label
 						htmlFor="hasRegistered"
-						className="text-sm md:text-base font-medium leading-4 md:leading-none text-white cursor-pointer"
+						className="text-sm font-normal leading-snug text-white/90 cursor-pointer"
 					>
 						Join Sartorial Babes and get 20% off your next purchase!
 					</label>
 				</div>
 
-				{/* <div className="">
-					<div className="flex space-x-2">
+				<div className="flex items-start gap-2.5">
+					<Checkbox
+						id="subscribeToNewsletter"
+						checked={formik.values.subscribeToNewsletter}
+						onCheckedChange={(checked) => {
+							formik.setFieldValue("subscribeToNewsletter", checked === true);
+						}}
+						className="mt-0.5 border-white data-[state=checked]:bg-white data-[state=checked]:text-[#2D5A43]"
+					/>
+					<label
+						htmlFor="subscribeToNewsletter"
+						className="text-sm font-normal leading-snug text-white/90 cursor-pointer"
+					>
+						Get early access and promos by email and WhatsApp
+					</label>
+				</div>
+
+				<div className="">
+					<div className="flex items-start gap-2.5">
 						<Checkbox
 							id="hasReadTC"
 							checked={formik.values.hasReadTC}
 							onCheckedChange={(checked) => {
-								formik.setFieldValue(
-									"hasReadTC",
-									checked === true,
-								);
+								formik.setFieldValue("hasReadTC", checked === true);
 							}}
-							className="border-white data-[state=checked]:bg-white data-[state=checked]:text-[#2D5A43]"
+							className="mt-0.5 border-white data-[state=checked]:bg-white data-[state=checked]:text-[#2D5A43]"
 						/>
-						<p className=" text-sm md:text-base font-medium leading-4 md:leading-none text-white cursor-pointer">
-							I confirm that I have read and accept the Discount
-							Sales{" "}
+						<p className="text-sm font-normal leading-snug text-white/90 cursor-pointer">
+							I confirm that I have read and accept{" "}
 							<span
 								className="underline hover:text-gray-100 cursor-pointer"
 								onClick={() => setIsSalesModalOpen(true)}
@@ -745,7 +788,7 @@ const BillingForm = ({
 							{formik.errors.hasReadTC}
 						</p>
 					)}
-				</div> */}
+				</div>
 
 				<div className="mt-5 text-white space-y-2">
 					<Button
@@ -763,9 +806,7 @@ const BillingForm = ({
 					</Button>
 
 					<div className="mt-5 md:mt-3 text-white flex justify-center items-center gap-4 underline text-[10px] md:text-xs">
-						<Link href="/terms-and-condition">
-							Terms & Condition
-						</Link>
+						<Link href="/terms-and-condition">Terms & Condition</Link>
 						<Link href="/privacy-policy">Privacy Policy</Link>
 						<Link href="/refund-and-returns">Refund Policy</Link>
 						<Link href="/shipping-details">Shipping Details</Link>
