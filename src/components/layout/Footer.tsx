@@ -8,12 +8,32 @@ import {
 	TikTokIcon,
 	WhatsappIcon,
 } from "@/assets";
+import NewsletterForm from "@/components/form/NewsletterForm";
 import Image from "next/image";
 import Link from "next/link";
 
 const Footer = () => {
 	return (
 		<div className="w-full px-10 md:px-20 pt-10 pb-5 bg-sartorial-green">
+			{/* Mailing list band */}
+			<div className="mb-12 rounded-3xl border border-white/15 bg-white/5 px-6 py-8 text-white md:px-10 md:py-10">
+				<div className="grid grid-cols-1 items-center gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] xl:gap-12">
+					<div>
+						<p className="text-[11px] font-medium uppercase tracking-[0.25em] text-white/60">
+							The Sartorial List
+						</p>
+						<p className="mt-2 text-2xl font-semibold md:text-3xl">
+							Be the first to know
+						</p>
+						<p className="mt-2 text-sm text-white/75 md:text-base">
+							Early access, promos, sales and discount codes,
+							straight to your inbox and WhatsApp.
+						</p>
+					</div>
+					<NewsletterForm source="footer" variant="footer" />
+				</div>
+			</div>
+
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-5 md:gap-20">
 				<div className="">
 					<Image

@@ -12,14 +12,32 @@ import { Button } from "@/components/ui/button";
 import { Instagram, XCircle } from "lucide-react";
 import Link from "next/link";
 
-const STORAGE_KEY = "sartorial_ig_notice_followed";
+export const IG_NOTICE_FOLLOWED_KEY = "sartorial_ig_notice_followed";
+/** Fired when the notice closes, so the newsletter popup can follow it. */
+export const IG_NOTICE_DONE_EVENT = "sartorial:ig-notice-done";
+const STORAGE_KEY = IG_NOTICE_FOLLOWED_KEY;
 const LAST_SHOWN_KEY = "sartorial_ig_notice_last_shown";
 const NEW_IG_HANDLE = "@sartorialhq";
 const NEW_IG_URL = "https://www.instagram.com/sartorialhq";
 const REOPEN_INTERVAL = 5 * 60 * 1000;
 
+/**
+ * When the notice will next open on its own: Infinity once followed, otherwise
+ * 5 minutes after it last showed (now, for a first-time visitor).
+ */
+export function getIgNoticeDueAt() {
+	try {
+		if (window.localStorage.getItem(STORAGE_KEY) === "true") return Infinity;
+		const lastShown = Number(window.localStorage.getItem(LAST_SHOWN_KEY));
+		return (Number.isFinite(lastShown) ? lastShown : 0) + REOPEN_INTERVAL;
+	} catch {
+		return 0;
+	}
+}
+
 const InstagramNoticeModal = () => {
 	const [isOpen, setIsOpen] = useState(false);
+	const [retry, setRetry] = useState(0);
 
 	const hasFollowed = useCallback(() => {
 		if (typeof window === "undefined") return false;
@@ -46,20 +64,30 @@ const InstagramNoticeModal = () => {
 		const timer = setTimeout(() => {
 			if (hasFollowed()) return;
 			markShown();
+			// Another popup (e.g. the newsletter) is up: skip this round and
+			// try again on the next interval rather than stacking on top.
+			if (document.querySelector('[role="dialog"][data-state="open"]')) {
+				setRetry((n) => n + 1);
+				return;
+			}
 			setIsOpen(true);
 		}, delay);
 
 		return () => clearTimeout(timer);
-	}, [isOpen, hasFollowed, getLastShown, markShown]);
+	}, [isOpen, retry, hasFollowed, getLastShown, markShown]);
 
 	const handleOpenChange = (open: boolean) => {
-		if (!open) markShown();
+		if (!open) {
+			markShown();
+			window.dispatchEvent(new Event(IG_NOTICE_DONE_EVENT));
+		}
 		setIsOpen(open);
 	};
 
 	const handleFollowClick = () => {
 		if (typeof window !== "undefined") {
 			window.localStorage.setItem(STORAGE_KEY, "true");
+			window.dispatchEvent(new Event(IG_NOTICE_DONE_EVENT));
 		}
 		setIsOpen(false);
 	};
