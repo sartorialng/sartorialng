@@ -61,8 +61,13 @@ export async function POST(request: NextRequest) {
 		let validFrom;
 		let expiresAt;
 
-		// If SALE_END_DATE exists and is valid
-		if (saleEndsAt && !isNaN(saleEndsAt.getTime())) {
+		// If SALE_END_DATE exists, is valid and is still ahead. A past date must
+		// be ignored, or the coupon would be born already expired.
+		if (
+			saleEndsAt &&
+			!isNaN(saleEndsAt.getTime()) &&
+			saleEndsAt > now
+		) {
 			validFrom = saleEndsAt;
 
 			// Expire 30 days AFTER validFrom
@@ -75,11 +80,17 @@ export async function POST(request: NextRequest) {
 		}
 
 		const footerValidityText = validFrom
-			? `Valid for 30 days after our sale ends on ${validFrom.toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric" })}. Single use only.`
+			? // The end is the midnight the sale closes at, so name the day before it.
+				`Valid for 30 days after our sale ends on ${new Date(validFrom.getTime() - 1).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Lagos" })}. Single use only.`
 			: "Valid for 30 days. Single use only.";
 
+		const saleStartsAt = process.env.NEXT_PUBLIC_SALE_START_DATE
+			? new Date(process.env.NEXT_PUBLIC_SALE_START_DATE)
+			: null;
+		const saleIsUpcoming = Boolean(saleStartsAt && now < saleStartsAt);
+
 		const salePeriodNote = validFrom
-			? `<p style="font-size: 14px; color: #e07b39; margin-bottom: 20px;">⏳ Our current sale is active — your coupon will be valid once the sale ends.</p>`
+			? `<p style="font-size: 14px; color: #e07b39; margin-bottom: 20px;">⏳ ${saleIsUpcoming ? "Our sale is coming up soon" : "Our current sale is active"} — your coupon will be valid once the sale ends.</p>`
 			: "";
 
 		await adminClient.create({
