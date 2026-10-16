@@ -60,7 +60,12 @@
 
 // export default CountdownTimer;
 
-import { useEffect, useState } from "react";
+import { CalendarPlus } from "lucide-react";
+import {
+	SALE_NAME,
+	downloadSaleReminder,
+	useSaleCountdown,
+} from "@/lib/sale";
 
 const TimeUnit = ({ value, label }: { value: number; label: string }) => (
 	<div className="flex flex-col items-center px-1 md:px-4">
@@ -73,41 +78,16 @@ const TimeUnit = ({ value, label }: { value: number; label: string }) => (
 	</div>
 );
 
+/** Counts down to the sale opening, then to its close, and hides once it is over. */
 const CountdownTimer = () => {
-	const [timeLeft, setTimeLeft] = useState({
-		days: 0,
-		hours: 0,
-		minutes: 0,
-		seconds: 0,
-	});
+	const { phase, timeLeft } = useSaleCountdown();
 
-	useEffect(() => {
-		const targetDate = new Date("2026-04-06T00:00:00").getTime();
-
-		const timer = setInterval(() => {
-			const now = new Date().getTime();
-			const difference = targetDate - now;
-
-			if (difference <= 0) {
-				clearInterval(timer);
-				return;
-			}
-
-			setTimeLeft({
-				days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-				hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-				minutes: Math.floor((difference / 1000 / 60) % 60),
-				seconds: Math.floor((difference / 1000) % 60),
-			});
-		}, 1000);
-
-		return () => clearInterval(timer);
-	}, []);
+	if (phase === "off") return null;
 
 	return (
 		<div className="top-26 right-2 md:right-3 absolute w-auto mx-auto py-1 px-1 md:py-4 bg-white rounded-sm md:rounded-lg shadow-sm border border-gray-50 z-30">
 			<h3 className="text-center text-xs md:text-base text-sartorial-green font-medium mb-2 md:mb-4 text-wrap">
-				Sartorial Easter Event Ends in
+				{SALE_NAME} {phase === "upcoming" ? "Starts" : "Ends"} in
 			</h3>
 			<div className="flex justify-center items-center divide-x divide-gray-100 mb-1">
 				<TimeUnit value={timeLeft.days} label="Days" />
@@ -115,6 +95,16 @@ const CountdownTimer = () => {
 				<TimeUnit value={timeLeft.minutes} label="Minutes" />
 				<TimeUnit value={timeLeft.seconds} label="Seconds" />
 			</div>
+			{phase === "upcoming" && (
+				<button
+					type="button"
+					onClick={downloadSaleReminder}
+					className="mx-auto mt-1 md:mt-3 flex items-center gap-1 text-[8px] md:text-xs font-medium text-sartorial-green underline-offset-2 hover:underline cursor-pointer"
+				>
+					<CalendarPlus className="h-2.5 w-2.5 md:h-3.5 md:w-3.5" />
+					Remind me
+				</button>
+			)}
 		</div>
 	);
 };

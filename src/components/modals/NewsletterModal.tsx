@@ -14,6 +14,7 @@ import { Percent, Sparkles, Tag, XCircle } from "lucide-react";
 import { NewFooterBrandLogo } from "@/assets";
 import NewsletterForm from "@/components/form/NewsletterForm";
 import { isNewsletterSubscribed } from "@/lib/newsletter";
+import { useNewsletterPitch } from "@/lib/sale";
 import {
 	IG_NOTICE_DONE_EVENT,
 	getIgNoticeDueAt,
@@ -56,6 +57,7 @@ const NewsletterModal = () => {
 	// When the IG notice was dealt with on this page load (0 = not yet).
 	const [igDoneAt, setIgDoneAt] = useState(0);
 	const pathname = usePathname();
+	const pitch = useNewsletterPitch();
 
 	const hidden = HIDDEN_ON.some((path) => pathname?.startsWith(path));
 
@@ -153,11 +155,10 @@ const NewsletterModal = () => {
 							The Sartorial List
 						</p>
 						<DialogTitle className="text-center text-xl sm:text-2xl font-semibold text-white">
-							Be the first to know
+							{pitch.title}
 						</DialogTitle>
 						<DialogDescription className="text-center text-sm leading-relaxed text-white/80">
-							Early access, promos, sales and discount codes, straight to your
-							inbox and WhatsApp.
+							{pitch.description}
 						</DialogDescription>
 					</DialogHeader>
 

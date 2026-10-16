@@ -24,6 +24,7 @@ import {
 } from "@clerk/nextjs";
 import MobileHeaderLinks from "./MobileHeaderLinks";
 import CategoryDropdown from "./CategoryDropdown";
+import SaleTicker from "./SaleTicker";
 import Image from "next/image";
 
 const Cart = dynamic(() => import("./Cart"), { ssr: false });
@@ -58,7 +59,7 @@ const Header = () => {
 			{(pathname === "/" || pathname === "/gift-concierge") && (
 				<div className="bg-sartorial-green text-white py-2 px-4 md:px-10 lg:px-20">
 					<div className="relative flex items-center justify-between md:justify-center">
-						<p className="text-sm font-medium">Welcome to Sartorial!</p>
+						<SaleTicker />
 
 						<div className="absolute right-0 flex items-center gap-3">
 							<Link
