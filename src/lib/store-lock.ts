@@ -77,23 +77,18 @@ export function handleStoreLock(req: NextRequest): NextResponse | undefined {
 		if (!matches(pathname, BLOCKED_APIS)) return;
 		return NextResponse.json(
 			{ error: "The store is closed until the sale starts." },
-			{ status: 503 },
+			// Not a 5xx: DigitalOcean swaps those for its own error page.
+			{ status: 403 },
 		);
 	}
 
 	if (matches(pathname, OPEN_PAGES)) return;
 
 	// Rewrite rather than redirect: the visitor keeps the URL they came for,
-	// so the reload at zero lands them on that page. The 503 tells search
-	// engines this is temporary, so they keep the store's pages indexed.
-	const retryAfter = SALE_STARTS_AT
-		? Math.max(60, Math.ceil((SALE_STARTS_AT - Date.now()) / 1000))
-		: 3600;
+	// so the reload at zero lands them on that page. This has to be a 200:
+	// DigitalOcean replaces any 503 from the app with its own error page.
+	// no-store keeps Cloudflare from serving the waiting room after opening.
 	return NextResponse.rewrite(new URL(WAITING_ROOM_PATH, req.url), {
-		status: 503,
-		headers: {
-			"Retry-After": String(retryAfter),
-			"Cache-Control": "no-store",
-		},
+		headers: { "Cache-Control": "no-store" },
 	});
 }

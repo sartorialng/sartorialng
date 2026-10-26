@@ -19,7 +19,6 @@ export const metadata: Metadata = {
 	title: "Sartorial – Black Friday is coming",
 	description:
 		"Sartorial's Black Friday sale is almost here. Join the list for early access.",
-	robots: { index: false, follow: false },
 };
 
 /**
