@@ -1,7 +1,7 @@
 // Shared by the newsletter popup, the footer form and the checkout checkbox.
 // Safe to import from both client and server code.
 
-export type NewsletterSource = "popup" | "footer" | "checkout";
+export type NewsletterSource = "popup" | "footer" | "checkout" | "waiting-room";
 
 export type NewsletterPayload = {
 	fullName?: string;

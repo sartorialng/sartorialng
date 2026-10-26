@@ -51,12 +51,14 @@ function timeLeftUntil(target: number, now: number): TimeLeft {
  * Ticks every second. Counts down to the start while upcoming, then to the
  * end while live, and flips phase on its own when either moment passes.
  * Starts as "off" so server and first client render match; the real phase
- * lands after mount.
+ * lands after mount, when `ready` turns true.
  */
 export function useSaleCountdown() {
-	const [state, setState] = useState<{ phase: SalePhase; timeLeft: TimeLeft }>(
-		{ phase: "off", timeLeft: ZERO },
-	);
+	const [state, setState] = useState<{
+		phase: SalePhase;
+		timeLeft: TimeLeft;
+		ready: boolean;
+	}>({ phase: "off", timeLeft: ZERO, ready: false });
 
 	useEffect(() => {
 		const tick = () => {
@@ -64,6 +66,7 @@ export function useSaleCountdown() {
 			const phase = getSalePhase(now);
 			const target = phase === "upcoming" ? SALE_STARTS_AT : SALE_ENDS_AT;
 			setState({
+				ready: true,
 				phase,
 				timeLeft:
 					phase === "off" || !target ? ZERO : timeLeftUntil(target, now),
