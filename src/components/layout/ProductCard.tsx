@@ -175,13 +175,15 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
 							Recommended
 						</span>
 					)}
-					{product?.onCombo ? (
+					{product?.onCombo || product?.freeShipping ? (
 						<div className="flex justify-between mb-2 md:mb-4">
 							<div className="bg-[#2d5a43] text-white px-2 py-1.5 rounded-lg flex items-end justify-between w-fit gap-4">
 								<div className="flex flex-col leading-tight">
-									<span className="text-[10px] font-bold opacity-90 tracking-wide">
-										Combo
-									</span>
+									{product?.onCombo && (
+										<span className="text-[10px] font-bold opacity-90 tracking-wide">
+											Combo
+										</span>
+									)}
 									<span className="text-[10px] font-semibold whitespace-nowrap">
 										Free Shipping
 									</span>
