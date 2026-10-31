@@ -416,10 +416,23 @@ export default function ProductDetailsClient({
 								</p>
 							)}
 
-							<p className="text-sm font-medium text-sartorial-green/80">
-								🌍 We ship worldwide — delivery to your country
-								calculated at checkout.
-							</p>
+							{product.onCombo || product.freeShipping ? (
+								<div className="flex items-start gap-3 rounded-lg border border-sartorial-green/30 bg-sartorial-green/5 p-3">
+									<span className="text-lg leading-none">🚚</span>
+									<p className="text-sm text-sartorial-green">
+										<span className="font-semibold">
+											Free shipping:
+										</span>{" "}
+										your whole order ships free when{" "}
+										{product.name} is in your cart.
+									</p>
+								</div>
+							) : (
+								<p className="text-sm font-medium text-sartorial-green/80">
+									🌍 We ship worldwide — delivery to your country
+									calculated at checkout.
+								</p>
+							)}
 
 							{freeGift?.name && (
 								<div className="flex items-start gap-3 rounded-lg border border-sartorial-green/30 bg-sartorial-green/5 p-3">
