@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Product } from "../../../sanity.types";
 import { motion } from "framer-motion";
 import { getFirstAvailableColor } from "@/lib/stock";
+import { isCombo } from "@/lib/combo";
 
 interface BestSellersProps {
 	products: Product[];
@@ -32,7 +33,7 @@ const BestSellers = ({ products }: BestSellersProps) => {
 				{products.map((product) => {
 					const colorToUse = getFirstAvailableColor(product);
 
-					if (!colorToUse) {
+					if (!colorToUse && !isCombo(product)) {
 						console.warn("Product has no colors");
 						return;
 					}
@@ -41,6 +42,7 @@ const BestSellers = ({ products }: BestSellersProps) => {
 							key={product._id}
 							product={product}
 							onAddToCart={() => {
+								if (!colorToUse) return;
 								addItem(product, colorToUse);
 								toast.success(`${product.name} added to cart`);
 							}}

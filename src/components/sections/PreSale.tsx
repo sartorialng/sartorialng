@@ -4,6 +4,7 @@ import { Product } from "../../../sanity.types";
 import ProductCard from "../layout/ProductCard";
 import { toast } from "sonner";
 import { getFirstAvailableColor } from "@/lib/stock";
+import { isCombo } from "@/lib/combo";
 
 interface PreSaleProps {
 	products: Product[];
@@ -36,7 +37,7 @@ const PreSale = ({ products }: PreSaleProps) => {
 					{products.map((product) => {
 						const colorToUse = getFirstAvailableColor(product);
 
-						if (!colorToUse) {
+						if (!colorToUse && !isCombo(product)) {
 							console.warn("Product has no colors");
 							return null;
 						}
@@ -46,6 +47,7 @@ const PreSale = ({ products }: PreSaleProps) => {
 								key={product._id}
 								product={product}
 								onAddToCart={() => {
+									if (!colorToUse) return;
 									addItem(product, colorToUse);
 									toast.success(
 										`${product.name} added to cart`,
