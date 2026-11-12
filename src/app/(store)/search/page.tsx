@@ -10,6 +10,7 @@ import { Product } from "../../../../sanity.types";
 import { toast } from "sonner";
 import { useBasketStore } from "@/store/store";
 import { getFirstAvailableColor } from "@/lib/stock";
+import { isCombo } from "@/lib/combo";
 
 const SearchPage = () => {
 	const [searchQuery, setSearchQuery] = useState("");
@@ -102,7 +103,7 @@ const SearchPage = () => {
 								{filteredProducts.map((product) => {
 									const colorToUse = getFirstAvailableColor(product);
 
-									if (!colorToUse) {
+									if (!colorToUse && !isCombo(product)) {
 										console.warn("Product has no colors");
 										return;
 									}
@@ -111,6 +112,7 @@ const SearchPage = () => {
 											key={product._id}
 											product={product}
 											onAddToCart={() => {
+												if (!colorToUse) return;
 												addItem(product, colorToUse);
 												toast.success(
 													`${product.name} added to cart`,

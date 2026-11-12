@@ -16,7 +16,7 @@ import { SortByDropdownMobile } from "@/components/layout/SortByDropdownMobile";
 import { SortByDropdown } from "@/components/layout/SortByDropdown";
 import { getAllCategories } from "@/sanity/lib/product/getCategories";
 import { getFirstAvailableColor } from "@/lib/stock";
-import { buyableColorTitles } from "@/lib/combo";
+import { buyableColorTitles, isCombo } from "@/lib/combo";
 
 const CategoryContent = () => {
 	const searchParams = useSearchParams();
@@ -203,7 +203,7 @@ const CategoryContent = () => {
 							: filteredAndSortedProducts.map((product) => {
 									const colorToUse = getFirstAvailableColor(product);
 
-									if (!colorToUse) {
+									if (!colorToUse && !isCombo(product)) {
 										console.warn("Product has no colors");
 										return;
 									}
@@ -212,6 +212,7 @@ const CategoryContent = () => {
 											key={product._id}
 											product={product}
 											onAddToCart={() => {
+												if (!colorToUse) return;
 												addItem(product, colorToUse);
 												toast.success(
 													`${product.name} added to cart`,

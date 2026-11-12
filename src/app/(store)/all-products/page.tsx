@@ -14,7 +14,7 @@ import { categories, colors, priceRanges } from "@/data";
 import { SortByDropdown } from "@/components/layout/SortByDropdown";
 import { SortByDropdownMobile } from "@/components/layout/SortByDropdownMobile";
 import { getFirstAvailableColor } from "@/lib/stock";
-import { buyableColorTitles } from "@/lib/combo";
+import { buyableColorTitles, isCombo } from "@/lib/combo";
 
 const AllProducts = () => {
 	const addItem = useBasketStore((s) => s.addItem);
@@ -176,7 +176,7 @@ const AllProducts = () => {
 							: filteredAndSortedProducts.map((product) => {
 									const colorToUse = getFirstAvailableColor(product);
 
-									if (!colorToUse) {
+									if (!colorToUse && !isCombo(product)) {
 										console.warn("Product has no colors");
 										return;
 									}
@@ -185,6 +185,7 @@ const AllProducts = () => {
 											key={product._id}
 											product={product}
 											onAddToCart={() => {
+												if (!colorToUse) return;
 												addItem(product, colorToUse);
 												toast.success(
 													`${product.name} added to cart`,

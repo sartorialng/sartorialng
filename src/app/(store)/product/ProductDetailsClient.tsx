@@ -31,6 +31,7 @@ import {
 	defaultComboSelection,
 	describeComboSelections,
 	getComboItems,
+	isCombo,
 } from "@/lib/combo";
 import {
 	getColorStock,
@@ -923,7 +924,7 @@ export default function ProductDetailsClient({
 					{relatedProducts.map((product: any) => {
 						const colorToUse = getFirstAvailableColor(product);
 
-						if (!colorToUse) {
+						if (!colorToUse && !isCombo(product)) {
 							console.warn("Product has no colors");
 							return;
 						}
@@ -933,6 +934,7 @@ export default function ProductDetailsClient({
 								key={product._id}
 								product={product}
 								onAddToCart={() => {
+									if (!colorToUse) return;
 									addItem(product, colorToUse);
 									toast.success(
 										`${product.name} added to cart`,
