@@ -26,6 +26,7 @@ import {
 	snapPurchase,
 } from "@/lib/snap-events";
 import { setSnapUser } from "@/lib/snap-user";
+import * as metaPixel from "@/lib/pixel";
 import { getFreeGiftLines } from "@/lib/freeGift";
 import { fetchFreshProducts } from "@/lib/refreshProducts";
 import TermsModal from "@/components/modals/TermsModal";
@@ -473,6 +474,19 @@ const CheckoutClient = () => {
 					0,
 				),
 			});
+			metaPixel.purchase({
+				orderId: orderNumber ?? reference,
+				eventId: reference,
+				total,
+				currency: "NGN",
+				items: basketItems.map((item) => ({
+					id: item.product._id ?? "",
+					quantity: item.quantity,
+					price: item.product.onSale
+						? (item.product.salePrice ?? 0)
+						: (item.product.price ?? 0),
+				})),
+			});
 
 			useBasketStore.getState().clearBasket();
 
@@ -535,6 +549,19 @@ const CheckoutClient = () => {
 					.getState()
 					.items.reduce((sum, item) => sum + item.quantity, 0),
 			});
+			metaPixel.purchase({
+				orderId: result.order?.orderNumber ?? details.id,
+				eventId: details.id,
+				total,
+				currency: "USD",
+				items: useBasketStore.getState().items.map((item) => ({
+					id: item.product._id ?? "",
+					quantity: item.quantity,
+					price: item.product.onSale
+						? (item.product.salePrice ?? 0)
+						: (item.product.price ?? 0),
+				})),
+			});
 			useBasketStore.getState().clearBasket();
 			router.push(
 				`/success?orderNumber=${result.order?.orderNumber}&reference=${details.id}`,
@@ -584,6 +611,13 @@ const CheckoutClient = () => {
 	};
 
 	useEffect(() => {
+		const checkoutItems = useBasketStore.getState().items;
+		metaPixel.initiateCheckout({
+			value: subtotal,
+			contentIds: checkoutItems.map((item) => item.product._id ?? ""),
+			numItems: checkoutItems.reduce((sum, item) => sum + item.quantity, 0),
+		});
+
 		const fireEvent = () => {
 			trackTikTokEvent({
 				event_name: "InitiateCheckout",

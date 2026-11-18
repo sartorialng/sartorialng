@@ -14,6 +14,7 @@ import { convertNGNtoUSD } from "@/lib/currency";
 import PreOrderNoticeModal from "../modals/PreOrderNoticeModal";
 import PreSaleNoticeModal from "../modals/PreSaleNoticeModal";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
+import * as metaPixel from "@/lib/pixel";
 import { getFreeGift } from "@/lib/freeGift";
 import { isProductSoldOut } from "@/lib/stock";
 import { isCombo, isComboSoldOut } from "@/lib/combo";
@@ -152,6 +153,12 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
 			url: window.location.href,
 			content_id: productId,
 			content_name: productName,
+		});
+		metaPixel.addToCart({
+			id: productId,
+			name: productName,
+			price: product.onSale ? salePrice : productPrice,
+			quantity: 1,
 		});
 		onAddToCart?.();
 	};
