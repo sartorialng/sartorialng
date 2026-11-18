@@ -20,6 +20,7 @@ import { convertNGNtoUSD } from "@/lib/currency";
 import Link from "next/link";
 import { trackTikTokEvent } from "@/lib/tiktok-events";
 import { snapViewContent, snapAddToCart } from "@/lib/snap-events";
+import * as metaPixel from "@/lib/pixel";
 import { getFreeGift } from "@/lib/freeGift";
 import {
 	buildComboSelections,
@@ -209,6 +210,13 @@ export default function ProductDetailsClient({
 			initialProduct.onSale && initialProduct.salePrice
 				? initialProduct.salePrice
 				: initialProduct.price;
+
+		// Waits for its own script, so it doesn't hang off TikTok loading.
+		metaPixel.viewContent({
+			id: initialProduct._id,
+			name: initialProduct.name,
+			price,
+		});
 
 		const fireEvent = () => {
 			trackTikTokEvent({
@@ -699,6 +707,15 @@ export default function ProductDetailsClient({
 											currency: "NGN",
 											number_items: quantity,
 										});
+										metaPixel.addToCart({
+											id: initialProduct._id,
+											name: initialProduct.name,
+											price:
+												product.onSale && product.salePrice
+													? product.salePrice
+													: product.price,
+											quantity,
+										});
 
 										for (let i = 0; i < quantity; i++) {
 											addItem(
@@ -767,6 +784,15 @@ export default function ProductDetailsClient({
 												: product.price * quantity,
 											currency: "NGN",
 											number_items: quantity,
+										});
+										metaPixel.addToCart({
+											id: initialProduct._id,
+											name: initialProduct.name,
+											price:
+												product.onSale && product.salePrice
+													? product.salePrice
+													: product.price,
+											quantity,
 										});
 
 										for (let i = 0; i < quantity; i++) {
